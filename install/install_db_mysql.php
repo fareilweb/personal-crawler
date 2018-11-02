@@ -32,7 +32,9 @@ $queries = [
 	    timestamp int(12) DEFAULT NULL
 	  ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;",
     3 => "ALTER TABLE webpages ADD PRIMARY KEY (id);",
-    4 => "ALTER TABLE webpages MODIFY id int(11) NOT NULL AUTO_INCREMENT;"
+    4 => "ALTER TABLE webpages MODIFY id int(11) NOT NULL AUTO_INCREMENT;",
+    5 => "ALTER SCHEMA personal_crawler DEFAULT COLLATE utf8mb4_unicode_520_ci;",
+    6 => "ALTER TABLE webpages COLLATE = utf8mb4_unicode_520_ci;"
 ];
 
 /* Queries Error Messages */
@@ -41,7 +43,9 @@ $errors_messages = [
     1 => 'Failed to select database "personal_crawler"',
     2 => 'Failed to create table "webpages".',
     3 => 'Failed to set primary key on table "webpages".',
-    4 => 'Failed to set auto increment on "in" in table "webpages".'
+    4 => 'Failed to set auto increment on "in" in table "webpages".',
+    5 => 'Failed to set database COLLATE',
+    6 => 'Failed to set table COLLATE'
 ];
 
 /* Execute queries */
