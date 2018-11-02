@@ -21,13 +21,13 @@ $queries = [
     2 => "CREATE TABLE webpages (
 	    id int(11) NOT NULL,
 	    uri text NOT NULL,
-	    lang varchar(4) DEFAULT NULL,
-	    title varchar(255) DEFAULT NULL,
-	    h1 varchar(255) DEFAULT NULL,
-	    h2 varchar(255) DEFAULT NULL,
+	    lang varchar(8) DEFAULT NULL,
+	    title varchar(510) DEFAULT NULL,
+	    h1 varchar(510) DEFAULT NULL,
+	    h2 varchar(510) DEFAULT NULL,
 	    metakeywords varchar(255) DEFAULT NULL,
 	    metadescription varchar(255) DEFAULT NULL,
-	    top_word varchar(64) DEFAULT NULL,
+	    top_word varchar(128) DEFAULT NULL,
 	    response_code int(3) DEFAULT NULL,
 	    timestamp int(12) DEFAULT NULL
 	  ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;",
@@ -47,9 +47,9 @@ $errors_messages = [
 /* Execute queries */
 foreach ($queries as $key => $query) {
     if(!$mysqli->query($query)) {
-	echo $errors_messages[$key] . "<br>" . $mysqli->error;
-	$mysqli->close();
-	exit;
+	    echo $errors_messages[$key] . "<br>" . $mysqli->error;
+	    $mysqli->close();
+	    exit;
     }
 }
 

@@ -45,8 +45,6 @@ class Crawler {
             while (count($this->working_uriset)) {
                 $uri = array_shift($this->working_uriset);
 		
-		
-		
                 $this->elaborateWebDocument($uri);
 
                 if( count($this->working_uriset) == 0 ) { 
@@ -79,7 +77,7 @@ class Crawler {
         if(strpos($content_type, 'text/html') !== false) {
             $this->elaborateWebPage($httpRequestResult);
         } else {
-            //... skip ...
+            //... skip ... not html content
         }
     }
 
