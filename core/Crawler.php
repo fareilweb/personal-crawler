@@ -72,9 +72,48 @@ class Crawler {
     public function elaborateUrl($uri)
     {
         $WebPage_stored = $this->storage->findWebPageByUri($uri);
-        
+        if($WebPage_stored) 
+        {
+            $diff = time() - Config::$uri_max_life_time;
+            if (empty($WebPage_stored->timestamp) || $WebPage_stored->timestamp < $diff)
+            {
+                //Get
 
-        // Get Web Page/Dom
+
+
+                //Add
+                
+
+                //Update
+                $WebPage_online->id = $WebPage_stored->id;
+                $updateResult = $this->storage->updateWebPage($WebPage_online);
+                if($updateResult) {
+                    $this->printMessage(Lang::$updated . " >>> $uri");
+                } else {
+                    $this->printMessage(Lang::$update_failed . " >>> $uri");
+                }
+
+
+            } 
+            else 
+            {
+                $this->printMessage(Lang::$skipped . " >>> $uri");
+            }
+        } 
+        else 
+        {
+
+
+        }
+    }
+
+
+    /**
+     * Elaborate Web Page (text/html)
+     * @return [void]
+     */
+    public function elaborateHttpRequestResult($httpRequestResult) {
+        
         /*
         $this->httpHelper->setUrl($uri);
         $httpRequestResult = $this->httpHelper->makeRequestCurl(true);
@@ -85,14 +124,7 @@ class Crawler {
             //... skip ... not html content
         }
         */
-    }
 
-
-    /**
-     * Elaborate Web Page (text/html)
-     * @return [void]
-     */
-    public function elaborateHttpRequestResult($httpRequestResult) {
         $uri = $httpRequestResult->info['url'];
         $pageDom = $this->domParser->stringToDom($httpRequestResult->content);
 
@@ -110,34 +142,14 @@ class Crawler {
         $WebPage_online->response_code = $httpRequestResult->info['http_code'];
         $WebPage_online->timestamp = time();
 
-        // Get / Update / Insert
-        $WebPage_stored = $this->storage->findWebPageByUri($uri);
-        if($WebPage_stored) {
-            $diff = time() - Config::$uri_max_life_time;
-
-            if (empty($WebPage_stored->timestamp) || $WebPage_stored->timestamp < $diff) {
-
-                $WebPage_online->id = $WebPage_stored->id;
-                $updateResult = $this->storage->updateWebPage($WebPage_online);
-
-                if($updateResult) {
-                    $this->printMessage(Lang::$updated . " >>> $uri");
-                } else {
-                    $this->printMessage(Lang::$update_failed . " >>> $uri");
-                }
-
-            } else {
-                $this->printMessage(Lang::$skipped . " >>> $uri");
-            }
-
+        // Insert
+        $insertResult = $this->storage->insertWebPage($WebPage_online);
+        if($insertResult) {
+            $this->printMessage(Lang::$inserted . " >>> With ID: $insertResult >>> $uri");
         } else {
-            $insertResult = $this->storage->insertWebPage($WebPage_online);
-            if($insertResult) {
-                $this->printMessage(Lang::$inserted . " >>> With ID: $insertResult >>> $uri");
-            } else {
-                $this->printMessage(Lang::$insert_failed . " >>> $uri");
-            }
+            $this->printMessage(Lang::$insert_failed . " >>> $uri");
         }
+        
     }
 
 
