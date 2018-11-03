@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Personal Crawler Main Class
  */
@@ -6,19 +7,18 @@ class Crawler {
 
     public $input_uriset = array();
     public $working_uriset = array();
-
     private $httpHelper;
     private $domParser;
     private $storage;
 
     public function __construct($_httpHelper, $_domParser, $_storage) {
-        $this->httpHelper       = $_httpHelper;
-        $this->domParser        = $_domParser;
-        $this->storage          = $_storage;
+        $this->httpHelper = $_httpHelper;
+        $this->domParser = $_domParser;
+        $this->storage = $_storage;
     }
 
     public function printMessage($text = "") {
-        if(empty($text)) {
+        if (empty($text)) {
             return FALSE;
         } else {
             echo
@@ -31,30 +31,25 @@ class Crawler {
         }
     }
 
-
     /**
      * Initialize/Start Program
      * @param [array] $uri_list
      * @return [void]
      */
-    public function init($uri_list = array())
-    {
-        if (!empty($uri_list))
-        {
+    public function init($uri_list = array()) {
+        if (!empty($uri_list)) {
             $this->input_uriset = $uri_list;
             $this->working_uriset = array_merge($this->working_uriset, $uri_list);
             // Start Crawling Loop
-            while (count($this->working_uriset))
-            {
+            while (count($this->working_uriset)) {
                 $uri = array_shift($this->working_uriset);
                 $this->elaborateUrl($uri);
-                if( count($this->working_uriset) == 0 ) {
+                if (count($this->working_uriset) == 0) {
                     $this->reInit();
                 }
             }
         }
     }
-
 
     /**
      * Reload Uri List From Storage
@@ -64,49 +59,40 @@ class Crawler {
         $this->init($this->input_uriset);
     }
 
-
     /**
      * Start elaborate gived Url
      * @param [string] $uri
      * @return [void]
      */
-    public function elaborateUrl($uri)
-    {
+    public function elaborateUrl($uri) {
         $WebPage_stored = $this->storage->findWebPageByUri($uri);
-        if($WebPage_stored)
-        {
+        if ($WebPage_stored) {
             // Entry is stored, so decide if update it or leave as is.
             $diff = time() - Config::$uri_max_life_time;
-            if (empty($WebPage_stored->timestamp) || $WebPage_stored->timestamp < $diff)
-            {
+            if (empty($WebPage_stored->timestamp) || $WebPage_stored->timestamp < $diff) {
                 $this->httpHelper->setUrl($uri);
                 $httpRequestResult = $this->httpHelper->makeRequestCurl(true);
                 $content_type = $httpRequestResult->info['content_type'];
-                if(strpos($content_type, 'text/html') !== false) {
+                if (strpos($content_type, 'text/html') !== false) {
                     $this->addOrUpdateWebPage($httpRequestResult, $WebPage_stored);
                 } else {
-                    //... skip ... not html content
+                    //... skip ... not html cont ent
                 }
-            }
-            else
-            {
+            } else {
                 $this->printMessage(Lang::$skipped . " >>> $uri");
             }
-        }
-        else
-        {
+        } else {
             //Entry is not stored so add it
             $this->httpHelper->setUrl($uri);
             $httpRequestResult = $this->httpHelper->makeRequestCurl(true);
             $content_type = $httpRequestResult->info['content_type'];
-            if(strpos($content_type, 'text/html') !== false) {
+            if (strpos($content_type, 'text/html') !== false) {
                 $this->addOrUpdateWebPage($httpRequestResult);
             } else {
                 //... skip ... not html content
             }
         }
     }
-
 
     /**
      * Elaborate Web Page (text/html)
@@ -125,35 +111,32 @@ class Crawler {
         //Get Images
         //$images = $this->domParser->getImagesFromDom($pageDom, $uri);
 
+
         // Populate OnLine WebPageModel
         $WebPage_online = $this->domParser->domToPageModel($pageDom);
         $WebPage_online->uri = $uri;
         $WebPage_online->response_code = $httpRequestResult->info['http_code'];
         $WebPage_online->timestamp = time();
 
-        if($WebPage_stored != NULL)
-        {
+        if ($WebPage_stored != NULL) {
             //Update
             $WebPage_online->id = $WebPage_stored->id;
             $updateResult = $this->storage->updateWebPage($WebPage_online);
-            if($updateResult) {
+            if ($updateResult) {
                 $this->printMessage(Lang::$updated . " >>> $uri");
             } else {
                 $this->printMessage(Lang::$update_failed . " >>> $uri");
             }
-        }
-        else
-        {
+        } else {
             // Insert
             $insertResult = $this->storage->insertWebPage($WebPage_online);
-            if($insertResult) {
+            if ($insertResult) {
                 $this->printMessage(Lang::$inserted . " >>> With ID: $insertResult >>> $uri");
             } else {
                 $this->printMessage(Lang::$insert_failed . " >>> $uri");
             }
         }
     }
-
 
     /**
      * Elaborate File
@@ -164,7 +147,6 @@ class Crawler {
 
     }
 
-
     /**
      * Elaborate EMail
      * @param [string] $uri
@@ -173,7 +155,6 @@ class Crawler {
     function elaborateMail($uri) {
 
     }
-
 
     /**
      * Elaborate Phone
@@ -184,6 +165,4 @@ class Crawler {
 
     }
 
-
 }
-
