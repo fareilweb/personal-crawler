@@ -99,7 +99,7 @@ class Crawler {
             $httpRequestResult = $this->httpHelper->makeRequestCurl(true);
             $content_type = $httpRequestResult->info['content_type'];
             if(strpos($content_type, 'text/html') !== false) {
-                $this->addOrUpdateWebPage($httpRequestResult, WebPage_stored);
+                $this->addOrUpdateWebPage($httpRequestResult);
             } else {
                 //... skip ... not html content
             }
