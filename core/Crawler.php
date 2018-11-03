@@ -37,16 +37,17 @@ class Crawler {
      * @param [array] $uri_list
      * @return [void]
      */
-    public function init($uri_list = array()) {
-        if (!empty($uri_list)) {
+    public function init($uri_list = array())
+    {
+        if (!empty($uri_list))
+        {
             $this->input_uriset = $uri_list;
             $this->working_uriset = array_merge($this->working_uriset, $uri_list);
             // Start Crawling Loop
-            while (count($this->working_uriset)) {
+            while (count($this->working_uriset))
+            {
                 $uri = array_shift($this->working_uriset);
-
                 $this->elaborateUrl($uri);
-
                 if( count($this->working_uriset) == 0 ) {
                     $this->reInit();
                 }
@@ -65,14 +66,14 @@ class Crawler {
 
 
     /**
-     * Elaborate Web Document Content
+     * Start elaborate gived Url
      * @param [string] $uri
      * @return [void]
      */
     public function elaborateUrl($uri)
     {
         $WebPage_stored = $this->storage->findWebPageByUri($uri);
-        if($WebPage_stored) 
+        if($WebPage_stored)
         {
             // Entry is stored, so decide if update it or leave as is.
             $diff = time() - Config::$uri_max_life_time;
@@ -82,17 +83,17 @@ class Crawler {
                 $httpRequestResult = $this->httpHelper->makeRequestCurl(true);
                 $content_type = $httpRequestResult->info['content_type'];
                 if(strpos($content_type, 'text/html') !== false) {
-                    $this->addOrUpdateWebPage($httpRequestResult, WebPage_stored);
+                    $this->addOrUpdateWebPage($httpRequestResult, $WebPage_stored);
                 } else {
                     //... skip ... not html content
                 }
-            } 
-            else 
+            }
+            else
             {
                 $this->printMessage(Lang::$skipped . " >>> $uri");
             }
-        } 
-        else 
+        }
+        else
         {
             //Entry is not stored so add it
             $this->httpHelper->setUrl($uri);
@@ -130,7 +131,7 @@ class Crawler {
         $WebPage_online->response_code = $httpRequestResult->info['http_code'];
         $WebPage_online->timestamp = time();
 
-        if($WebPage_stored != NULL) 
+        if($WebPage_stored != NULL)
         {
             //Update
             $WebPage_online->id = $WebPage_stored->id;
@@ -140,8 +141,8 @@ class Crawler {
             } else {
                 $this->printMessage(Lang::$update_failed . " >>> $uri");
             }
-        } 
-        else 
+        }
+        else
         {
             // Insert
             $insertResult = $this->storage->insertWebPage($WebPage_online);
