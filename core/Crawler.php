@@ -74,26 +74,18 @@ class Crawler {
         $WebPage_stored = $this->storage->findWebPageByUri($uri);
         if($WebPage_stored) 
         {
+            // Entry is stored, so decide if update it or leave as is.
             $diff = time() - Config::$uri_max_life_time;
             if (empty($WebPage_stored->timestamp) || $WebPage_stored->timestamp < $diff)
             {
-                //Get
-
-
-
-                //Add
-                
-
-                //Update
-                $WebPage_online->id = $WebPage_stored->id;
-                $updateResult = $this->storage->updateWebPage($WebPage_online);
-                if($updateResult) {
-                    $this->printMessage(Lang::$updated . " >>> $uri");
+                $this->httpHelper->setUrl($uri);
+                $httpRequestResult = $this->httpHelper->makeRequestCurl(true);
+                $content_type = $httpRequestResult->info['content_type'];
+                if(strpos($content_type, 'text/html') !== false) {
+                    $this->addOrUpdateWebPage($httpRequestResult, WebPage_stored);
                 } else {
-                    $this->printMessage(Lang::$update_failed . " >>> $uri");
+                    //... skip ... not html content
                 }
-
-
             } 
             else 
             {
@@ -102,8 +94,15 @@ class Crawler {
         } 
         else 
         {
-
-
+            //Entry is not stored so add it
+            $this->httpHelper->setUrl($uri);
+            $httpRequestResult = $this->httpHelper->makeRequestCurl(true);
+            $content_type = $httpRequestResult->info['content_type'];
+            if(strpos($content_type, 'text/html') !== false) {
+                $this->addOrUpdateWebPage($httpRequestResult, WebPage_stored);
+            } else {
+                //... skip ... not html content
+            }
         }
     }
 
@@ -112,19 +111,7 @@ class Crawler {
      * Elaborate Web Page (text/html)
      * @return [void]
      */
-    public function elaborateHttpRequestResult($httpRequestResult) {
-        
-        /*
-        $this->httpHelper->setUrl($uri);
-        $httpRequestResult = $this->httpHelper->makeRequestCurl(true);
-        $content_type = $httpRequestResult->info['content_type'];
-        if(strpos($content_type, 'text/html') !== false) {
-            $this->elaborateWebPage($httpRequestResult);
-        } else {
-            //... skip ... not html content
-        }
-        */
-
+    public function addOrUpdateWebPage($httpRequestResult, $WebPage_stored = NULL) {
         $uri = $httpRequestResult->info['url'];
         $pageDom = $this->domParser->stringToDom($httpRequestResult->content);
 
@@ -134,6 +121,7 @@ class Crawler {
             $this->working_uriset = array_merge($this->working_uriset, $uriList);
         }
 
+        //Get Images
         //$images = $this->domParser->getImagesFromDom($pageDom, $uri);
 
         // Populate OnLine WebPageModel
@@ -142,14 +130,27 @@ class Crawler {
         $WebPage_online->response_code = $httpRequestResult->info['http_code'];
         $WebPage_online->timestamp = time();
 
-        // Insert
-        $insertResult = $this->storage->insertWebPage($WebPage_online);
-        if($insertResult) {
-            $this->printMessage(Lang::$inserted . " >>> With ID: $insertResult >>> $uri");
-        } else {
-            $this->printMessage(Lang::$insert_failed . " >>> $uri");
+        if($WebPage_stored != NULL) 
+        {
+            //Update
+            $WebPage_online->id = $WebPage_stored->id;
+            $updateResult = $this->storage->updateWebPage($WebPage_online);
+            if($updateResult) {
+                $this->printMessage(Lang::$updated . " >>> $uri");
+            } else {
+                $this->printMessage(Lang::$update_failed . " >>> $uri");
+            }
+        } 
+        else 
+        {
+            // Insert
+            $insertResult = $this->storage->insertWebPage($WebPage_online);
+            if($insertResult) {
+                $this->printMessage(Lang::$inserted . " >>> With ID: $insertResult >>> $uri");
+            } else {
+                $this->printMessage(Lang::$insert_failed . " >>> $uri");
+            }
         }
-        
     }
 
 
