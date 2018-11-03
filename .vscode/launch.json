@@ -14,7 +14,7 @@
             "name": "Launch Crawler",
             "type": "php",
             "request": "launch",
-            "program": "${workspaceFolder}/crawl.php",
+            "program": "${workspaceFolder}/crawl",
             "cwd": "${fileDirname}",
             "args": [
                 "https://www.fareilweb.com/"

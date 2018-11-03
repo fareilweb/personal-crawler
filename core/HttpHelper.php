@@ -34,7 +34,8 @@ class RequestResult {
 class HttpHelper 
 {
     //private $allowed_protocols = array('http', 'https');
-    public $user_agent = 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1; .NET CLR 1.0.3705; .NET CLR 1.1.4322)';
+    public $user_agent_chrome  = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.77 Safari/537.36';
+    public $user_agent_firefox = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:63.0) Gecko/20100101 Firefox/63.0';
     public $url = "";
     public $result = NULL;
 
@@ -117,7 +118,7 @@ class HttpHelper
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($curl, CURLOPT_VERBOSE, true);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($curl, CURLOPT_USERAGENT, $this->user_agent);            
+            curl_setopt($curl, CURLOPT_USERAGENT, $this->user_agent_chrome);                        
             curl_setopt($curl, CURLOPT_URL, $this->url);
             curl_setopt($curl, CURLOPT_FOLLOWLOCATION, $follow_redirect);            
             $curl_response = curl_exec($curl);
