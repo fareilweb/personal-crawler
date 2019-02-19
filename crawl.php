@@ -14,5 +14,7 @@ if (count($argv) === 0) {
     	new DomParser(),
     	new StorageMySQL()
     );
+
+    
     $crawler->init($argv);
 }
