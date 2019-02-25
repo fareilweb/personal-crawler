@@ -6,13 +6,15 @@ class PersonalCrawler
 {
 	private $_urlset = [];
 
+	private $_http_helper;
+
 	/**
 	 * [__construct description]
-	 * @param HttpHelper $httpHelper
+	 * @param HttpHelper $http_helper
 	 */
-	function __construct( HttpHelper $httpHelper )
+	function __construct( HttpHelper $http_helper )
 	{
-
+		$this->_http_helper = $http_helper;
 	}
 
 	/**
@@ -47,6 +49,7 @@ class PersonalCrawler
 
 	private function Crawl( string $url )
 	{
+
 		echo $url;
 	}
 
