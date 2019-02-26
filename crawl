@@ -7,7 +7,7 @@ require_once (__DIR__ . '/core/AppAutoloader.php');
  *------------------------------------------------------------------------------*/
 $pc = new PersonalCrawler
 (
-	new HttpManager()
+	new HttpManager( new RequestResponse() )
 );
 
 

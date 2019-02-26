@@ -2,11 +2,26 @@
 
 class PersonalCrawler
 {
-	// Fields
+
+#region Fields
+
+	/**
+	 * @var array
+	 */
 	private $urlset;
 
-	// Dependecies instances
+#endregion Fields
+
+
+
+#region Dependecies instances
+
+	/**
+	 * @var HttpManager $http
+	 */
 	private $http;
+
+#endregion Dependecies instances
 
 
 	/**
@@ -21,7 +36,7 @@ class PersonalCrawler
 
 
 	/**
-	 * Do all inititialization stuff
+	 * Do all initialization stuff
 	 *
 	 * @param array $argv
 	 */
@@ -66,7 +81,7 @@ class PersonalCrawler
 
 		// Get url parameter
 		$url_key = array_search("--url", $params);
-		if($url_key) {
+		if($url_key !== FALSE) {
 			$url = $params[ $url_key+1  ];
 			$this->AddUrl($url);
 		}
@@ -87,6 +102,12 @@ class PersonalCrawler
 	public function Crawl()
 	{
 		$url = $this->urlset[0];
+		$res = $this->http->MakeRequest( $url, TRUE );
+
+		print_r( $res );
+
+		$file = __DIR__ . '/../tmp/request_response.html';
+		file_put_contents($file, $res->data);
 
 	}
 
