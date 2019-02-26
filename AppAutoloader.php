@@ -21,16 +21,3 @@ function AppAutoloader ( $class_name ) {
 	}
 }
 spl_autoload_register ( 'AppAutoloader' );
-
-
-
-/*------------------------------------------------------------------------------
- * App Bootstrap
- *------------------------------------------------------------------------------*/
-$pc = new PersonalCrawler (
-	new HttpHelper()
-);
-
-$pc->Initialize ( $argv );
-
-?>
