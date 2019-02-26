@@ -1,14 +1,15 @@
 <?php
 
-
+require_once (__DIR__ . '/core/AppAutoloader.php');
 
 /*------------------------------------------------------------------------------
- * App Bootstrap
+ * App Bootstrap as Crawl
  *------------------------------------------------------------------------------*/
-$pc = new PersonalCrawler (
-	new HttpHelper()
+$pc = new PersonalCrawler
+(
+	new HttpManager()
 );
 
-$pc->Initialize ( $argv );
 
-?>
+$pc->Initialize ( $argv );
+$pc->Crawl();

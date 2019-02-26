@@ -1,56 +1,93 @@
 <?php
-/**
- * [Personal Crawler]
- */
+
 class PersonalCrawler
 {
-	private $_urlset = [];
+	// Fields
+	private $urlset;
 
-	private $_http_helper;
+	// Dependecies instances
+	private $http;
+
 
 	/**
-	 * [__construct description]
-	 * @param HttpHelper $http_helper
+	 * The constructor of the class
+	 * @param HttpManager $http_manager
 	 */
-	function __construct( HttpHelper $http_helper )
+	public function __construct( HttpManager $http_manager )
 	{
-		$this->_http_helper = $http_helper;
+		// Store dependencies
+		$this->http = $http_manager;
 	}
 
+
 	/**
-	 * [Initialize - Set inititial stuff]
+	 * Do all inititialization stuff
+	 *
 	 * @param array $argv
 	 */
-	function Initialize( array $argv )
+	public function Initialize( array $argv )
 	{
-		unset( $argv[0] ); // Remove first argoument (script name)
-		$params = array_values( $argv ); // Re-Index argouments array
-		$this->ParseParams( $params );
+		// Initialize fields
+		$this->urlset = [];
+
+		// Parse parameters
+		$this->ParseParams( $argv );
 	}
 
+
 	/**
-	 * [ParseParams - Get parameters array and switch the right action]
+	 * Add gived url to the current url set
+	 *
+	 * @param string $url - the url to add
+	 * @return boolean - return TRUE if the url is valid FALSE otherwise
+	 */
+	public function AddUrl( $url ) : bool
+	{
+		if( !$this->http->IsValidUrl($url) )
+			return FALSE;
+
+		return array_push($this->urlset, $url);
+	}
+
+
+	/**
+	 * Get parameters array and switch the right action
+	 *
 	 * @param array $params [parameters]
+	 * @return void
 	 */
 	private function ParseParams( array $params )
 	{
-		$action = ucfirst( $params[0] );
-		$url = "";
+		unset( $params[0] ); // Remove first argoument (is the script file name)
+		$params = array_values( $params ); // Re-Index argouments array
 
-		$url_key = array_search('-u', $params) || array_search('--url', $params);
+		if(count($params) == 0)
+			return;
+
+		// Get url parameter
+		$url_key = array_search("--url", $params);
 		if($url_key) {
 			$url = $params[ $url_key+1  ];
+			$this->AddUrl($url);
 		}
 
-		$this->{$action}( $url );
+
+		// $action = ucfirst( $params[0] );
+		// $url = "";
+		// $this->{$action}( $url );
 	}
 
 
-
-	private function Crawl( string $url )
+	/**
+	 * Crawl- start to crawling from gived url
+	 *
+	 * @param string $url
+	 * @return void
+	 */
+	public function Crawl()
 	{
+		$url = $this->urlset[0];
 
-		echo $url;
 	}
 
 
