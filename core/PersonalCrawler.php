@@ -100,7 +100,6 @@ class PersonalCrawler
 		}
 
 		$request_response = $this->http->MakeRequest( $this->param_url, TRUE );
-		print_r( $request_response );
 
 		// print_r( $request_response );
 		// $file = __DIR__ . '/../tmp/request_response.html';
@@ -143,7 +142,7 @@ class PersonalCrawler
 	 * @param array $params - the list of parameters passed by the user
 	 * @return mixed - the value of the searched param or a default value if parameter will not be found or invalid
 	 */
-	private function GetParam(string $extended_param_key, string $short_param_key, $default_value = "", array $params = []) : mixed
+	private function GetParam(string $extended_param_key, string $short_param_key, $default_value = "", array $params = [])
 	{
 		/* search extended version */
 		$param_key_index = array_search( $extended_param_key, $params );

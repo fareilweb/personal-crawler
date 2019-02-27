@@ -14,12 +14,23 @@
             "name": "Launch Crawler",
             "type": "php",
             "request": "launch",
-            "program": "${workspaceFolder}/crawl.php",
+            "program": "${workspaceFolder}/run",
             "cwd": "${fileDirname}",
             "args": [
+                "--action",
+                "crawl",
                 "--url",
                 "http://www.fareilweb.com/"
             ],
+            "port": 9000
+        },
+        {
+            "name": "Launch Test",
+            "type": "php",
+            "request": "launch",
+            "program": "${workspaceFolder}/test.php",
+            "cwd": "${fileDirname}",
+            "args": [],
             "port": 9000
         }
     ]

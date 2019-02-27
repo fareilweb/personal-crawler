@@ -65,14 +65,14 @@ class HttpManager
 
 	/**
 	 * The constructor of the class
-	 *
-	 * @param RequestResponse $request_response - the model where save result from requests
 	 */
-	public function __construct(RequestResponse $request_response = NULL) {
+	public function __construct() {
 		// Store dependencies
-		$this->request_response = $request_response;
 		$this->current_user_agent = $this->user_agents[ 'chrome' ];
 		$this->current_headers = $this->headers[ 'chrome' ];
+
+		// Request response to return with request data
+		$this->request_response = new RequestResponse();
 	}
 
 
