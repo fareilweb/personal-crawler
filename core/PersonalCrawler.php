@@ -3,27 +3,29 @@
 class PersonalCrawler
 {
 
-#region Fields
-
+	#region # Private fields ############################################################
 	/**
 	 * @var array
 	 */
 	private $urlset;
 
-#endregion Fields
-
-
-
-#region Dependecies instances
-
 	/**
 	 * @var HttpManager $http
 	 */
 	private $http;
+	#endregion # Private fields #########################################################
 
-#endregion Dependecies instances
 
 
+
+	#region Public fields ###############################################################
+	// ....
+	#endregion # Public fields ##########################################################
+
+
+
+
+	#region # Public methods ############################################################
 	/**
 	 * The constructor of the class
 	 * @param HttpManager $http_manager
@@ -33,7 +35,6 @@ class PersonalCrawler
 		// Store dependencies
 		$this->http = $http_manager;
 	}
-
 
 	/**
 	 * Do all initialization stuff
@@ -49,7 +50,6 @@ class PersonalCrawler
 		$this->ParseParams( $argv );
 	}
 
-
 	/**
 	 * Add gived url to the current url set
 	 *
@@ -64,7 +64,27 @@ class PersonalCrawler
 		return array_push($this->urlset, $url);
 	}
 
+	/**
+	 * Crawl- start to crawling from gived url
+	 *
+	 * @param string $url
+	 * @return void
+	 */
+	public function Crawl()
+	{
+		$url = $this->urlset[0];
+		$request_response = $this->http->MakeRequest( $url, TRUE );
 
+		// print_r( $request_response );
+		// $file = __DIR__ . '/../tmp/request_response.html';
+		// file_put_contents($file, $res->data);
+	}	
+	#endregion # Public methods ########################################################
+
+
+
+
+	#region # Private methods ##########################################################
 	/**
 	 * Get parameters array and switch the right action
 	 *
@@ -86,30 +106,11 @@ class PersonalCrawler
 			$this->AddUrl($url);
 		}
 
-
 		// $action = ucfirst( $params[0] );
 		// $url = "";
 		// $this->{$action}( $url );
 	}
-
-
-	/**
-	 * Crawl- start to crawling from gived url
-	 *
-	 * @param string $url
-	 * @return void
-	 */
-	public function Crawl()
-	{
-		$url = $this->urlset[0];
-		$res = $this->http->MakeRequest( $url, TRUE );
-
-		print_r( $res );
-
-		$file = __DIR__ . '/../tmp/request_response.html';
-		file_put_contents($file, $res->data);
-
-	}
+	#endregion # Private methods ######################################################
 
 
 }

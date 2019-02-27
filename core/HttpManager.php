@@ -42,7 +42,7 @@ class HttpManager
 			'path: /',
 			'scheme: https',
 			'accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-			'accept-encoding: gzip, deflate, br',
+			//'accept-encoding: gzip, deflate, br',
 			'accept-language: it,en;q=0.9,ru;q=0.8,de;q=0.7,fr;q=0.6',
 			'cache-control: no-cache',
 			'cookie: ay=b',
@@ -54,6 +54,11 @@ class HttpManager
 	];
 
 
+	/**
+	 * The headers that will be used inside the request
+	 * 
+	 * @var array $current_headers
+	 */
 	private $current_headers;
 
 
@@ -61,6 +66,7 @@ class HttpManager
 	/**
 	 * The constructor of the class
 	 *
+	 * @param RequestResponse $request_response - the model where save result from requests
 	 */
 	public function __construct(RequestResponse $request_response = NULL) {
 		// Store dependencies
@@ -88,7 +94,7 @@ class HttpManager
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, $follow_redirect);
 
 		// Custom Headers
-		//curl_setopt($curl, CURLOPT_HTTPHEADER, $this->current_headers );
+		curl_setopt($curl, CURLOPT_HTTPHEADER, $this->current_headers );
 
 		curl_setopt($curl, CURLOPT_URL, $url);
 
@@ -145,4 +151,3 @@ class HttpManager
 		return true;
 	}
 }
-
