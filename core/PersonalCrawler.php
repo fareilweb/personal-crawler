@@ -19,7 +19,15 @@ class PersonalCrawler
 
 
 	#region Public fields ###############################################################
-	// ....
+	/**
+	 * @var string $param_action
+	 */
+	public $param_action = "";
+
+	/**
+	 * @var string $param_url
+	 */
+	public $param_url = "";
 	#endregion # Public fields ##########################################################
 
 
@@ -46,8 +54,17 @@ class PersonalCrawler
 		// Initialize fields
 		$this->urlset = [];
 
+
 		// Parse parameters
 		$this->ParseParams( $argv );
+
+
+		// If an action was set execute it
+		if( !empty($this->param_action) )
+		{
+			$action_method = ucfirst( $this->param_action );
+			$this->{$action_method}();
+		}					
 	}
 
 	/**
@@ -63,25 +80,34 @@ class PersonalCrawler
 
 		return array_push($this->urlset, $url);
 	}
+	#endregion # Public methods ########################################################
 
+
+
+
+	#region Action methods
 	/**
-	 * Crawl- start to crawling from gived url
+	 * Crawl- start to crawling from a 0gived url
 	 *
 	 * @param string $url
 	 * @return void
 	 */
 	public function Crawl()
 	{
-		$url = $this->urlset[0];
-		$request_response = $this->http->MakeRequest( $url, TRUE );
+		if( empty($this->param_url) ) 
+		{
+			// TODO - implements and insert here a localized messaging system
+			return;
+		}	
+
+		$request_response = $this->http->MakeRequest( $this->param_url, TRUE );
+		print_r( $request_response );
 
 		// print_r( $request_response );
 		// $file = __DIR__ . '/../tmp/request_response.html';
 		// file_put_contents($file, $res->data);
 	}	
-	#endregion # Public methods ########################################################
-
-
+	#endregion Action methods
 
 
 	#region # Private methods ##########################################################
@@ -99,17 +125,37 @@ class PersonalCrawler
 		if(count($params) == 0)
 			return;
 
+		// Get "action" parameter
+		$this->param_action = $this->GetParam("--action", "-a", $params);
+		
 		// Get url parameter
-		$url_key = array_search("--url", $params);
-		if($url_key !== FALSE) {
-			$url = $params[ $url_key+1  ];
-			$this->AddUrl($url);
-		}
-
-		// $action = ucfirst( $params[0] );
-		// $url = "";
-		// $this->{$action}( $url );
+		$this->param_url = $this->GetParam("--url", "-u", $params);		
 	}
+
+
+	/**
+	 * Retrieve the gived parameter value from $params array 
+	 *
+	 * @param string $extended_param_key - the extended version of the param key
+	 * @param string $short_param_key - the short version of the param key
+	 * @return string - the value of the searched param or an empty string if parameter not found or invalid
+	 */
+	private function GetParam(string $extended_param_key, string $short_param_key, array $params = []) : string
+	{
+		/* search extended version */
+		$param_key_index = array_search( $extended_param_key, $params ); 
+		if ( $param_key_index !== FALSE && count($params) > $param_key_index + 1 ) 		
+			return $params[ $param_key_index + 1  ];
+		
+		/* search short version	*/
+		$param_key_index = array_search( $short_param_key, $params ); 
+		if ( $param_key_index !== FALSE && count($params) > $param_key_index + 1 ) 		
+			return $params[ $param_key_index + 1  ];
+
+		/* Parameter not found or invalid, return empty string */
+		return "";
+	}
+
 	#endregion # Private methods ######################################################
 
 
