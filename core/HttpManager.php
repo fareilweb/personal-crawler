@@ -56,7 +56,7 @@ class HttpManager
 
 	/**
 	 * The headers that will be used inside the request
-	 * 
+	 *
 	 * @var array $current_headers
 	 */
 	private $current_headers;
@@ -85,24 +85,30 @@ class HttpManager
 	 */
 	public function MakeRequest(string $url, bool $follow_redirect = FALSE) : RequestResponse
 	{
-		$curl = curl_init();
+		$curl = curl_init(); // Initialize curl
 
+		// Set hardcoded options
 		curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 		curl_setopt($curl, CURLOPT_VERBOSE, true);
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($curl, CURLOPT_USERAGENT, $this->current_user_agent);
+
+		// Set if follow redirects
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, $follow_redirect);
 
-		// Custom Headers
+		// Set user agent
+		curl_setopt($curl, CURLOPT_USERAGENT, $this->current_user_agent);
+
+		// Set headers
 		curl_setopt($curl, CURLOPT_HTTPHEADER, $this->current_headers );
 
+		// Set URL
 		curl_setopt($curl, CURLOPT_URL, $url);
 
+		// Make request and get info about it
 		$this->request_response->data = curl_exec($curl);
 		$this->request_response->info = curl_getinfo($curl);
 
-		curl_close($curl);
-
+		curl_close($curl); // Close curl connection
 		return $this->request_response;
 	}
 

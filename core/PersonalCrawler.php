@@ -1,24 +1,24 @@
 <?php
-
+/**
+ * PersonalCrawler - Class that manage crawling, scraping, search, index, and more works.
+ */
 class PersonalCrawler
 {
-
-	#region # Private fields ############################################################
+#region Fields
 	/**
 	 * @var array
 	 */
 	private $urlset;
+#endregion Fields
 
+#region # Dependencies
 	/**
 	 * @var HttpManager $http
 	 */
 	private $http;
-	#endregion # Private fields #########################################################
+#endregion # Dependencies
 
-
-
-
-	#region Public fields ###############################################################
+#region Parameters
 	/**
 	 * @var string $param_action
 	 */
@@ -28,12 +28,14 @@ class PersonalCrawler
 	 * @var string $param_url
 	 */
 	public $param_url = "";
-	#endregion # Public fields ##########################################################
 
+	/**
+	 * @var boolean $follow_redirect - default value is "TRUE"
+	 */
+	public $param_follow_redirect;
+#endregion # Parameters
 
-
-
-	#region # Public methods ############################################################
+#region # Public methods
 	/**
 	 * The constructor of the class
 	 * @param HttpManager $http_manager
@@ -64,7 +66,7 @@ class PersonalCrawler
 		{
 			$action_method = ucfirst( $this->param_action );
 			$this->{$action_method}();
-		}					
+		}
 	}
 
 	/**
@@ -80,12 +82,9 @@ class PersonalCrawler
 
 		return array_push($this->urlset, $url);
 	}
-	#endregion # Public methods ########################################################
+#endregion # Public methods
 
-
-
-
-	#region Action methods
+#region Action methods
 	/**
 	 * Crawl- start to crawling from a 0gived url
 	 *
@@ -94,11 +93,11 @@ class PersonalCrawler
 	 */
 	public function Crawl()
 	{
-		if( empty($this->param_url) ) 
+		if( empty($this->param_url) )
 		{
 			// TODO - implements and insert here a localized messaging system
 			return;
-		}	
+		}
 
 		$request_response = $this->http->MakeRequest( $this->param_url, TRUE );
 		print_r( $request_response );
@@ -106,11 +105,10 @@ class PersonalCrawler
 		// print_r( $request_response );
 		// $file = __DIR__ . '/../tmp/request_response.html';
 		// file_put_contents($file, $res->data);
-	}	
-	#endregion Action methods
+	}
+#endregion Action methods
 
-
-	#region # Private methods ##########################################################
+#region # Private methods
 	/**
 	 * Get parameters array and switch the right action
 	 *
@@ -126,37 +124,40 @@ class PersonalCrawler
 			return;
 
 		// Get "action" parameter
-		$this->param_action = $this->GetParam("--action", "-a", $params);
-		
-		// Get url parameter
-		$this->param_url = $this->GetParam("--url", "-u", $params);		
+		$this->param_action = $this->GetParam("--action", "-a", "crawl", $params);
+
+		// Get "url" parameter
+		$this->param_url = $this->GetParam("--url", "-u", NULL, $params);
+
+		// Get "follow redirect" parameter
+		$this->param_follow_redirect = $this->GetParam("--follow_redirect", "-r", "TRUE", $params);
 	}
 
 
 	/**
-	 * Retrieve the gived parameter value from $params array 
+	 * Retrieve the gived parameter value from $params array
 	 *
 	 * @param string $extended_param_key - the extended version of the param key
 	 * @param string $short_param_key - the short version of the param key
-	 * @return string - the value of the searched param or an empty string if parameter not found or invalid
+	 * @param mixed $default_value - the fallback value to use if no one will be found
+	 * @param array $params - the list of parameters passed by the user
+	 * @return mixed - the value of the searched param or a default value if parameter will not be found or invalid
 	 */
-	private function GetParam(string $extended_param_key, string $short_param_key, array $params = []) : string
+	private function GetParam(string $extended_param_key, string $short_param_key, $default_value = "", array $params = []) : mixed
 	{
 		/* search extended version */
-		$param_key_index = array_search( $extended_param_key, $params ); 
-		if ( $param_key_index !== FALSE && count($params) > $param_key_index + 1 ) 		
+		$param_key_index = array_search( $extended_param_key, $params );
+		if ( $param_key_index !== FALSE && count($params) > $param_key_index + 1 )
 			return $params[ $param_key_index + 1  ];
-		
+
 		/* search short version	*/
-		$param_key_index = array_search( $short_param_key, $params ); 
-		if ( $param_key_index !== FALSE && count($params) > $param_key_index + 1 ) 		
+		$param_key_index = array_search( $short_param_key, $params );
+		if ( $param_key_index !== FALSE && count($params) > $param_key_index + 1 )
 			return $params[ $param_key_index + 1  ];
 
 		/* Parameter not found or invalid, return empty string */
-		return "";
+		return NULL;
 	}
 
-	#endregion # Private methods ######################################################
-
-
+#endregion # Private methods
 }
