@@ -5,7 +5,7 @@
  */
 function AppAutoloader ( $class_name ) {
     $dirs = [
-		__DIR__ . '/../core/',
+		__DIR__ . '/',
 		__DIR__ . '/models/'
 	];
 
