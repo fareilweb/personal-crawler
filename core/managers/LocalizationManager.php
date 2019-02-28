@@ -7,6 +7,9 @@ class LocalizationManager
      */
     private $current_language_code;
 
+    /**
+     * @var object
+     */
     private $current_localization_data;
 
     public function __construct()
@@ -18,7 +21,7 @@ class LocalizationManager
         if(file_exists($localizations_file_path)) 
         {
             $localizations_json_string = file_get_contents( $localizations_file_path );            
-            $this->current_localization_data = json_decode( $localizations_json_string, FALSE )
+            $this->current_localization_data = json_decode( $localizations_json_string, FALSE );
         }
         
     }
