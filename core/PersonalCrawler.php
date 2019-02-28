@@ -19,6 +19,12 @@ class PersonalCrawler
 #endregion # Dependencies
 
 #region Parameters
+
+	/**	 
+	 * @var boolean $param_help
+	 */
+	public $param_help =  FALSE;
+
 	/**
 	 * @var string $param_action
 	 */
@@ -51,7 +57,7 @@ class PersonalCrawler
 	 *
 	 * @param array $argv
 	 */
-	public function Initialize( array $argv )
+	public function Initialize ( array $argv )
 	{
 		// Initialize fields
 		$this->urlset = [];
@@ -62,11 +68,28 @@ class PersonalCrawler
 
 
 		// If an action was set execute it
-		if( !empty($this->param_action) )
+		if( $this->param_help ) 
 		{
-			$action_method = ucfirst( $this->param_action );
+			$this->ShowApplicationHelp();
+		}
+		else if( !empty($this->param_action) )
+		{
+			$action_method = ucfirst( $this->param_action );			
 			$this->{$action_method}();
 		}
+	}
+
+	public function ShowApplicationHelp() 
+	{	
+		$lang = "en-GB";
+		
+		$doc_path =  __DIR__ . DIRECTORY_SEPARATOR  . ".." . DIRECTORY_SEPARATOR . "doc" . DIRECTORY_SEPARATOR;
+
+		$user_manual_path = $doc_path . "Personal-Crawler-User-Manual_{$lang}.txt";
+		
+		$user_manual_text = file_get_contents( $user_manual_path );
+
+		echo $user_manual_text;
 	}
 
 	/**
@@ -122,6 +145,10 @@ class PersonalCrawler
 		if(count($params) == 0)
 			return;
 
+
+		// Get "help" parameter
+		$this->param_help = $this->HasParam("--help", "-h", $params) ? TRUE : FALSE;
+
 		// Get "action" parameter
 		$this->param_action = $this->GetParam("--action", "-a", "crawl", $params);
 
@@ -129,7 +156,7 @@ class PersonalCrawler
 		$this->param_url = $this->GetParam("--url", "-u", NULL, $params);
 
 		// Get "follow redirect" parameter
-		$this->param_follow_redirect = $this->GetParam("--follow_redirect", "-r", "TRUE", $params);
+		$this->param_follow_redirect = $this->HasParam("--follow-redirect", "-fr", $params) ? TRUE : FALSE;
 	}
 
 
@@ -140,23 +167,47 @@ class PersonalCrawler
 	 * @param string $short_param_key - the short version of the param key
 	 * @param mixed $default_value - the fallback value to use if no one will be found
 	 * @param array $params - the list of parameters passed by the user
-	 * @return mixed - the value of the searched param or a default value if parameter will not be found or invalid
+	 * @return string - the value of the searched param or a default value if parameter will not be found or invalid
 	 */
-	private function GetParam(string $extended_param_key, string $short_param_key, $default_value = "", array $params = [])
+	private function GetParam(string $extended_param_key, string $short_param_key, $default_value = "", array $params = []) : string
 	{
 		/* search extended version */
-		$param_key_index = array_search( $extended_param_key, $params );
-		if ( $param_key_index !== FALSE && count($params) > $param_key_index + 1 )
-			return $params[ $param_key_index + 1  ];
+		$extended_param_key_index = array_search( $extended_param_key, $params );
+		if ( $extended_param_key_index !== FALSE && count($params) > $extended_param_key_index + 1 )
+			return $params[ $extended_param_key_index + 1  ];
 
 		/* search short version	*/
-		$param_key_index = array_search( $short_param_key, $params );
-		if ( $param_key_index !== FALSE && count($params) > $param_key_index + 1 )
-			return $params[ $param_key_index + 1  ];
+		$short_param_key_index = array_search( $short_param_key, $params );
+		if ( $short_param_key_index !== FALSE && count($params) > $short_param_key_index + 1 )
+			return $params[ $short_param_key_index + 1  ];
 
 		/* Parameter not found or invalid, return empty string */
-		return NULL;
+		return "";
 	}
+	
+
+	/**
+	 * Test if the gived array contains the gived param key
+	 *
+	 * @param string $extended_param_key - the extended version of the param key
+	 * @param string $short_param_key - the short version of the param key
+	 * @param array $params - the list of parameters passed by the user
+	 * @return boolean - return TRUE if parameter key was found FALSE otherwise
+	 */
+	private function HasParam( string $extended_param_key, string $short_param_key, $params = [] ) : bool 
+	{
+		/* search extended version */
+		$extended_param_key_index = array_search( $extended_param_key, $params );
+		if ( $extended_param_key_index !== FALSE) return TRUE;
+
+		/* search short version	*/
+		$short_param_key_index = array_search( $short_param_key, $params );
+		if ( $short_param_key_index !== FALSE ) return TRUE;
+		
+		/* Param not found */
+		return FALSE;
+	}
+
 
 #endregion # Private methods
 }

@@ -17,10 +17,7 @@
             "program": "${workspaceFolder}/run",
             "cwd": "${fileDirname}",
             "args": [
-                "--action",
-                "crawl",
-                "--url",
-                "http://www.fareilweb.com/"
+                "--help"
             ],
             "port": 9000
         },

@@ -1,6 +1,6 @@
 <?php
 
-require_once (__DIR__ . '/core/AppAutoloader.php');
+require_once (__DIR__ . '/../core/AppAutoloader.php');
 
 /*------------------------------------------------------------------------------
  * App Bootstrap as Crawl
