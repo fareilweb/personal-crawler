@@ -3,22 +3,28 @@
  * [App Autoloader Registering]
  * @param {string} $class_name
  */
-function AppAutoloader ( $class_name ) {
-    $dirs = [
-		__DIR__ . '/',
-		__DIR__ . '/models/'
+function AppAutoloader ( $class_name ) 
+{
+
+	$directories = [
+		PATH_APP,
+		PATH_CORE,
+		PATH_MANAGERS,
+		PATH_MODELS
 	];
 
-	$file_found = FALSE;
 	$index = 0;
-	$dirs_count = count($dirs);
+	$directories_count = count($directories);
+	$file_found = FALSE;
 
-	while ($file_found == FALSE && $index < $dirs_count)
+	while ($file_found == FALSE && $index < $directories_count)
 	{
-		$file_path = $dirs[$index] . $class_name . '.php';
+		$file_path = $directories[$index] . DIRECTORY_SEPARATOR . $class_name . '.php';
 		$file_found = file_exists($file_path);
 		if ( $file_found ) include_once($file_path);
 		$index++;
 	}
+
 }
+
 spl_autoload_register ( 'AppAutoloader' );

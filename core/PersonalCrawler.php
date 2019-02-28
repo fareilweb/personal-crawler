@@ -66,26 +66,26 @@ class PersonalCrawler
 		// Parse parameters
 		$this->ParseParams( $argv );
 
-
-		// If an action was set execute it
+		// User ask for help
 		if( $this->param_help ) 
 		{
-			$this->ShowApplicationHelp();
+			$this->ShowUserManual();
+			return;
 		}
-		else if( !empty($this->param_action) )
+
+		// If an action was set execute it 
+		if( !empty($this->param_action) )
 		{
 			$action_method = ucfirst( $this->param_action );			
 			$this->{$action_method}();
 		}
 	}
 
-	public function ShowApplicationHelp() 
+	public function ShowUserManual() 
 	{	
 		$lang = "en-GB";
 		
-		$doc_path =  __DIR__ . DIRECTORY_SEPARATOR  . ".." . DIRECTORY_SEPARATOR . "doc" . DIRECTORY_SEPARATOR;
-
-		$user_manual_path = $doc_path . "Personal-Crawler-User-Manual_{$lang}.txt";
+		$user_manual_path = PATH_DOC . DIRECTORY_SEPARATOR . "Personal-Crawler-User-Manual_{$lang}.txt";
 		
 		$user_manual_text = file_get_contents( $user_manual_path );
 
@@ -109,6 +109,16 @@ class PersonalCrawler
 
 #region Action methods
 	/**
+	 * This method wrap the ShowUserManual() method into an action
+	 *
+	 * @return void
+	 */
+	public function Help() 
+	{
+		$this->ShowUserManual();
+	}
+
+	/**
 	 * Crawl- start to crawling from a 0gived url
 	 *
 	 * @param string $url
@@ -123,11 +133,8 @@ class PersonalCrawler
 		}
 
 		$request_response = $this->http->MakeRequest( $this->param_url, TRUE );
-
-		// print_r( $request_response );
-		// $file = __DIR__ . '/../tmp/request_response.html';
-		// file_put_contents($file, $res->data);
 	}
+
 #endregion Action methods
 
 #region # Private methods
@@ -144,7 +151,6 @@ class PersonalCrawler
 
 		if(count($params) == 0)
 			return;
-
 
 		// Get "help" parameter
 		$this->param_help = $this->HasParam("--help", "-h", $params) ? TRUE : FALSE;
