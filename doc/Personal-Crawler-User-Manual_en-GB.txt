@@ -1,21 +1,54 @@
----------------------------------------
-    Personal Crawler - User Manual        
----------------------------------------
+-----------------------------------------------------------------------------------------
+                            Personal Crawler - User Manual
+-----------------------------------------------------------------------------------------
+
+Notes about this document
+
+* In this document charp (#) character represents a command prompt (terminal) example
+* Most parameters are available in two versions. The extended version, that always starts
+  with two dashes (--) and the compact version that always starts with one dash (-).
+  The two versions are interchangeable and have the same effect. When an alternative
+  version of a parameter is available, it will be proposed in brackets immediately after
+  specifying the first version and will be preceded by "or".
 
 
-Available options
------------------------------------------------------------------------------------------
-|         Key         |          Expected Value          |          Description          
------------------------------------------------------------------------------------------
-| --help or -h        | no value                         | Show this help document
------------------------------------------------------------------------------------------
-| --action or -a      | the action to execute            | See "Available actions"
------------------------------------------------------------------------------------------
- 
+Usage:
+# php crawler.php [--action [action_name] --url [an url] ]
 
-Available actions (to use with --action or -a key)
+
+
+
+Parameter:
+"--help" (or "-h")
+
+Description:
+You can read this documentation by this parameter. There is also an action version
+that is only a "wrapper" for the same function, so the effect id the same.
+
+Example:
+# php crawler.php --help
+
+
+Parameter:
+"--action" (or "-a")
+
+Description:
+As the first step you need to specify an "action" or "task" that you want the app do for
+you. You can do it with the "--action" parameter as you can see in the following example.
+
+Example:
+# php crawler.php --action [name_of_the_action] [...other parameters]
 -----------------------------------------------------------------------------------------
-|    Action name      |          Description          
+
+
 -----------------------------------------------------------------------------------------
-| crawl               | The url from wich start crawling 
+| Available "actions":
 -----------------------------------------------------------------------------------------
+
+Action: "help" Show this help page
+
+Action: "crawl" Start scanning the internet from the provided URL and constructing an index of all
+                the scanned pages.
+
+Example:
+# php crawler.php --action crawl --url
