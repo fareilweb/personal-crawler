@@ -7,7 +7,7 @@ interface IStorageManager
      * @param RequestResponseModel $model
      * @return int - the id of the just inserted/updated row or 0 if fails
      */
-    function InsertOrUpdateRequestResponse( RequestResponseModel $model );
+    function InsertOrUpdateRequestResponse( RequestResponseModel $model ) : int;
 
     /**
      * Insert a list of RequestResponse at once

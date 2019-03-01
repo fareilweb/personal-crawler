@@ -10,5 +10,7 @@ const PATH_INTERFACES       = PATH_APP . DIRECTORY_SEPARATOR . "core" . DIRECTOR
 const PATH_LOCALIZATIONS    = PATH_APP . DIRECTORY_SEPARATOR . "localizations";
 const PATH_DOC              = PATH_APP . DIRECTORY_SEPARATOR . "doc";
 // ---------------------------------------------------------------------------------------------------------------
+const PATH_SQLITE           = PATH_APP . DIRECTORY_SEPARATOR . "sqlite_databases";
+const SQLITE_DB_NAME        = "my_crawling_data.sqlite";
 const LANGUAGE_CODE         = "en-GB";
 ?>
