@@ -5,38 +5,7 @@
 class PersonalCrawler
 {
 
-#region # Dependencies
-	/**
-	 * @var HttpManager $httpMgr
-	 */
-	private $httpMgr;
-
-	/**
-	 * @var LocalizationManager $locMgr
-	 */
-	private $locMgr;
-#endregion # Dependencies
-
-
-
-
-#region Fields
-	/**
-	 * @var array
-	 */
-	private $urlset;
-
-	/**
-	 * @var RequestResponseDto $current_response
-	 */
-	private $current_response;
-
-	private $current_data;
-#endregion Fields
-
-
-
-#region Parameters
+#region # User Parameters
 
 	/**
 	 * @var boolean $param_help
@@ -57,7 +26,44 @@ class PersonalCrawler
 	 * @var boolean $follow_redirect - default value is "TRUE"
 	 */
 	public $ignore_redirect;
-#endregion # Parameters
+
+#endregion # User Parameters
+
+
+
+
+#region # Dependencies instances
+
+	/**
+	 * @var HttpManager $httpManager
+	 */
+	private $httpManager;
+
+	/**
+	 * @var LocalizationManager $localizationManager
+	 */
+	private $localizationManager;
+
+#endregion # Dependencies instances
+
+
+
+
+#region Fields
+
+	/**
+	 * @var array
+	 */
+	private $urlset;
+
+	/**
+	 * @var RequestResponseModel $current_response_model
+	 */
+	private $current_response_model;
+
+#endregion Fields
+
+
 
 
 #region # Public methods
@@ -69,8 +75,8 @@ class PersonalCrawler
 	public function __construct( HttpManager $http_manager, LocalizationManager $localization_manager )
 	{
 		// Store dependencies
-		$this->httpMgr = $http_manager;
-		$this->locMgr = $localization_manager;
+		$this->httpManager = $http_manager;
+		$this->localizationManager = $localization_manager;
 	}
 
 	/**
@@ -121,12 +127,15 @@ class PersonalCrawler
 	 */
 	public function AddUrl( $url ) : bool
 	{
-		if( !$this->httpMgr->IsValidUrl($url) )
+		if( !$this->httpManager->IsValidUrl($url) )
 			return FALSE;
 
 		return array_push($this->urlset, $url);
 	}
 #endregion # Public methods
+
+
+
 
 #region Action methods
 	/**
@@ -149,7 +158,7 @@ class PersonalCrawler
 	{
 		if( empty($this->param_url) )
 		{
-			echo $this->locMgr->GetString("no_url_provided_error");
+			echo $this->localizationManager->GetString("no_url_provided_error");
 			exit;
 		}
 
@@ -157,6 +166,9 @@ class PersonalCrawler
 	}
 
 #endregion Action methods
+
+
+
 
 #region # Private methods
 
@@ -170,33 +182,16 @@ class PersonalCrawler
 	 */
 	private function StartCrawling( $url, $ignore_redirect ) : void
 	{
-		if( $this->current_response == NULL)
+		if( $this->current_response_model == NULL)
 		{
-			$this->current_response = $this->httpMgr->MakeRequest( $url, $ignore_redirect );
+			$request = $this->httpManager->MakeRequest( $url, $ignore_redirect );
+
+			$this->current_response_model = $this->httpManager->ConvertToModel( $this->current_response_model );
 		}
 
-		$data = $this->ExtractDataFromResponse( $this->current_response );
+
 
 	}
-
-
-	private function ExtractDataFromResponse( RequestResponseDto $response_dto ) : RequestResponseModel
-	{
-		$model = new RequestResponseModel(
-			NULL,
-			$response_dto->info['url'],
-			$response_dto->info['redirect_url'],
-			$response_dto->info['http_code'],
-			$response_dto->info['content_type'],
-			$response_dto->info['primary_ip'],
-			$response_dto->info['primary_port']		
-		);
-
-		
-
-		return $model;
-	}
-
 
 	/**
 	 * Get parameters array and switch the right action
@@ -225,7 +220,6 @@ class PersonalCrawler
 		$this->ignore_redirect = $this->HasParam("--ignore-redirect", "-ir", $params) ? TRUE : FALSE;
 	}
 
-
 	/**
 	 * Retrieve the gived parameter value from $params array
 	 *
@@ -251,7 +245,6 @@ class PersonalCrawler
 		return "";
 	}
 
-
 	/**
 	 * Test if the gived array contains the gived param key
 	 *
@@ -276,6 +269,6 @@ class PersonalCrawler
 		return FALSE;
 	}
 
-
 #endregion # Private methods
+
 }

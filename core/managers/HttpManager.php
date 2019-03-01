@@ -4,14 +4,6 @@
  */
 class HttpManager
 {
-
-	/**
-	 * Instance of a model when store the request results data
-	 *
-	 * @var RequestResponseDto $request_response
-	 */
-	public $request_response;
-
 	/**
 	 * A list of known browser user agents
 	 *
@@ -62,7 +54,6 @@ class HttpManager
 	private $current_headers;
 
 
-
 	/**
 	 * The constructor of the class
 	 */
@@ -70,11 +61,17 @@ class HttpManager
 		// Store dependencies
 		$this->current_user_agent = $this->user_agents[ 'chrome' ];
 		$this->current_headers = $this->headers[ 'chrome' ];
-
-		// Request response to return with request data
-		$this->request_response = new RequestResponseDto();
 	}
 
+	public function __destruct()
+	{
+		// Freeing memory
+		unset( $this->current_user_agent );
+		unset( $this->current_headers );
+		unset( $this->headers );
+		unset( $this->request_response );
+		unset( $this->user_agents );
+	}
 
 	/**
 	 * Make an HTTP request by cURL
@@ -93,7 +90,7 @@ class HttpManager
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
 		// Set if follow redirects
-		$follow_redirect = !$ignore_redirect;
+		$follow_redirect = !$ignore_redirect; // Invert logic
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, $follow_redirect);
 
 		// Set user agent
@@ -106,13 +103,36 @@ class HttpManager
 		curl_setopt($curl, CURLOPT_URL, $url);
 
 		// Make request and get info about it
-		$this->request_response->content = curl_exec($curl);
-		$this->request_response->info = curl_getinfo($curl);
-
+		$info 		= curl_getinfo($curl);
+		$content 	= curl_exec($curl);
 		curl_close($curl); // Close curl connection
-		return $this->request_response;
+
+		return new RequestResponseDto( $info, $content );
 	}
 
+	/**
+	 * Take the RequestResponseDto and return an RequestResponseModel
+	 *
+	 * @param RequestResponseDto $response_dto
+	 * @return RequestResponseModel
+	 */
+	public function DtoToModel( RequestResponseDto $response_dto ) : RequestResponseModel
+	{
+		$model = new RequestResponseModel(
+			NULL,
+			$response_dto->info['url'],
+			$response_dto->info['redirect_url'],
+			$response_dto->info['http_code'],
+			$response_dto->info['content_type'],
+			$response_dto->info['primary_ip'],
+			$response_dto->info['primary_port']
+		);
+
+		// Collect data from content DOM
+
+
+		return $model;
+	}
 
 	/**
 	 * @method SetUserAgent() - Set user agent by choose from those available or set an arbitrary one

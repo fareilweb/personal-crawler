@@ -24,8 +24,6 @@ class DomManager
         return $dom_document;
     }
 
-
-
     public function GetEncondigOfDOMDocument( DOMDocument $dom_document )
     {
 
@@ -34,46 +32,46 @@ class DomManager
 
 
     /**
-     * Analize and try to Build a Valid Uri
+     * Analize and try to fix and build a balid url
      *
-     * @param [string] $uri
-     * @param [string] $parent_uri
-     * @return [string] $valid_uri
+     * @param string $url
+     * @param string $parent_url
+     * @return string $valid_url
      */
-    public function validateUri($uri, $parent_uri) {
-        $valid_uri = "";
-        $parent_parts = parse_url($parent_uri);
-        $parts = parse_url($uri);
+    public function FixUrl($url, $parent_url) {
+        $valid_url = "";
+        $parent_parts = parse_url($parent_url);
+        $parts = parse_url($url);
 
         // Exclude Schemes for Emails, Phones, Ecc...
-        if (isset($parts['scheme']) && isset($parts['path']) && in_array($parts['scheme'], $this->app_uri_schemes)) {
-            return $uri;
+        if (isset($parts['scheme']) && isset($parts['path']) && in_array($parts['scheme'], $this->app_url_schemes)) {
+            return $url;
         }
 
         // Should Be a Web Uri to a Document
-        $valid_uri .= isset($parts['scheme']) ? $parts['scheme'] . "://" : (isset($parent_parts['scheme']) ? $parent_parts['scheme'] . "://" : "");
-        $valid_uri .= isset($parts['host']) ? $parts['host'] : (isset($parent_parts['host']) ? $parent_parts['host'] : "");
-        $valid_uri .= isset($parts['path']) ? $parts['path'] : (isset($parent_parts['path']) ? $parent_parts['path'] : "");
-        $valid_uri .= isset($parts['query']) ? "?" . $parts['query'] : ""; // ?
-        $valid_uri .= isset($parts['fragment']) ? "#" . $parts['fragment'] : ""; // #
+        $valid_url .= isset($parts['scheme']) ? $parts['scheme'] . "://" : (isset($parent_parts['scheme']) ? $parent_parts['scheme'] . "://" : "");
+        $valid_url .= isset($parts['host']) ? $parts['host'] : (isset($parent_parts['host']) ? $parent_parts['host'] : "");
+        $valid_url .= isset($parts['path']) ? $parts['path'] : (isset($parent_parts['path']) ? $parent_parts['path'] : "");
+        $valid_url .= isset($parts['query']) ? "?" . $parts['query'] : ""; // ?
+        $valid_url .= isset($parts['fragment']) ? "#" . $parts['fragment'] : ""; // #
 
-        return $valid_uri;
+        return $valid_url;
     }
 
     /**
      * Try To Extract All Images From The Page
      *
-     * @param [type] $dom
-     * @param [type] $parent_uri
-     * @return [array[ImagesModel]]
+     * @param DOMDocument $dom
+     * @param string $parent_url
+     * @return ImagesModel[]
      */
-    public function getImagesFromDom($dom, $parent_uri = NULL) {
+    public function getImagesFromDom($dom, $parent_url = NULL) {
         $imgList = array();
         $imgElements = $dom->getElementsByTagName('img');
         foreach ($imgElements as $img) {
             $imgObj = new ImageModel();
 
-            $imgObj->src = $this->validateUri($img->getAttribute('src'), $parent_uri);
+            $imgObj->src = $this->validateUri($img->getAttribute('src'), $parent_url);
             $imgObj->title = $img->getAttribute('title');
             $imgObj->alt = $img->getAttribute('alt');
 
@@ -85,31 +83,31 @@ class DomManager
     /**
      * Try To Extract All Uris From The Page
      *
-     * @param [type] $dom
-     * @param [type] $parent_uri
+     * @param DOMDocument $dom
+     * @param string $parent_url
      * @return void
      */
-    public function getUriListFromDom($dom, $parent_uri = NULL) {
+    public function getUriListFromDom($dom, $parent_url = NULL) {
         $urlList = array(); // The container list that will be returned
         $aElements = $dom->getElementsByTagName('a'); // Get all "a" from the dom
         foreach ($aElements as $a) {
             if ($a->hasAttribute('href')) {
-                $uri = $a->getAttribute('href');
-                $valid_uri = $this->validateUri($uri, $parent_uri);
-                if (!empty($valid_uri)) {
-                    array_push($urlList, $valid_uri);
+                $url = $a->getAttribute('href');
+                $valid_url = $this->validateUri($url, $parent_url);
+                if (!empty($valid_url)) {
+                    array_push($urlList, $valid_url);
                 }
             }
         }
         return $urlList;
     }
 
-    public function getLinksModelsFromDom($dom, $parent_uri = NULL) {
+    public function getLinksModelsFromDom($dom, $parent_url = NULL) {
         $urlList = array();
         $aElements = $dom->getElementsByTagName('a');
         foreach ($aElements as $a) {
             $aObj = new LinkModel(); // Get Link Model
-            $aObj->uri = $a->getAttribute('href');
+            $aObj->url = $a->getAttribute('href');
             $aObj->nodeValue = $a->nodeValue;
             $aObj->textContent = $a->textContent;
 
@@ -128,8 +126,8 @@ class DomManager
     /**
      * Get Most Repeated Word From a DomDocument
      *
-     * @param [DOMDocument] $dom
-     * @return [string] $top_word
+     * @param DOMDocument $dom
+     * @return string $top_word
      */
     public function getDomTopWord($dom = NULL) {
         if (empty($dom))
@@ -169,8 +167,8 @@ class DomManager
     /**
      * Collect Data From Dom Document and Populate WebPageModel
      *
-     * @param [DOMDocument] $dom
-     * @return [WebPageModel] $page
+     * @param DOMDocument $dom
+     * @return WebPageModel $page
      */
     public function domToPageModel($dom)
     {
