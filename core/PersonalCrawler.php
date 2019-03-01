@@ -136,14 +136,22 @@ class PersonalCrawler
 	{
 		if( empty($this->param_url) )		
 			echo $this->localizationMgr->GetString("no_url_provided_error");
-		
 
-		//$request_response = $this->httpMgr->MakeRequest( $this->param_url, TRUE );
+		$this->StartCrawling( $this->param_url );
 	}
 
 #endregion Action methods
 
 #region # Private methods
+
+
+	private function StartCrawling( $url ) 
+	{
+		$this->param_follow_redirect;
+
+		$request_response = $this->httpMgr->MakeRequest( $this->param_url, TRUE );
+	}
+
 	/**
 	 * Get parameters array and switch the right action
 	 *
