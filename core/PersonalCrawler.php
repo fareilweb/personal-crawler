@@ -134,11 +134,9 @@ class PersonalCrawler
 	 */
 	public function Crawl()
 	{
-		if( empty($this->param_url) )
-		{
-			// TODO - implements and insert here a localized messaging system
-			return;
-		}
+		if( empty($this->param_url) )		
+			echo $this->localizationMgr->GetString("no_url_provided_error");
+		
 
 		//$request_response = $this->httpMgr->MakeRequest( $this->param_url, TRUE );
 	}

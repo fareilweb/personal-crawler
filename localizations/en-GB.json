@@ -2,5 +2,6 @@
     "app_name": "Personal Crawler",
     "item_plural_zero" : "No Items",
     "item_plural_one" : "Item",
-    "item_plural_many" : "Items"
+    "item_plural_many" : "Items",
+    "no_url_provided_error": "ERROR: Please provide a URL to start crawling from"
 }

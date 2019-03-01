@@ -18,9 +18,7 @@
             "cwd": "${fileDirname}",
             "args": [
                 "--action",
-                "crawl",
-                "--url",
-                "http://dirpopulus.org/"
+                "crawl"
             ],
             "port": 9000
         },
