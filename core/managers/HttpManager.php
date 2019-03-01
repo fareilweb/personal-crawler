@@ -177,4 +177,5 @@ class HttpManager
 
 		return true;
 	}
+
 }

@@ -2,58 +2,70 @@
 
 class DomManager
 {
+    private $default_encoding = "utf-8";
+    private $default_version = "";
+
     /**
      * Convert a String of a Web Page into a DOMDocument object
      *
-     * @param string $string - the string with the HTML of the web page
+     * @param string $content - the string with the HTML of the web page
      * @return DOMDocument $dom_document
      */
-    public function ConvertStringToDOMDocument($string) : DOMDocument
+    public function ConvertStringToDOMDocument( $content ) : DOMDocument
     {
-        $dom_document = new DOMDocument("", "utf-8");
-        if (!empty($string))
+        $dom_document = new DOMDocument( $this->default_version, $this->default_encoding );
+
+        if ( !empty(trim($content)) )
         {
             libxml_use_internal_errors(true); // Ignore Doc Type (and others errors)
-            $dom_document->loadHTML($string);
 
-            $dom_document->encoding = $this->GetEncondigOfDOMDocument( $dom_document );
 
-            //$dom_document->encoding
+            // try to load dom document object from content string
+            $dom_document->loadHTML($content);
+
+            // Try to retrieve and set document encoding
+            $encoding = $this->GetEncondigOfDOMDocument( $dom_document );
+            if( !empty($encoding) ) $dom_document->encoding = $encoding;
+
+
             libxml_use_internal_errors(false); // Restore error settings
         }
+
         return $dom_document;
     }
 
-    public function GetEncondigOfDOMDocument( DOMDocument $dom_document )
+    public function GetEncondigOfDOMDocument( DOMDocument $dom_document ) : string
     {
-
+        // TODO - try to get encoding from the page content
+        return "";
     }
 
-
-
     /**
-     * Analize and try to fix and build a balid url
+     * Analize and try to fix and build a valid url
      *
      * @param string $url
      * @param string $parent_url
      * @return string $valid_url
      */
-    public function FixUrl($url, $parent_url) {
-        $valid_url = "";
-        $parent_parts = parse_url($parent_url);
-        $parts = parse_url($url);
+    public function FixUrl($url, $parent_url)
+    {
+        $parent_url_parts = parse_url($parent_url);
+        $url_parts = parse_url($url);
 
         // Exclude Schemes for Emails, Phones, Ecc...
-        if (isset($parts['scheme']) && isset($parts['path']) && in_array($parts['scheme'], $this->app_url_schemes)) {
-            return $url;
+        $excluded_schemes = ['mailto', 'tel', 'skype'];
+        if (isset($url_parts['scheme']) && isset($url_parts['path']) && in_array($url_parts['scheme'], $excluded_schemes))
+        {
+            return $url; // Return as is
         }
 
-        // Should Be a Web Uri to a Document
-        $valid_url .= isset($parts['scheme']) ? $parts['scheme'] . "://" : (isset($parent_parts['scheme']) ? $parent_parts['scheme'] . "://" : "");
-        $valid_url .= isset($parts['host']) ? $parts['host'] : (isset($parent_parts['host']) ? $parent_parts['host'] : "");
-        $valid_url .= isset($parts['path']) ? $parts['path'] : (isset($parent_parts['path']) ? $parent_parts['path'] : "");
-        $valid_url .= isset($parts['query']) ? "?" . $parts['query'] : ""; // ?
-        $valid_url .= isset($parts['fragment']) ? "#" . $parts['fragment'] : ""; // #
+        // Should Be a Web url to a document
+        $valid_url = "";
+        $valid_url .= isset($url_parts['scheme'])   ? $url_parts['scheme'] . "://"  : ( isset($parent_url_parts['scheme']) ? $parent_url_parts['scheme'] . "://" : "" );
+        $valid_url .= isset($url_parts['host'])     ? $url_parts['host']            : ( isset($parent_url_parts['host']) ? $parent_url_parts['host'] : "" );
+        $valid_url .= isset($url_parts['path'])     ? $url_parts['path']            : ( isset($parent_url_parts['path']) ? $parent_url_parts['path'] : "" );
+        $valid_url .= isset($url_parts['query'])    ? "?" . $url_parts['query']     : ""; // ?
+        $valid_url .= isset($url_parts['fragment']) ? "#" . $url_parts['fragment']  : ""; // #
 
         return $valid_url;
     }
@@ -63,19 +75,22 @@ class DomManager
      *
      * @param DOMDocument $dom
      * @param string $parent_url
-     * @return ImagesModel[]
+     * @return ImagesDto[]
      */
-    public function getImagesFromDom($dom, $parent_url = NULL) {
+    public function GetImagesFromDom($dom, $parent_url = NULL) {
         $imgList = array();
         $imgElements = $dom->getElementsByTagName('img');
         foreach ($imgElements as $img) {
-            $imgObj = new ImageModel();
 
-            $imgObj->src = $this->validateUri($img->getAttribute('src'), $parent_url);
-            $imgObj->title = $img->getAttribute('title');
-            $imgObj->alt = $img->getAttribute('alt');
+            $src    = $img->getAttribute('src');
+            $title  = $img->getAttribute('title');
+            $alt    = $img->getAttribute('alt');
 
-            array_push($imgList, $imgObj);
+            array_push($imgList, new ImageDto(
+                $src,
+                $title,
+                $alt
+            ));
         }
         return $imgList;
     }
