@@ -4,12 +4,6 @@
  */
 class PersonalCrawler
 {
-#region Fields
-	/**
-	 * @var array
-	 */
-	private $urlset;
-#endregion Fields
 
 #region # Dependencies
 	/**
@@ -18,14 +12,31 @@ class PersonalCrawler
 	private $httpMgr;
 
 	/**
-	 * @var LocalizationManager $localizationMgr
+	 * @var LocalizationManager $locMgr
 	 */
-	private $localizationMgr;
+	private $locMgr;
 #endregion # Dependencies
+
+
+
+
+#region Fields
+	/**
+	 * @var array
+	 */
+	private $urlset;
+
+	/**
+	 * @var RequestResponse $current_response
+	 */
+	private $current_response;
+#endregion Fields
+
+
 
 #region Parameters
 
-	/**	 
+	/**
 	 * @var boolean $param_help
 	 */
 	public $param_help =  FALSE;
@@ -43,7 +54,7 @@ class PersonalCrawler
 	/**
 	 * @var boolean $follow_redirect - default value is "TRUE"
 	 */
-	public $param_follow_redirect;
+	public $ignore_redirect;
 #endregion # Parameters
 
 
@@ -57,7 +68,7 @@ class PersonalCrawler
 	{
 		// Store dependencies
 		$this->httpMgr = $http_manager;
-		$this->localizationMgr = $localization_manager;
+		$this->locMgr = $localization_manager;
 	}
 
 	/**
@@ -75,26 +86,26 @@ class PersonalCrawler
 		$this->ParseParams( $argv );
 
 		// User ask for help
-		if( $this->param_help ) 
+		if( $this->param_help )
 		{
 			$this->ShowUserManual();
 			return;
 		}
 
-		// If an action was set execute it 
+		// If an action was set execute it
 		if( !empty($this->param_action) )
 		{
-			$action_method = ucfirst( $this->param_action );			
+			$action_method = ucfirst( $this->param_action );
 			$this->{$action_method}();
 		}
 	}
 
-	public function ShowUserManual() 
-	{	
+	public function ShowUserManual()
+	{
 		$lang = "en-GB";
-		
+
 		$user_manual_path = PATH_DOC . DIRECTORY_SEPARATOR . "Personal-Crawler-User-Manual_{$lang}.txt";
-		
+
 		$user_manual_text = file_get_contents( $user_manual_path );
 
 		echo $user_manual_text;
@@ -121,7 +132,7 @@ class PersonalCrawler
 	 *
 	 * @return void
 	 */
-	public function Help() 
+	public function Help()
 	{
 		$this->ShowUserManual();
 	}
@@ -134,8 +145,11 @@ class PersonalCrawler
 	 */
 	public function Crawl()
 	{
-		if( empty($this->param_url) )		
-			echo $this->localizationMgr->GetString("no_url_provided_error");
+		if( empty($this->param_url) )
+		{
+			echo $this->locMgr->GetString("no_url_provided_error");
+			exit;
+		}
 
 		$this->StartCrawling( $this->param_url );
 	}
@@ -145,11 +159,13 @@ class PersonalCrawler
 #region # Private methods
 
 
-	private function StartCrawling( $url ) 
+	private function StartCrawling( $url )
 	{
-		$this->param_follow_redirect;
+		if( $this->current_response == NULL)
+		{
+			$this->current_response = $this->httpMgr->MakeRequest( $this->param_url, $this->ignore_redirect );
+		}
 
-		$request_response = $this->httpMgr->MakeRequest( $this->param_url, TRUE );
 	}
 
 	/**
@@ -170,13 +186,13 @@ class PersonalCrawler
 		$this->param_help = $this->HasParam("--help", "-h", $params) ? TRUE : FALSE;
 
 		// Get "action" parameter
-		$this->param_action = $this->GetParam("--action", "-a", "crawl", $params);
+		$this->param_action = $this->GetParam("--action", "-a", $params, "crawl");
 
 		// Get "url" parameter
-		$this->param_url = $this->GetParam("--url", "-u", NULL, $params);
+		$this->param_url = $this->GetParam("--url", "-u", $params, NULL);
 
 		// Get "follow redirect" parameter
-		$this->param_follow_redirect = $this->HasParam("--follow-redirect", "-fr", $params) ? TRUE : FALSE;
+		$this->ignore_redirect = $this->HasParam("--ignore-redirect", "-ir", $params) ? TRUE : FALSE;
 	}
 
 
@@ -189,7 +205,7 @@ class PersonalCrawler
 	 * @param array $params - the list of parameters passed by the user
 	 * @return string - the value of the searched param or a default value if parameter will not be found or invalid
 	 */
-	private function GetParam(string $extended_param_key, string $short_param_key, $default_value = "", array $params = []) : string
+	private function GetParam(string $extended_param_key, string $short_param_key, array $params = [], $default_value = "") : string
 	{
 		/* search extended version */
 		$extended_param_key_index = array_search( $extended_param_key, $params );
@@ -204,7 +220,7 @@ class PersonalCrawler
 		/* Parameter not found or invalid, return empty string */
 		return "";
 	}
-	
+
 
 	/**
 	 * Test if the gived array contains the gived param key
@@ -214,16 +230,18 @@ class PersonalCrawler
 	 * @param array $params - the list of parameters passed by the user
 	 * @return boolean - return TRUE if parameter key was found FALSE otherwise
 	 */
-	private function HasParam( string $extended_param_key, string $short_param_key, $params = [] ) : bool 
+	private function HasParam( string $extended_param_key, string $short_param_key, $params = [] ) : bool
 	{
 		/* search extended version */
 		$extended_param_key_index = array_search( $extended_param_key, $params );
-		if ( $extended_param_key_index !== FALSE) return TRUE;
+		if ( $extended_param_key_index !== FALSE )
+			return TRUE;
 
 		/* search short version	*/
 		$short_param_key_index = array_search( $short_param_key, $params );
-		if ( $short_param_key_index !== FALSE ) return TRUE;
-		
+		if ( $short_param_key_index !== FALSE )
+			return TRUE;
+
 		/* Param not found */
 		return FALSE;
 	}

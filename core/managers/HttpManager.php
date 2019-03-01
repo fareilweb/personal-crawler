@@ -80,10 +80,10 @@ class HttpManager
 	 * Make an HTTP request by cURL
 	 *
 	 * @param string $url
-	 * @param boolean $follow_redirect
+	 * @param boolean $ignore_redirect
 	 * @return RequestResponse
 	 */
-	public function MakeRequest(string $url, bool $follow_redirect = FALSE) : RequestResponse
+	public function MakeRequest(string $url, bool $ignore_redirect = FALSE) : RequestResponse
 	{
 		$curl = curl_init(); // Initialize curl
 
@@ -93,6 +93,7 @@ class HttpManager
 		curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
 		// Set if follow redirects
+		$follow_redirect = !$ignore_redirect;
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, $follow_redirect);
 
 		// Set user agent
