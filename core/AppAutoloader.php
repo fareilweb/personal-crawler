@@ -10,7 +10,9 @@ function AppAutoloader ( $class_name )
 		PATH_APP,
 		PATH_CORE,
 		PATH_MANAGERS,
-		PATH_MODELS
+		PATH_MODELS,
+		PATH_DTOS,
+		PATH_INTERFACES
 	];
 
 	$index = 0;

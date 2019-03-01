@@ -8,7 +8,7 @@ class HttpManager
 	/**
 	 * Instance of a model when store the request results data
 	 *
-	 * @var RequestResponse $request_response
+	 * @var RequestResponseDto $request_response
 	 */
 	public $request_response;
 
@@ -72,7 +72,7 @@ class HttpManager
 		$this->current_headers = $this->headers[ 'chrome' ];
 
 		// Request response to return with request data
-		$this->request_response = new RequestResponse();
+		$this->request_response = new RequestResponseDto();
 	}
 
 
@@ -81,9 +81,9 @@ class HttpManager
 	 *
 	 * @param string $url
 	 * @param boolean $ignore_redirect
-	 * @return RequestResponse
+	 * @return RequestResponseDto
 	 */
-	public function MakeRequest(string $url, bool $ignore_redirect = FALSE) : RequestResponse
+	public function MakeRequest(string $url, bool $ignore_redirect = FALSE) : RequestResponseDto
 	{
 		$curl = curl_init(); // Initialize curl
 
@@ -106,7 +106,7 @@ class HttpManager
 		curl_setopt($curl, CURLOPT_URL, $url);
 
 		// Make request and get info about it
-		$this->request_response->data = curl_exec($curl);
+		$this->request_response->content = curl_exec($curl);
 		$this->request_response->info = curl_getinfo($curl);
 
 		curl_close($curl); // Close curl connection

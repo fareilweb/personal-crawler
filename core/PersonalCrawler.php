@@ -27,9 +27,11 @@ class PersonalCrawler
 	private $urlset;
 
 	/**
-	 * @var RequestResponse $current_response
+	 * @var RequestResponseDto $current_response
 	 */
 	private $current_response;
+
+	private $current_data;
 #endregion Fields
 
 
@@ -151,7 +153,7 @@ class PersonalCrawler
 			exit;
 		}
 
-		$this->StartCrawling( $this->param_url );
+		$this->StartCrawling( $this->param_url, $this->ignore_redirect );
 	}
 
 #endregion Action methods
@@ -159,14 +161,42 @@ class PersonalCrawler
 #region # Private methods
 
 
-	private function StartCrawling( $url )
+	/**
+	 * Start crawling and collect data for indxed
+	 *
+	 * @param string $url
+	 * @param bool $ignore_redirect
+	 * @return void
+	 */
+	private function StartCrawling( $url, $ignore_redirect ) : void
 	{
 		if( $this->current_response == NULL)
 		{
-			$this->current_response = $this->httpMgr->MakeRequest( $this->param_url, $this->ignore_redirect );
+			$this->current_response = $this->httpMgr->MakeRequest( $url, $ignore_redirect );
 		}
 
+		$data = $this->ExtractDataFromResponse( $this->current_response );
+
 	}
+
+
+	private function ExtractDataFromResponse( RequestResponseDto $response_dto ) : RequestResponseModel
+	{
+		$model = new RequestResponseModel(
+			NULL,
+			$response_dto->info['url'],
+			$response_dto->info['redirect_url'],
+			$response_dto->info['http_code'],
+			$response_dto->info['content_type'],
+			$response_dto->info['primary_ip'],
+			$response_dto->info['primary_port']		
+		);
+
+		
+
+		return $model;
+	}
+
 
 	/**
 	 * Get parameters array and switch the right action
