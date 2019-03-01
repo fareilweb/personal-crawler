@@ -13,9 +13,14 @@ class PersonalCrawler
 
 #region # Dependencies
 	/**
-	 * @var HttpManager $http
+	 * @var HttpManager $httpMgr
 	 */
-	private $http;
+	private $httpMgr;
+
+	/**
+	 * @var LocalizationManager $localizationMgr
+	 */
+	private $localizationMgr;
 #endregion # Dependencies
 
 #region Parameters
@@ -41,15 +46,18 @@ class PersonalCrawler
 	public $param_follow_redirect;
 #endregion # Parameters
 
+
 #region # Public methods
 	/**
 	 * The constructor of the class
 	 * @param HttpManager $http_manager
+	 * @param LocalizationManager $localization_manager
 	 */
-	public function __construct( HttpManager $http_manager )
+	public function __construct( HttpManager $http_manager, LocalizationManager $localization_manager )
 	{
 		// Store dependencies
-		$this->http = $http_manager;
+		$this->httpMgr = $http_manager;
+		$this->localizationMgr = $localization_manager;
 	}
 
 	/**
@@ -100,7 +108,7 @@ class PersonalCrawler
 	 */
 	public function AddUrl( $url ) : bool
 	{
-		if( !$this->http->IsValidUrl($url) )
+		if( !$this->httpMgr->IsValidUrl($url) )
 			return FALSE;
 
 		return array_push($this->urlset, $url);
@@ -132,7 +140,7 @@ class PersonalCrawler
 			return;
 		}
 
-		$request_response = $this->http->MakeRequest( $this->param_url, TRUE );
+		//$request_response = $this->httpMgr->MakeRequest( $this->param_url, TRUE );
 	}
 
 #endregion Action methods

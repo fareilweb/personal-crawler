@@ -14,10 +14,13 @@
             "name": "Launch Crawler",
             "type": "php",
             "request": "launch",
-            "program": "${workspaceFolder}/run",
+            "program": "${workspaceFolder}/crawler.php",
             "cwd": "${fileDirname}",
             "args": [
-                "--help"
+                "--action",
+                "crawl",
+                "--url",
+                "http://dirpopulus.org/"
             ],
             "port": 9000
         },
