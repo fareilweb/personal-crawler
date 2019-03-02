@@ -29,8 +29,9 @@ class PersonalCrawler
 
 
 	#region # Properties
-	
+
 	#endregion # Properties
+
 
 
 	#region # Public methods
@@ -40,7 +41,7 @@ class PersonalCrawler
 	 * @param HttpManager
 	 * @param LocalizationManager
 	 * @param IStorageManager
-	 * @param ParametersManager  
+	 * @param ParametersManager
 	 */
 	public function __construct(
 		HttpManager $http_manager,
@@ -82,8 +83,6 @@ class PersonalCrawler
 		}
 	}
 
-	
-
 	/**
 	 * Add gived url to the current url set
 	 *
@@ -103,21 +102,18 @@ class PersonalCrawler
 
 
 
-	#region Action methods
-	
+	#region # Actions
+
 	/**
-	 * This method wrap the ShowUserManual() method into an action
-	 *
+	 * Help Action
 	 * @return void
 	 */
-	public function Help()
-	{
+	public function Help() {
 		$this->ShowUserManual();
 	}
 
 	/**
-	 * Crawl- start to crawling from a 0gived url
-	 *
+	 * Crawl Action
 	 * @return void
 	 */
 	public function Crawl()
@@ -125,7 +121,10 @@ class PersonalCrawler
 		$this->StartCrawlingFromUrl( $this->parametersManager->url, $this->parametersManager->signore_redirect );
 	}
 
-
+	/**
+	 * Get Action
+	 * @return void
+	 */
 	public function Get()
 	{
 		if( empty($this->parametersManager->url) )
@@ -134,10 +133,10 @@ class PersonalCrawler
 			exit;
 		}
 
-		$action = $this->GetMethodByUrl( $this->parametersManager->url );
+		$method = $this->ChooseMethodByUrl( $this->parametersManager->url );
 	}
 
-	#endregion Action methods
+	#endregion # Action
 
 
 
@@ -165,15 +164,20 @@ class PersonalCrawler
 		// $requestInfoDto = new RequestInfoDto( $requestResult['curl_getinfo_result'] );
 	}
 
-
-	private function GetMethodByUrl( $url ) : string
+	/**
+	 * This method try to get scheme of the url and choose the method that can handle
+	 *
+	 * @param string $url
+	 * @return string
+	 */
+	private function ChooseMethodByUrl( $url ) : string
 	{
 		$url_scheme = UrlHelper::GetUrlScheme( $url );
 		switch ( $url_scheme )
 		{
 			case 'http':
 				return "";
-				
+
 			case 'https':
 				return "";
 
@@ -198,7 +202,7 @@ class PersonalCrawler
 			default:
 				return "";
 		}
-		
+
 	}
 
 	/**
@@ -208,15 +212,11 @@ class PersonalCrawler
 	 */
 	private function ShowUserManual()
 	{
-		$lang = "en-GB";
-
+		$lang = LANGUAGE_CODE;
 		$user_manual_path = PATH_DOC . DIRECTORY_SEPARATOR . "Personal-Crawler-User-Manual_{$lang}.txt";
-
 		$user_manual_text = file_get_contents( $user_manual_path );
-
 		echo $user_manual_text;
 	}
 
 	#endregion # Private methods
-
 }
