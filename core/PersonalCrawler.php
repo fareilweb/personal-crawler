@@ -40,11 +40,6 @@ class PersonalCrawler
 	private $httpManager;
 
 	/**
-	 * @var UrlHelper $urlHelper
-	 */
-	private $urlHelper;
-
-	/**
 	 * @var LocalizationManager $localizationManager
 	 */
 	private $localizationManager;
@@ -84,13 +79,11 @@ class PersonalCrawler
 	 */
 	public function __construct(
 		HttpManager $http_manager,
-		UrlHelper $url_helper,
 		LocalizationManager $localization_manager,
 		IStorageManager $storage_manager
 	) {
 		// Store dependencies instances
 		$this->httpManager = $http_manager;
-		$this->urlHelper = $url_helper;
 		$this->localizationManager = $localization_manager;
 		$this->storageManager = $storage_manager;
 	}
@@ -182,7 +175,6 @@ class PersonalCrawler
 			echo $this->localizationManager->GetString("no_url_provided_error");
 			exit;
 		}
-
 		$this->StartCrawlingFromUrl( $this->param_url, $this->ignore_redirect );
 	}
 
@@ -193,7 +185,6 @@ class PersonalCrawler
 			echo $this->localizationManager->GetString("no_url_provided_error");
 			exit;
 		}
-
 		$this->GetContentOfUrl( $this->param_url, $this->ignore_redirect );
 	}
 
@@ -217,22 +208,43 @@ class PersonalCrawler
 		if( $this->current_response_model == NULL)
 		{
 
-
 		}
 	}
 
 
 	private function GetContentOfUrl( $url, $ignore_redirect ) : void
 	{
-		$requestResult = $this->httpManager->MakeRequest( $url, $ignore_redirect );
+		$url_scheme = UrlHelper::GetUrlScheme( $url );
+		switch ( $url_scheme )
+		{
+			case UrlSchemes::http :
 
+				break;
+			case UrlSchemes::https :
+
+				break;
+			case UrlSchemes::ftp :
+
+				break;
+			case UrlSchemes::mailto :
+
+				break;
+			case UrlSchemes::skype :
+
+				break;
+			case UrlSchemes::tel :
+
+				break;
+			default :
+
+				break;
+		}
+
+
+		$requestResult = $this->httpManager->MakeRequest( $url, $ignore_redirect );
 		$curlGetinfoResult 	= $requestResult['curl_getinfo_result'];
 		$curlExecResult 	= $requestResult['curl_exec_result'];
-
 		$requestInfoDto = new RequestInfoDto( $requestResult['curl_getinfo_result'] );
-
-
-
 	}
 
 

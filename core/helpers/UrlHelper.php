@@ -2,14 +2,6 @@
 
 class UrlHelper
 {
-	public const URL_SCHEMES = [
-		'http',
-		'https',
-		'ftp',
-		'mailto',
-		'tel',
-		'skype'
-	];
 
 	/**
 	 * Try to get the scheme of gived url
@@ -74,6 +66,17 @@ class UrlHelper
 
         return $valid_url;
     }
+}
+
+
+class UrlSchemes
+{
+	public const http = 'http';
+	public const https = 'https';
+	public const ftp = 'ftp';
+	public const mailto = 'mailto';
+	public const tel = 'tel';
+	public const skype = 'skype';
 }
 
 
