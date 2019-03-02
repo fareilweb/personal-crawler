@@ -40,6 +40,11 @@ class PersonalCrawler
 	private $httpManager;
 
 	/**
+	 * @var UrlHelper $urlHelper
+	 */
+	private $urlHelper;
+
+	/**
 	 * @var LocalizationManager $localizationManager
 	 */
 	private $localizationManager;
@@ -79,11 +84,13 @@ class PersonalCrawler
 	 */
 	public function __construct(
 		HttpManager $http_manager,
+		UrlHelper $url_helper,
 		LocalizationManager $localization_manager,
 		IStorageManager $storage_manager
 	) {
 		// Store dependencies instances
 		$this->httpManager = $http_manager;
+		$this->urlHelper = $url_helper;
 		$this->localizationManager = $localization_manager;
 		$this->storageManager = $storage_manager;
 	}
@@ -209,18 +216,23 @@ class PersonalCrawler
 	{
 		if( $this->current_response_model == NULL)
 		{
-			$request = $this->httpManager->MakeRequest( $url, $ignore_redirect );
 
-			$this->current_response_model = $this->httpManager->DtoToModel( $request );
+
 		}
 	}
 
 
 	private function GetContentOfUrl( $url, $ignore_redirect ) : void
 	{
-		$request = $this->httpManager->MakeRequest( $url, $ignore_redirect );
+		$requestResult = $this->httpManager->MakeRequest( $url, $ignore_redirect );
 
-		$this->current_response_model = $this->httpManager->DtoToModel( $request );
+		$curlGetinfoResult 	= $requestResult['curl_getinfo_result'];
+		$curlExecResult 	= $requestResult['curl_exec_result'];
+
+		$requestInfoDto = new RequestInfoDto( $requestResult['curl_getinfo_result'] );
+
+
+
 	}
 
 

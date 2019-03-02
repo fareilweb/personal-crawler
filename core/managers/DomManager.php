@@ -5,6 +5,68 @@ class DomManager
     private $default_encoding = "";
     private $default_version = "";
 
+
+/**
+     * Collect data from dom document
+     *
+     * @param DOMDocument
+     * @return RequestResponseDto
+     */
+    public function ExtractDataFromDOMDocument( DOMDocument $dom )
+    {
+        // Get model instance
+        $dto = new WebPageModel();
+
+        // // Language
+        // $html = $dom->getElementsByTagName('html');
+        // if ($html->length > 0 && $html->item(0)->hasAttribute('lang')) {
+        //     $page->lang = $html->item(0)->getAttribute('lang');
+        // }
+
+        // // Title
+        // $title = $dom->getElementsByTagName('title');
+        // if ($title->length > 0) {
+        //     $page->title = $title[0]->textContent;
+        // }
+
+        // // H1
+        // $h1 = $dom->getElementsByTagName('h1');
+        // if ($h1->length > 0) {
+        //     $page->h1 = $h1[0]->textContent;
+        // }
+
+        // // H2
+        // $h2 = $dom->getElementsByTagName('h2');
+        // if ($h2->length > 0) {
+        //     $page->h2 = $h2[0]->textContent;
+        // }
+
+        // // Meta Data
+        // $metas = $dom->getElementsByTagName('meta');
+        // if ($metas->length > 0) {
+        //     foreach ($metas as $k => $elem) {
+        //         $name = $elem->getAttribute('name');
+
+        //         // Meta Description
+        //         if ($name == 'description')
+        //             $page->metadescription = $elem->getAttribute('document_content');
+
+        //         // Meta Keywords
+        //         if ($name == 'keywords')
+        //             $page->metakeywords = $elem->getAttribute('document_content');
+        //     }
+        // }
+
+        // // Most Repeated Word
+        // $top_word = $this->getDomTopWord($dom);
+        // if ($top_word !== FALSE) {
+        //     $page->top_word = $top_word;
+        // }
+
+        return $dto;
+    }
+
+
     /**
      * Convert a String of a Web Page into a DOMDocument object
      *
@@ -13,7 +75,7 @@ class DomManager
      */
     public function ConvertStringToDOMDocument( $document_content ) : DOMDocument
     {
-        $dom = new DOMDocument;//( $this->default_version, $this->default_encoding );
+        $dom = new DOMDocument();
 
         if ( !empty(trim($document_content)) )
         {
@@ -23,61 +85,13 @@ class DomManager
             // try to load dom document object from document_content string
             $dom->loadHTML($document_content);
 
-            // Try to retrieve and set document encoding
-            $encoding = $this->GetEncondigOfDOMDocument( $dom );
-            if( !empty($encoding) )
-                $dom->encoding = $encoding;
-
-
             libxml_use_internal_errors(false); // Restore error settings
         }
 
         return $dom;
     }
 
-    public function GetEncondigOfDOMDocument( DOMDocument $dom ) : string
-    {
-        $meta_tags = $dom->getElementsByTagName("meta");
-        foreach( $meta_tags as $meta ) {
-            $attrs = $meta->attributes;
-            foreach( $attrs as $a ) {
-                $name = $a->name;
-                $val  = $a-value;
-            }
-        }
 
-        return "";
-    }
-
-    /**
-     * Analize and try to fix and build a valid url
-     *
-     * @param string $url
-     * @param string $parent_url
-     * @return string $valid_url
-     */
-    public function FixUrl($url, $parent_url)
-    {
-        $parent_url_parts = parse_url($parent_url);
-        $url_parts = parse_url($url);
-
-        // Exclude Schemes for Emails, Phones, Ecc...
-        $excluded_schemes = ['mailto', 'tel', 'skype'];
-        if (isset($url_parts['scheme']) && isset($url_parts['path']) && in_array($url_parts['scheme'], $excluded_schemes))
-        {
-            return $url; // Return as is
-        }
-
-        // Should Be a Web url to a document
-        $valid_url = "";
-        $valid_url .= isset($url_parts['scheme'])   ? $url_parts['scheme'] . "://"  : ( isset($parent_url_parts['scheme']) ? $parent_url_parts['scheme'] . "://" : "" );
-        $valid_url .= isset($url_parts['host'])     ? $url_parts['host']            : ( isset($parent_url_parts['host']) ? $parent_url_parts['host'] : "" );
-        $valid_url .= isset($url_parts['path'])     ? $url_parts['path']            : ( isset($parent_url_parts['path']) ? $parent_url_parts['path'] : "" );
-        $valid_url .= isset($url_parts['query'])    ? "?" . $url_parts['query']     : ""; // ?
-        $valid_url .= isset($url_parts['fragment']) ? "#" . $url_parts['fragment']  : ""; // #
-
-        return $valid_url;
-    }
 
     /**
      * Try To Extract All Images From The Page
@@ -188,64 +202,6 @@ class DomManager
         return $top_word;
     }
 
-    /**
-     * Collect Data From Dom Document and Populate WebPageModel
-     *
-     * @param DOMDocument $dom
-     * @return WebPageModel $page
-     */
-    public function domToPageModel($dom)
-    {
-        // Get model instance
-        $page = new WebPageModel();
 
-        // Language
-        $html = $dom->getElementsByTagName('html');
-        if ($html->length > 0 && $html->item(0)->hasAttribute('lang')) {
-            $page->lang = $html->item(0)->getAttribute('lang');
-        }
-
-        // Title
-        $title = $dom->getElementsByTagName('title');
-        if ($title->length > 0) {
-            $page->title = $title[0]->textContent;
-        }
-
-        // H1
-        $h1 = $dom->getElementsByTagName('h1');
-        if ($h1->length > 0) {
-            $page->h1 = $h1[0]->textContent;
-        }
-
-        // H2
-        $h2 = $dom->getElementsByTagName('h2');
-        if ($h2->length > 0) {
-            $page->h2 = $h2[0]->textContent;
-        }
-
-        // Meta Data
-        $metas = $dom->getElementsByTagName('meta');
-        if ($metas->length > 0) {
-            foreach ($metas as $k => $elem) {
-                $name = $elem->getAttribute('name');
-
-                // Meta Description
-                if ($name == 'description')
-                    $page->metadescription = $elem->getAttribute('document_content');
-
-                // Meta Keywords
-                if ($name == 'keywords')
-                    $page->metakeywords = $elem->getAttribute('document_content');
-            }
-        }
-
-        // Most Repeated Word
-        $top_word = $this->getDomTopWord($dom);
-        if ($top_word !== FALSE) {
-            $page->top_word = $top_word;
-        }
-
-        return $page;
-    }
 
 }

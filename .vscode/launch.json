@@ -20,7 +20,7 @@
                 "--action",
                 "get",
                 "--url",
-                "http://dirpopulus.org/",
+                "https://www.fareilweb.com/",
                 "--follow-redirect"
             ],
             "port": 9000

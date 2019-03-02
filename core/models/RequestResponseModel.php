@@ -29,31 +29,9 @@ class RequestResponseModel
      * @param DateTime $insert_date
      * @param DateTime $update_date
      */
-    public function __construct
-    (
-        int $id = NULL,
-        string $language = NULL,
-        string $title = NULL,
-        string $h1 = NULL,
-        string $h2 = NULL,
-        string $h3 = NULL,
-        array $meta_keywords = [],
-        string $meta_description = NULL,
-        array $top_words = [],
-        DateTime $insert_date = NULL,
-        DateTime $update_date = NULL
-    ) {
-        $this->id = $id;
-        $this->language = $language;
-        $this->title = $title;
-        $this->h1 = $h1;
-        $this->h2 = $h2;
-        $this->h3 = $h3;
-        $this->meta_keywords = $meta_keywords;
-        $this->meta_description = $meta_description;
-        $this->top_words = $top_words;
-        $this->insert_date = $insert_date;
-        $this->update_date = $update_date;
+    public function __construct ()
+    {
+
     }
 
 

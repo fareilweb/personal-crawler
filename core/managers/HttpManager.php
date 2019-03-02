@@ -14,15 +14,6 @@ class HttpManager
 		'firefox' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:63.0) Gecko/20100101 Firefox/63.0'
 	];
 
-
-	/**
-	 * The current user agent
-	 *
-	 * @var string $current_user_agent - User agent string to use inside HTTP requests
-	 */
-	private $current_user_agent;
-
-
 	/**
 	 * A list of known browser request headers
 	 *
@@ -47,21 +38,13 @@ class HttpManager
 
 
 	/**
-	 * The headers that will be used inside the request
-	 *
-	 * @var array $current_headers
-	 */
-	private $current_headers;
-
-
-	/**
 	 * The constructor of the class
 	 */
-	public function __construct() {
-		// Store dependencies
-		$this->current_user_agent = $this->user_agents[ 'chrome' ];
-		$this->current_headers = $this->headers[ 'chrome' ];
+	public function __construct()
+	{
+
 	}
+
 
 	public function __destruct()
 	{
@@ -76,9 +59,9 @@ class HttpManager
 	 *
 	 * @param string $url
 	 * @param boolean $ignore_redirect
-	 * @return RequestResponseDto
+	 * @return array
 	 */
-	public function MakeRequest(string $url, bool $ignore_redirect = FALSE) : RequestResponseDto
+	public function MakeRequest(string $url, bool $ignore_redirect = FALSE) : array
 	{
 		$curl = curl_init(); // Initialize curl
 
@@ -92,45 +75,26 @@ class HttpManager
 		curl_setopt($curl, CURLOPT_FOLLOWLOCATION, $follow_redirect);
 
 		// Set user agent
-		curl_setopt($curl, CURLOPT_USERAGENT, $this->current_user_agent);
+		$user_agent = empty(trim(USER_AGENT_OVERRIDE)) ? $this->user_agents[USER_AGENT] : USER_AGENT_OVERRIDE;
+		curl_setopt($curl, CURLOPT_USERAGENT, $user_agent);
 
 		// Set headers
-		curl_setopt($curl, CURLOPT_HTTPHEADER, $this->current_headers );
+		$headers = $this->headers['chrome'];
+		curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
 		// Set URL
 		curl_setopt($curl, CURLOPT_URL, $url);
 
 		// Make request and get info about it
-		$info 		= curl_getinfo($curl);
 		$content 	= curl_exec($curl);
-		$request_response = new RequestResponseDto( $info, $content );
+		$info 		= curl_getinfo($curl);
 
 		curl_close($curl); // Close curl connection
 
-		return $request_response;
-	}
-
-	/**
-	 * Take the RequestResponseDto and return an RequestResponseModel
-	 *
-	 * @param RequestResponseDto $response_dto
-	 * @return RequestResponseModel
-	 */
-	public function DtoToModel( RequestResponseDto $response_dto ) : RequestResponseModel
-	{
-		$info = $response_dto->info;
-		$model = new RequestResponseModel(
-			NULL, // $id
-			$info['url'],
-			$info['redirect_url'],
-			$info['primary_ip'],
-			$info['primary_port']
-		);
-
-		// Collect data from content DOM
-
-
-		return $model;
+		return [
+			'curl_getinfo_result' => $info,
+			'curl_exec_result' => $content
+		];
 	}
 
 	/**
@@ -157,24 +121,5 @@ class HttpManager
 	}
 
 
-	/**
-	 * [IsValidUrl - test gived url for validity]
-	 * @param string $url [the url to test]
-	 * @return bool [return true if url is valid, false if it's not]
-	 */
-	public function IsValidUrl (string $url) : bool
-	{
-		if(empty($url)) {
-			return false; // Empty url
-		}
-
-		$url_parts = parse_url($url);
-
-        if(!isset($url_parts['scheme'])) {
-            return false; // No scheme
-        }
-
-		return true;
-	}
 
 }
