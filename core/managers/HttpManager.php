@@ -65,12 +65,10 @@ class HttpManager
 
 	public function __destruct()
 	{
-		// Freeing memory
-		unset( $this->current_user_agent );
-		unset( $this->current_headers );
-		unset( $this->headers );
-		unset( $this->request_response );
-		unset( $this->user_agents );
+		foreach( get_object_vars($this) as $key => $val)
+		{
+			unset( $this->{$key} );
+		}
 	}
 
 	/**
@@ -105,9 +103,11 @@ class HttpManager
 		// Make request and get info about it
 		$info 		= curl_getinfo($curl);
 		$content 	= curl_exec($curl);
+		$request_response = new RequestResponseDto( $info, $content );
+
 		curl_close($curl); // Close curl connection
 
-		return new RequestResponseDto( $info, $content );
+		return $request_response;
 	}
 
 	/**
@@ -118,14 +118,13 @@ class HttpManager
 	 */
 	public function DtoToModel( RequestResponseDto $response_dto ) : RequestResponseModel
 	{
+		$info = $response_dto->info;
 		$model = new RequestResponseModel(
-			NULL,
-			$response_dto->info['url'],
-			$response_dto->info['redirect_url'],
-			$response_dto->info['http_code'],
-			$response_dto->info['content_type'],
-			$response_dto->info['primary_ip'],
-			$response_dto->info['primary_port']
+			NULL, // $id
+			$info['url'],
+			$info['redirect_url'],
+			$info['primary_ip'],
+			$info['primary_port']
 		);
 
 		// Collect data from content DOM

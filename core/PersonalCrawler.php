@@ -44,6 +44,11 @@ class PersonalCrawler
 	 */
 	private $localizationManager;
 
+	/**
+	 * @var IStorageManager $storageManager
+	 */
+	private $storageManager;
+
 #endregion # Dependencies instances
 
 
@@ -72,11 +77,15 @@ class PersonalCrawler
 	 * @param HttpManager $http_manager
 	 * @param LocalizationManager $localization_manager
 	 */
-	public function __construct( HttpManager $http_manager, LocalizationManager $localization_manager )
-	{
-		// Store dependencies
+	public function __construct(
+		HttpManager $http_manager,
+		LocalizationManager $localization_manager,
+		IStorageManager $storage_manager
+	) {
+		// Store dependencies instances
 		$this->httpManager = $http_manager;
 		$this->localizationManager = $localization_manager;
+		$this->storageManager = $storage_manager;
 	}
 
 	/**
@@ -108,6 +117,11 @@ class PersonalCrawler
 		}
 	}
 
+	/**
+	 * Show help documentation
+	 *
+	 * @return void
+	 */
 	public function ShowUserManual()
 	{
 		$lang = "en-GB";
@@ -162,7 +176,18 @@ class PersonalCrawler
 			exit;
 		}
 
-		$this->StartCrawling( $this->param_url, $this->ignore_redirect );
+		$this->StartCrawlingFromUrl( $this->param_url, $this->ignore_redirect );
+	}
+
+	public function Get()
+	{
+		if( empty($this->param_url) )
+		{
+			echo $this->localizationManager->GetString("no_url_provided_error");
+			exit;
+		}
+
+		$this->GetContentOfUrl( $this->param_url, $this->ignore_redirect );
 	}
 
 #endregion Action methods
@@ -180,18 +205,24 @@ class PersonalCrawler
 	 * @param bool $ignore_redirect
 	 * @return void
 	 */
-	private function StartCrawling( $url, $ignore_redirect ) : void
+	private function StartCrawlingFromUrl( $url, $ignore_redirect ) : void
 	{
 		if( $this->current_response_model == NULL)
 		{
 			$request = $this->httpManager->MakeRequest( $url, $ignore_redirect );
 
-			$this->current_response_model = $this->httpManager->ConvertToModel( $this->current_response_model );
+			$this->current_response_model = $this->httpManager->DtoToModel( $request );
 		}
-
-
-
 	}
+
+
+	private function GetContentOfUrl( $url, $ignore_redirect ) : void
+	{
+		$request = $this->httpManager->MakeRequest( $url, $ignore_redirect );
+
+		$this->current_response_model = $this->httpManager->DtoToModel( $request );
+	}
+
 
 	/**
 	 * Get parameters array and switch the right action

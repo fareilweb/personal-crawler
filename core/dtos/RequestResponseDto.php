@@ -4,15 +4,17 @@ class RequestResponseDto
 	public $info;
 	public $content;
 
-	public function __construct(int $id = NULL, $info = NULL, $content = NULL)
+	public function __construct($info = NULL, $content = NULL)
 	{
-		$this->info = NULL;
-		$this->content = NULL;
+		$this->info = $info;
+		$this->content = $content;
 	}
 
 	public function __destruct()
 	{
-		unset( $this->info );
-		unset( $this->content );
+		foreach( get_object_vars($this) as $key => $val)
+		{
+			unset( $this->{$key} );
+		}
 	}
 }

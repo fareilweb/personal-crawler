@@ -2,41 +2,50 @@
 
 class DomManager
 {
-    private $default_encoding = "utf-8";
+    private $default_encoding = "";
     private $default_version = "";
 
     /**
      * Convert a String of a Web Page into a DOMDocument object
      *
-     * @param string $content - the string with the HTML of the web page
-     * @return DOMDocument $dom_document
+     * @param string $document_content - the string with the HTML of the web page
+     * @return DOMDocument $dom
      */
-    public function ConvertStringToDOMDocument( $content ) : DOMDocument
+    public function ConvertStringToDOMDocument( $document_content ) : DOMDocument
     {
-        $dom_document = new DOMDocument( $this->default_version, $this->default_encoding );
+        $dom = new DOMDocument;//( $this->default_version, $this->default_encoding );
 
-        if ( !empty(trim($content)) )
+        if ( !empty(trim($document_content)) )
         {
             libxml_use_internal_errors(true); // Ignore Doc Type (and others errors)
 
 
-            // try to load dom document object from content string
-            $dom_document->loadHTML($content);
+            // try to load dom document object from document_content string
+            $dom->loadHTML($document_content);
 
             // Try to retrieve and set document encoding
-            $encoding = $this->GetEncondigOfDOMDocument( $dom_document );
-            if( !empty($encoding) ) $dom_document->encoding = $encoding;
+            $encoding = $this->GetEncondigOfDOMDocument( $dom );
+            if( !empty($encoding) )
+                $dom->encoding = $encoding;
 
 
             libxml_use_internal_errors(false); // Restore error settings
         }
 
-        return $dom_document;
+        return $dom;
     }
 
-    public function GetEncondigOfDOMDocument( DOMDocument $dom_document ) : string
+    public function GetEncondigOfDOMDocument( DOMDocument $dom ) : string
     {
-        // TODO - try to get encoding from the page content
+        $meta_tags = $dom->getElementsByTagName("meta");
+        foreach( $meta_tags as $meta ) {
+            $attrs = $meta->attributes;
+            foreach( $attrs as $a ) {
+                $name = $a->name;
+                $val  = $a-value;
+            }
+        }
+
         return "";
     }
 
@@ -222,11 +231,11 @@ class DomManager
 
                 // Meta Description
                 if ($name == 'description')
-                    $page->metadescription = $elem->getAttribute('content');
+                    $page->metadescription = $elem->getAttribute('document_content');
 
                 // Meta Keywords
                 if ($name == 'keywords')
-                    $page->metakeywords = $elem->getAttribute('content');
+                    $page->metakeywords = $elem->getAttribute('document_content');
             }
         }
 

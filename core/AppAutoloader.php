@@ -1,11 +1,23 @@
 <?php
 /**
- * [App Autoloader Registering]
- * @param {string} $class_name
+ * Get Configuration
+ * This file is required and MUST be present to make the app working
  */
-function AppAutoloader ( $class_name ) 
+$configuration_file_path =__DIR__ . DIRECTORY_SEPARATOR . ".." . DIRECTORY_SEPARATOR . "configuration.php";
+if( !file_exists($configuration_file_path) )
 {
+	echo "No configuration file found! This file is required and MUST be present in root folder of the app. to make the app working.";
+	exit;
+}
+require_once ( $configuration_file_path );
 
+
+/**
+ * App Autoloader Registering
+ * @param string $class_name
+ */
+function AppAutoloader ( $class_name )
+{
 	$directories = [
 		PATH_APP,
 		PATH_CORE,
@@ -28,5 +40,4 @@ function AppAutoloader ( $class_name )
 	}
 
 }
-
 spl_autoload_register ( 'AppAutoloader' );

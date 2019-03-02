@@ -18,7 +18,7 @@
             "cwd": "${fileDirname}",
             "args": [
                 "--action",
-                "crawl",
+                "get",
                 "--url",
                 "http://dirpopulus.org/",
                 "--follow-redirect"
@@ -29,7 +29,7 @@
             "name": "Launch Test",
             "type": "php",
             "request": "launch",
-            "program": "${workspaceFolder}/test.php",
+            "program": "${workspaceFolder}/tests_and_examples.php",
             "cwd": "${fileDirname}",
             "args": [],
             "port": 9000

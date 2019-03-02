@@ -14,8 +14,9 @@ class ImageDto
 
 	public function __destruct()
 	{
-		unset( $this->src );
-		unset( $this->title );
-		unset( $this->alt );
+		foreach( get_object_vars($this) as $key => $val)
+		{
+			unset( $this->{$key} );
+		}
 	}
 }
