@@ -1,7 +1,7 @@
 <?php
 require_once (__DIR__ . '/core/AppAutoloader.php');
 
-function getUrlAndStoreToFolder( $document_url, $file_name )
+function GetUrlAndStoreToFolder( $document_url, $file_name )
 {
 	$httpManager = new HttpManager();
 	$domManager =  new DomManager();
@@ -11,30 +11,20 @@ function getUrlAndStoreToFolder( $document_url, $file_name )
 }
 
 
-
-class MyClass
+function GetStringWith(string $string_id, array $strings_to_interpolate = []) : string
 {
-	private $a;
-	protected $b;
-	public $c;
+	//$new_string = $this->GetString( $string_id );
 
-	function __construct()
+	$new_string = "Mia super stringa con {0}";
+
+	foreach( $strings_to_interpolate as $key => $val )
 	{
-
+		$new_string = str_replace('{'.$key.'}', $val, $new_string);
 	}
 
-	function __destruct()
-	{
-		foreach( get_object_vars($this) as $key => $val)
-		{
-			unset( $this->{$key} );
-		}
-	}
-
+	return $new_string;
 }
 
-
-$myclass = new MyClass();
-
+echo GetStringWith("", ["parola"]);
 
 exit;

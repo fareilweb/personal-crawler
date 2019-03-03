@@ -11,8 +11,11 @@ class UrlHelper
 	 */
 	public static function GetUrlScheme( string $url ) : string
 	{
-		$url_parts = parse_url($url);
-		return $url_parts['scheme'];
+        $url_parts = parse_url($url);
+        if( !array_key_exists('scheme', $url_parts) )
+            return false;
+
+        return $url_parts['scheme'];
 	}
 
 

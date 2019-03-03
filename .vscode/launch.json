@@ -18,10 +18,10 @@
             "cwd": "${fileDirname}",
             "args": [
                 "--action",
-                "get",
-                "--url",
-                "https://www.fareilweb.com/",
-                "--follow-redirect"
+                "crawl",
+                "--urlset",
+                "http://dirpopulus.org/",
+                "ftp://mioftp.org"
             ],
             "port": 9000
         },

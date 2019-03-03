@@ -1,4 +1,5 @@
 <?php
+
 /* ======================================================= *
  * App Bootstrap
  * ======================================================= */
@@ -7,12 +8,21 @@
 require_once (__DIR__ . '/core/AppAutoloader.php');
 
 // Instanciate PersonalCrawler class and inject dependencies
-$pc = new PersonalCrawler (
-	new HttpManager(), 		
-	new LocalizationManager(),
-	new SQLiteStorageManager(),
-	new ParametersManager()
+
+// Get instance that can be shared
+$localization_manager_intance   = new LocalizationManager();
+$storage_manager_instance       = new SQLiteStorageManager();
+$http_manager_instance          = new HttpManager();
+$parameters_manager_instance    = new ParametersManager( $localization_manager_intance );
+$crawling_manager_instance      = new CrawlingManager($storage_manager_instance, $http_manager_instance, $localization_manager_intance);
+
+// Get insance of the entry point class
+$pc = new PersonalCrawler(
+    $localization_manager_intance,
+    $parameters_manager_instance,
+    $crawling_manager_instance
 );
 
 // Initialize the app with the gived parameters
-$pc->Initialize ( $argv );
+$pc->Initialize( $argv );
+
