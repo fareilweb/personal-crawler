@@ -103,6 +103,8 @@ class CrawlingManager
         return;
     }
 
+
+
 	/**
 	 * This method try to get scheme of the url and choose the method that can handle
 	 *
