@@ -1,6 +1,6 @@
 <?php
 
-class CrawlingManager {
+class CrawlingManager extends BaseManager {
 
     /** @var IStorageManager */
     private $storageManager;
@@ -30,13 +30,15 @@ class CrawlingManager {
         $this->localizationManager = $localization_manager;
         $this->params = [];
         $this->urlset = [];
+
+        parent::__construct();
     }
 
-    public function __destruct() {
-        foreach (get_object_vars($this) as $key => $val) {
-            unset($this->{$key});
-        }
-    }
+//    public function __destruct() {
+//        foreach (get_object_vars($this) as $key => $val) {
+//            unset($this->{$key});
+//        }
+//    }
 
     /**
      * Start crawling the web
@@ -127,3 +129,10 @@ class CrawlingManager {
     }
 
 }
+
+
+
+
+
+
+
