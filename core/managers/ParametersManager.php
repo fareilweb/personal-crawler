@@ -3,14 +3,16 @@
 class ParametersManager
 {
 
-#region #################### Members, properties and fields ####################
+#region #################### Members, properties, fields, static resources ####################
 
-    /** Statics */
+    /** Statics Resourcs */
+
     /** @var array */
     private static $requiredParamsByAction = [
         'CrawlAction' => [ 'urlset' ],
         'HelpAction' => []
     ];
+
 
     /** @var LocalizationManager */
     private $localizationManager;
@@ -27,7 +29,8 @@ class ParametersManager
     /** @var boolean - default value is "FALSE" */
     public $ignore_redirect;
 
-#region #################### END OF: Members, properties and fields ####################
+#endregion #################### Members, properties, fields, static resources ####################
+
 
     public function __construct (
         $localization_manager
@@ -41,46 +44,43 @@ class ParametersManager
         }
     }
 
-
-
     /**
      * Get parameters array and switch the right action
      *
-     * @param array $params [parameters]
+     * @param array $real_params [parameters]
      * @return void
      */
-    public function ParseParams(array $params) {
+    public function ParseParams( array $params ) {
         unset($params[0]); // Remove first argoument (is the script file name)
-        $params = array_values($params); // Re-Index argouments array
 
-        if (count($params) == 0)
+        $real_params = array_values($params); // Re-Index argouments array now without script name
+
+        if (count($real_params) == 0)
         {
             echo $this->localizationManager->GetString("no_params_passed_error");
             return;
         }
 
         // Get "help" parameter
-        $this->help = $this->HasParam("--help", "-h", $params) ? TRUE : FALSE;
+        $this->help = $this->HasParam("--help", "-h", $real_params) ? TRUE : FALSE;
 
         // Get "action" parameter
-        $this->action = $this->GetParam("--action", "-a", $params, "crawl");
+        $this->action = $this->GetParam("--action", "-a", $real_params, "crawl");
 
         // Get "urlset" parameter
-        $this->urlset = $this->GetParamValueSet("--urlset", "-us", $params);
+        $this->urlset = $this->GetParamValueSet("--urlset", "-us", $real_params);
 
         // Get "follow redirect" parameter
-        $this->ignore_redirect = $this->HasParam("--ignore-redirect", "-ir", $params) ? TRUE : FALSE;
+        $this->ignore_redirect = $this->HasParam("--ignore-redirect", "-ir", $real_params) ? TRUE : FALSE;
     }
-
-
 
     /**
      * Get the name of requested action, and check if all needed parameters are set
      *
      * @param string
-     * @return bool
+     * @return bool - return TRUE if all required paraeters are passed FALSE otherwise
      */
-	public function CheckParamsByAction( string $action ) : bool
+	public function TestParamsByAction( string $action ) : bool
 	{
         $required_parameters = ParametersManager::$requiredParamsByAction[$action];
         $required_parameters_count = count($required_parameters);
@@ -88,7 +88,7 @@ class ParametersManager
         if($required_parameters_count > 0)
         {
             $missing_parameters_count = 0;
-            foreach($required_parameters as $actionName => $paramName) {
+            foreach($required_parameters as $paramName) {
                 if( empty($this->{$paramName}) ) {
                     $missing_parameters_count++;
                 }
@@ -102,7 +102,6 @@ class ParametersManager
         return true;
 	}
 
-
     /**
      * Retrieve the gived parameter value set as an array from $params array
      *
@@ -113,23 +112,23 @@ class ParametersManager
      */
     public function GetParamValueSet( string $extended_param_key, string $short_param_key, array $params = [] )
     {
-        /* Nested functions */
-        function GetValues($start_index, $_params) : array {
-            $value_set = []; $index = $start_index; $next_param_found = FALSE;
-            while( $next_param_found == FALSE && $index < count($_params) ) {
-                array_push($value_set, $_params[$index]);
-                $index++;
-                if(array_key_exists($index, $_params) && (StringStartsWith($_params[$index], "--") || StringStartsWith($_params[$index], "-"))) {
-                    $next_param_found = TRUE;
+        #region # Nested functions area
+            function GetValues($start_index, $_params) : array {
+                $value_set = []; $index = $start_index; $next_param_found = FALSE;
+                while( $next_param_found == FALSE && $index < count($_params) ) {
+                    array_push($value_set, $_params[$index]);
+                    $index++;
+                    if(array_key_exists($index, $_params) && (StringStartsWith($_params[$index], "--") || StringStartsWith($_params[$index], "-"))) {
+                        $next_param_found = TRUE;
+                    }
                 }
+                return $value_set;
             }
-            return $value_set;
-        }
-        function StringStartsWith($haystack, $needle) : bool {
-            $length = strlen($needle);
-            return (substr($haystack, 0, $length) === $needle);
-        }
-
+            function StringStartsWith($haystack, $needle) : bool {
+                $length = strlen($needle);
+                return (substr($haystack, 0, $length) === $needle);
+            }
+        #endregion # END OF: Nested functions area
 
         /* search extended version */
         $extended_param_key_index = array_search($extended_param_key, $params);
@@ -145,10 +144,9 @@ class ParametersManager
             return GetValues($short_param_key_index+1, $params);
         }
 
-        /* Parameter not found or invalid, return empty areray */
+        /* Parameter not found or invalid, return an empty array */
         return [];
     }
-
 
     /**
      * Retrieve the gived parameter value from $params array
@@ -197,17 +195,32 @@ class ParametersManager
         return FALSE;
     }
 
-    public function GetArray()
+    /**
+     * Export all current parameters values as an array
+     *
+     * @return array
+     */
+    public function ToArray() : array
     {
         return [
-            'urlset'            => $this->urlset,
             'help'              => $this->help,
             'action'            => $this->action,
+            'urlset'            => $this->urlset,
             'ignore_redirect'   => $this->ignore_redirect
         ];
     }
 
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

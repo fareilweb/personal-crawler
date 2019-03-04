@@ -4,8 +4,7 @@
  */
 class PersonalCrawler
 {
-
-#region #################### Members, properties and fields ####################
+#region #################### Members, properties, fields, static resources ####################
 
     /** @var LocalizationManager */
     private $localizationManager;
@@ -16,7 +15,7 @@ class PersonalCrawler
     /** @var CrawlingManager */
 	private $crawlingManager;
 
-#endregion #################### END OF: Members, properties and fields ####################
+#endregion #################### END OF: Members, properties, fields, static resources ####################
 
 
 
@@ -71,29 +70,30 @@ class PersonalCrawler
 	 * */
 
     /**
-	 * Help Action
+	 * "Help" Action
 	 * @return void
 	 */
 	public function HelpAction()
 	{
-		$this->parametersManager->CheckParamsByAction( __FUNCTION__ );
-		$this->ShowUserManual();
+        $params_ok = $this->parametersManager->TestParamsByAction( __FUNCTION__ );
+        if( $params_ok == false ) return;
+
+        $this->ShowUserManual();
 	}
 
     /**
-	 * Crawl Action
+	 * "Crawl" Action
 	 * @return void
 	 */
     public function CrawlAction()
     {
-        $params_ok = $this->parametersManager->CheckParamsByAction( __FUNCTION__ );
+        $params_ok = $this->parametersManager->TestParamsByAction( __FUNCTION__ );
 		if( $params_ok == false ) return;
 
-        $this->crawlingManager->StartCrawling( $this->parametersManager->GetArray() );
+        $this->crawlingManager->StartCrawling( $this->parametersManager->ToArray() );
     }
 
 #endregion #################### END OF: Public methods ####################
-
 
 
 
