@@ -55,8 +55,7 @@ class ParametersManager
 
         $real_params = array_values($params); // Re-Index argouments array now without script name
 
-        if (count($real_params) == 0)
-        {
+        if (count($real_params) == 0) {
             echo $this->localizationManager->GetString("no_params_passed_error");
             return;
         }
@@ -83,9 +82,9 @@ class ParametersManager
      * @param string
      * @return bool - return TRUE if all required paraeters are passed FALSE otherwise
      */
-	public function TestParamsByAction( string $action ) : bool
+	public function TestParamsByAction( string $action_name ) : bool
 	{
-        $required_parameters = ParametersManager::$requiredParamsByAction[$action];
+        $required_parameters = ParametersManager::$requiredParamsByAction[$action_name];
         $required_parameters_count = count($required_parameters);
 
         if($required_parameters_count > 0)
