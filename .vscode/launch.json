@@ -11,7 +11,7 @@
             "port": 9000
         },
         {
-            "name": "Launch Crawler",
+            "name": "Debug Crawl",
             "type": "php",
             "request": "launch",
             "program": "${workspaceFolder}/crawler.php",
@@ -22,6 +22,17 @@
                 "--urlset",
                 "http://dirpopulus.org/",
                 "ftp://mioftp.org"
+            ],
+            "port": 9000
+        },
+        {
+            "name": "Debug Help",
+            "type": "php",
+            "request": "launch",
+            "program": "${workspaceFolder}/crawler.php",
+            "cwd": "${fileDirname}",
+            "args": [
+                "--help"
             ],
             "port": 9000
         },

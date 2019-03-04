@@ -62,10 +62,13 @@ class ParametersManager
         }
 
         // Get "help" parameter
-        $this->help = $this->HasParam("--help", "-h", $real_params) ? TRUE : FALSE;
-
+        if( $this->HasParam("--help", "-h", $real_params) ) {
+            $this->action = "help"; 
+            return;
+        }
+        
         // Get "action" parameter
-        $this->action = $this->GetParam("--action", "-a", $real_params, "crawl");
+        $this->action = $this->GetParam("--action", "-a", $real_params, "");
 
         // Get "urlset" parameter
         $this->urlset = $this->GetParamValueSet("--urlset", "-us", $real_params);

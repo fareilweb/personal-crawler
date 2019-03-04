@@ -41,21 +41,12 @@ class PersonalCrawler
     /**
 	 * Do all initialization stuff
 	 *
-	 * @param array
+	 * @param string[] - the parameters passed by command line ( $argv )
 	 */
-    public function Initialize(array $argv)
+    public function Initialize( array $argv )
     {
-        // Initialize fields
-        $this->urlset = [];
-
         $this->parametersManager->ParseParams( $argv );
-
-        // User ask for help
-        if ($this->parametersManager->help) {
-			$this->ShowUserManual();
-			return;
-		}
-
+        
         // If an action was set execute it
         if (!empty($this->parametersManager->action)) {
 			$action_suffix = "Action";

@@ -16,13 +16,13 @@ $http_manager_instance          = new HttpManager();
 $parameters_manager_instance    = new ParametersManager( $localization_manager_intance );
 $crawling_manager_instance      = new CrawlingManager($storage_manager_instance, $http_manager_instance, $localization_manager_intance);
 
-// Get insance of the entry point class
+// Get insance of main class
 $pc = new PersonalCrawler(
     $localization_manager_intance,
     $parameters_manager_instance,
     $crawling_manager_instance
 );
 
-// Initialize the app with the gived parameters
+// Initialize the app with parameters from command line execution
 $pc->Initialize( $argv );
 
