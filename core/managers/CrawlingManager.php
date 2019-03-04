@@ -12,22 +12,26 @@ class CrawlingManager
     /** @var LocalizationManager */
     private $localizationManager;
 
+    /** @var array */
+    private $params;
+
 	/** @var string[] */
 	private $urlset;
 
-	/** @var array */
-	private $params;
 
 	/**
-	 * Undocumented function
+	 * COnstructor of the class
 	 *
 	 * @param IStorageManager
+     * @param HttpManager
+     * @param LocalizationManager
 	 */
 	public function __construct(IStorageManager $storage_manager, HttpManager $http_manager, LocalizationManager $localization_manager)
 	{
 		$this->storageManager = $storage_manager;
         $this->httpManager = $http_manager;
         $this->localizationManager = $localization_manager;
+        $this->params = [];
 		$this->urlset = [];
 	}
 
