@@ -18,4 +18,3 @@ const LANGUAGE_CODE         = "en-GB";
 //-----------------------------------------------------------------------------------------------------------
 const USER_AGENT			= "chrome"; // Can be one between: chrome, firefox
 const USER_AGENT_OVERRIDE	= ""; // Use any user agent string, will override previus. (Should be the entire UA string)
-?>
