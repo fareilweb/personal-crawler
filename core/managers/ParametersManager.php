@@ -8,7 +8,7 @@ class ParametersManager
     /** Statics Resourcs */
 
     /** @var array */
-    private static $requiredParamsByAction = [
+    private static $RequiredParamsByAction = [
         'CrawlAction' => [ 'urlset' ],
         'HelpAction' => []
     ];
@@ -84,7 +84,7 @@ class ParametersManager
      */
 	public function TestParamsByAction( string $action_name ) : bool
 	{
-        $required_parameters = ParametersManager::$requiredParamsByAction[$action_name];
+        $required_parameters = ParametersManager::$RequiredParamsByAction[$action_name];
         $required_parameters_count = count($required_parameters);
 
         if($required_parameters_count > 0)
