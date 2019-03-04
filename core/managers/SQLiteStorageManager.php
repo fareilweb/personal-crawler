@@ -1,13 +1,15 @@
 <?php
 
-class SQLiteStorageManager extends SQLite3 implements IStorageManager
+class SQLiteStorageManager extends BaseManager implements IStorageManager
 {
+    private $sqlite;
+    
     function __construct()
-    {
+    {                       
         $db_file = PATH_SQLITE . DIRECTORY_SEPARATOR . SQLITE_DB_NAME;
-        $this->open( $db_file );
+        $this->sqlite = new SQLite3( $db_file );
     }
-
+    
     function InsertOrUpdateRequestResponse( RequestResponseModel $model ) : int
     {
         return 0;
@@ -47,5 +49,9 @@ class SQLiteStorageManager extends SQLite3 implements IStorageManager
     {
         return [];
     }
-
+    
+    function __destruct() {
+        $this->sqlite->close(); // Close DB connection        
+        parent::__destruct();
+    }
 }

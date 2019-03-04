@@ -1,12 +1,12 @@
 <?php
 
-class DomManager
+class DomManager extends BaseManager 
 {
     private $default_encoding = "";
     private $default_version = "";
 
 
-/**
+    /**
      * Collect data from dom document
      *
      * @param DOMDocument

@@ -1,6 +1,6 @@
 <?php
 
-class ParametersManager
+class ParametersManager extends BaseManager 
 {
 
 #region #################### Members, properties, fields, static resources ####################
@@ -36,12 +36,6 @@ class ParametersManager
         $localization_manager
     ) {
         $this->localizationManager = $localization_manager;
-    }
-
-    public function __destruct() {
-        foreach (get_object_vars($this) as $key => $val) {
-            unset($this->{$key});
-        }
     }
 
     /**
