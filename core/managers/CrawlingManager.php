@@ -56,34 +56,34 @@ class CrawlingManager extends BaseManager {
         // Store params
         $this->params = $params;
 
-        while (count($this->urlset) > 0) 
+        while (count($this->urlset) > 0)
         {
-            $url = array_splice($this->urlset, 0, 1, NULL);  
+            $url = array_splice($this->urlset, 0, 1, NULL);
             if(UrlHelper::IsValidUrl($url)) {
                 $this->ChooseAndRunSchemeHandlerMethod($url);
-            }            
+            }
         }
-                
+
     }
 
 #region - Content types handlers methods
-    private function ChooseAndRunContentTypeHandlerMethod() 
+    private function ChooseAndRunContentTypeHandlerMethod()
     {
-        
+
     }
-    
-    
+
+
     private function HandleHtmlContent() {
         //$requestResult['curl_getinfo_result'];
-        //$requestResult['curl_exec_result'];                     
+        //$requestResult['curl_exec_result'];
         //$requestInfoDto = new RequestInfoDto( $curlGetinfoResult );
-        //$domDocument = $this->domManager->ConvertStringToDOMDocument( $curlExecResult );        
-        //$requestResponseDto = $this->domManager->ExtractDataFromDOMDocument( $domDocument );       
+        //$domDocument = $this->domManager->ConvertStringToDOMDocument( $curlExecResult );
+        //$requestResponseDto = $this->domManager->ExtractDataFromDOMDocument( $domDocument );
     }
-    
-#endregion - END OF: Content types handlers methods    
+
+#endregion - END OF: Content types handlers methods
 #region - Scheme handlers methods
-    
+
      /**
      * This method try to get scheme of the url and choose the method that can handle
      *
@@ -93,21 +93,22 @@ class CrawlingManager extends BaseManager {
     private function ChooseAndRunSchemeHandlerMethod($url): string {
         $url_scheme = UrlHelper::GetUrlScheme($url);
         switch ($url_scheme) {
-            case 'http':    $this->HandleHttpSchemeUrl($url);
-            case 'https':   $this->HandleHttpsSchemeUrl($url);
-            case 'ftp':     $this->HandleFtpSchemeUrl($url);
-            case 'ftps':    $this->HandleFtpsSchemeUrl($url);
-            case 'sftp':    $this->HandleSftpSchemeUrl($url);
-            case 'mailto':  $this->HandleMailtoSchemeUrl($url);
-            case 'tel':     $this->HandleTelSchemeUrl($url);
-            case 'skype':   $this->HandleSkypeSchemeUrl($url);
-            default: $this->HandleHttpSchemeUrl($url);
+            case UrlHelper::$UrlSchemes['http'] :   return $this->HandleHttpSchemeUrl($url);
+            case UrlHelper::$UrlSchemes['https']:   return $this->HandleHttpsSchemeUrl($url);
+            case UrlHelper::$UrlSchemes['ftp']:     return $this->HandleFtpSchemeUrl($url);
+            case UrlHelper::$UrlSchemes['ftps']:    return $this->HandleFtpsSchemeUrl($url);
+            case UrlHelper::$UrlSchemes['sftp']:    return $this->HandleSftpSchemeUrl($url);
+            case UrlHelper::$UrlSchemes['mailto']:  return $this->HandleMailtoSchemeUrl($url);
+            case UrlHelper::$UrlSchemes['tel']:     return $this->HandleTelSchemeUrl($url);
+            case UrlHelper::$UrlSchemes['skype']:   return $this->HandleSkypeSchemeUrl($url);
+            default:
+                return $this->HandleHttpSchemeUrl($url);
         }
     }
     private function HandleHttpSchemeUrl($url) {
-        $requestResult = $this->httpManager->MakeRequest( $url, $this->params['ignore_redirect'] );  
-        return $requestResult;        
-    }   
+        $requestResult = $this->httpManager->MakeRequest( $url, $this->params['ignore_redirect'] );
+        return $requestResult;
+    }
     private function HandleHttpsSchemeUrl($url) {
         $this->HandleHttpSchemeUrl($url);
     }
@@ -141,7 +142,7 @@ class CrawlingManager extends BaseManager {
         echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["skype"]);
         return;
     }
-   
+
 #endregion - END OF: Scheme handlers methods
-    
+
 }
