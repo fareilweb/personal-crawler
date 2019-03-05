@@ -11,7 +11,8 @@ class RequestResponseDto
     /** @var string */    	public $meta_description;
     /** @var array */       public $top_words;
     /** @var DateTime */    public $insert_date;
-    /** @var DateTime */	public $update_date;
+	/** @var DateTime */	public $update_date;
+	/** @var array */       public $request_info;
 
 	public function __construct(  )
 	{

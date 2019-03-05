@@ -11,6 +11,9 @@ class CrawlingManager extends BaseManager {
     /** @var LocalizationManager */
     private $localizationManager;
 
+    /** @var DomManager */
+    private $domManager;
+
     /** @var array */
     private $params;
 
@@ -23,11 +26,16 @@ class CrawlingManager extends BaseManager {
      * @param IStorageManager
      * @param HttpManager
      * @param LocalizationManager
+     * @param DomManager
      */
-    public function __construct(IStorageManager $storage_manager, HttpManager $http_manager, LocalizationManager $localization_manager) {
+    public function __construct(IStorageManager $storage_manager, HttpManager $http_manager, LocalizationManager $localization_manager, DomManager $dom_manager) {
+        // Dependecies
         $this->storageManager = $storage_manager;
         $this->httpManager = $http_manager;
         $this->localizationManager = $localization_manager;
+        $this->domManager = $dom_manager;
+
+        // Initializations
         $this->params = [];
         $this->urlset = [];
 
@@ -63,9 +71,26 @@ class CrawlingManager extends BaseManager {
 
     private function HandleHttpUrl($url) {
         $requestResult = $this->httpManager->MakeRequest( $url, $this->params['ignore_redirect'] );
-        $curlGetinfoResult 	= $requestResult['curl_getinfo_result'];
-        $curlExecResult 	= $requestResult['curl_exec_result'];
-        //$requestInfoDto = new RequestInfoDto( $requestResult['curl_getinfo_result'] );
+
+        if( !isset($requestResult) || empty($requestResult) ) 
+        {
+            // Request fails
+            // TODO - Store the results for the url to database
+
+            return;
+        }
+        
+        // Request Success
+        $curlGetinfoResult 	= $requestResult['curl_getinfo_result'];        
+        $curlExecResult	= $requestResult['curl_exec_result'];
+        
+        $requestInfoDto = new RequestInfoDto( $curlGetinfoResult );
+        $domDocument = $this->domManager->ConvertStringToDOMDocument( $curlExecResult );        
+        $requestResponseDto = $this->domManager->ExtractDataFromDOMDocument( $domDocument );
+        
+        
+
+
     }
 
     private function HandleHttpsUrl($url) {

@@ -10,12 +10,14 @@ function GetUrlAndStoreToFolder( $document_url, $file_name )
 	file_put_contents($file_path, $request_result->content);
 }
 
-$arr = ["key1" => "a", "key2" => "b"];
+$arr_empty = [];
+$var_null = NULL;
+$var_empty = "";
 
 
-foreach ($arr as $val) {
-    echo $val . PHP_EOL;
-}
+$result = empty(false);
+
+var_dump($result);
 
 exit;
 

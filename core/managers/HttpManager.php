@@ -51,6 +51,7 @@ class HttpManager extends BaseManager {
      */
     public function MakeRequest(string $url, bool $ignore_redirect = FALSE): array {
         $curl = curl_init(); // Initialize curl
+        
         // Set hardcoded options
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_VERBOSE, true);
@@ -66,7 +67,7 @@ class HttpManager extends BaseManager {
 
         // Set headers
         $headers = $this->headers['chrome'];
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        //curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
         // Set URL
         curl_setopt($curl, CURLOPT_URL, $url);
