@@ -25,4 +25,3 @@ $pc = new PersonalCrawler(
 
 // Initialize the app with parameters from command line execution
 $pc->Initialize( $argv );
-

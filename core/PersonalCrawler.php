@@ -1,5 +1,4 @@
 <?php
-
 /**
  * PersonalCrawler - Class that manage crawling, scraping, search, index, and more works.
  */
@@ -80,10 +79,7 @@ class PersonalCrawler {
         $this->crawlingManager->StartCrawling($this->parametersManager->ToArray());
     }
 
-#endregion #################### END OF: Public methods ####################
-
-    
-    
+#endregion #################### END OF: Public methods ####################      
 #region #################### Private methods ####################
 
     /**

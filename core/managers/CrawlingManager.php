@@ -41,8 +41,9 @@ class CrawlingManager extends BaseManager {
      */
     public function StartCrawling(array $params) {
         // Merge urlset param into local urlset member
-        if (isset($params['urlset']) && count($params['urlset']) > 0)
+        if (isset($params['urlset']) && count($params['urlset']) > 0) {
             $this->urlset = $params['urlset'];
+        }
 
         // Store params
         $this->params = $params;
@@ -61,10 +62,10 @@ class CrawlingManager extends BaseManager {
     }
 
     private function HandleHttpUrl($url) {
-        // $requestResult = $this->httpManager->MakeRequest( $url, $param_ignore_redirect );
-        // $curlGetinfoResult 	= $requestResult['curl_getinfo_result'];
-        // $curlExecResult 	= $requestResult['curl_exec_result'];
-        // $requestInfoDto = new RequestInfoDto( $requestResult['curl_getinfo_result'] );
+        $requestResult = $this->httpManager->MakeRequest( $url, $this->params['ignore_redirect'] );
+        $curlGetinfoResult 	= $requestResult['curl_getinfo_result'];
+        $curlExecResult 	= $requestResult['curl_exec_result'];
+        //$requestInfoDto = new RequestInfoDto( $requestResult['curl_getinfo_result'] );
     }
 
     private function HandleHttpsUrl($url) {
@@ -123,10 +124,3 @@ class CrawlingManager extends BaseManager {
     }
 
 }
-
-
-
-
-
-
-
