@@ -3,7 +3,7 @@
  * PersonalCrawler - Class that manage crawling, scraping, search, index, and more works.
  */
 class PersonalCrawler {
-#region #################### Members, properties, fields, static resources ####################
+#region - Members, properties, fields, static resources 
 
     /** @var LocalizationManager */
     private $localizationManager;
@@ -14,8 +14,8 @@ class PersonalCrawler {
     /** @var CrawlingManager */
     private $crawlingManager;
 
-#endregion #################### END OF: Members, properties, fields, static resources ####################
-#region #################### Public methods ####################
+#endregion - END OF: Members, properties, fields, static resources 
+#region - Public methods 
 
     /**
      * The constructor of the class
@@ -79,8 +79,8 @@ class PersonalCrawler {
         $this->crawlingManager->StartCrawling($this->parametersManager->ToArray());
     }
 
-#endregion #################### END OF: Public methods ####################      
-#region #################### Private methods ####################
+#endregion - END OF: Public methods      
+#region - Private methods 
 
     /**
      * Show help documentation
@@ -94,5 +94,5 @@ class PersonalCrawler {
         echo $user_manual_text;
     }
 
-#endregion #################### END OF: Private methods ####################
+#endregion - END OF: Private methods
 }

@@ -1,18 +1,15 @@
 <?php
 
-class ParametersManager extends BaseManager 
-{
-
-#region #################### Members, properties, fields, static resources ####################
+class ParametersManager extends BaseManager {
+#region - Members, properties, fields, static resources
 
     /** Statics Resourcs */
 
     /** @var array */
     private static $RequiredParamsByAction = [
-        'CrawlAction' => [ 'urlset' ],
+        'CrawlAction' => ['urlset'],
         'HelpAction' => []
     ];
-
 
     /** @var LocalizationManager */
     private $localizationManager;
@@ -29,22 +26,20 @@ class ParametersManager extends BaseManager
     /** @var boolean - default value is "FALSE" */
     public $ignore_redirect;
 
-#endregion #################### Members, properties, fields, static resources ####################
+#endregion - Members, properties, fields, static resources
 
-
-    public function __construct (
-        $localization_manager
-    ) {
+    public function __construct($localization_manager) {
         $this->localizationManager = $localization_manager;
+        parent::__construct();
     }
 
     /**
      * Get parameters array and switch the right action
      *
-     * @param array $real_params [parameters]
+     * @param array
      * @return void
      */
-    public function ParseParams( array $params ) {
+    public function ParseParams(array $params) {
         unset($params[0]); // Remove first argoument (is the script file name)
 
         $real_params = array_values($params); // Re-Index argouments array now without script name
@@ -55,11 +50,11 @@ class ParametersManager extends BaseManager
         }
 
         // Get "help" parameter
-        if( $this->HasParam("--help", "-h", $real_params) ) {
-            $this->action = "help"; 
+        if ($this->HasParam("--help", "-h", $real_params)) {
+            $this->action = "help";
             return;
         }
-        
+
         // Get "action" parameter
         $this->action = $this->GetParam("--action", "-a", $real_params, "");
 
@@ -76,27 +71,25 @@ class ParametersManager extends BaseManager
      * @param string
      * @return bool - return TRUE if all required paraeters are passed FALSE otherwise
      */
-	public function TestParamsByAction( string $action_name ) : bool
-	{
+    public function TestParamsByAction(string $action_name): bool {
         $required_parameters = ParametersManager::$RequiredParamsByAction[$action_name];
         $required_parameters_count = count($required_parameters);
 
-        if($required_parameters_count > 0)
-        {
+        if ($required_parameters_count > 0) {
             $missing_parameters_count = 0;
-            foreach($required_parameters as $paramName) {
-                if( empty($this->{$paramName}) ) {
+            foreach ($required_parameters as $paramName) {
+                if (empty($this->{$paramName})) {
                     $missing_parameters_count++;
                 }
             }
-            if($missing_parameters_count > 0) {
+            if ($missing_parameters_count > 0) {
                 echo $this->localizationManager->GetStringPlural("missing_params", $missing_parameters_count);
                 return false;
             }
         }
 
         return true;
-	}
+    }
 
     /**
      * Retrieve the gived parameter value set as an array from $params array
@@ -106,38 +99,40 @@ class ParametersManager extends BaseManager
      * @param array $params - the list of parameters passed by the user
      * @return string[] - the set of values of the searched param or an empty array if nothing was found
      */
-    public function GetParamValueSet( string $extended_param_key, string $short_param_key, array $params = [] )
-    {
-        #region # Nested functions area
-            function GetValues($start_index, $_params) : array {
-                $value_set = []; $index = $start_index; $next_param_found = FALSE;
-                while( $next_param_found == FALSE && $index < count($_params) ) {
-                    array_push($value_set, $_params[$index]);
-                    $index++;
-                    if(array_key_exists($index, $_params) && (StringStartsWith($_params[$index], "--") || StringStartsWith($_params[$index], "-"))) {
-                        $next_param_found = TRUE;
-                    }
+    public function GetParamValueSet(string $extended_param_key, string $short_param_key, array $params = []) {
+        #region # Nested functions
+
+        function GetValues($start_index, $_params): array {
+            $value_set = [];
+            $index = $start_index;
+            $next_param_found = FALSE;
+            while ($next_param_found == FALSE && $index < count($_params)) {
+                array_push($value_set, $_params[$index]);
+                $index++;
+                if (array_key_exists($index, $_params) && (StringStartsWith($_params[$index], "--") || StringStartsWith($_params[$index], "-"))) {
+                    $next_param_found = TRUE;
                 }
-                return $value_set;
             }
-            function StringStartsWith($haystack, $needle) : bool {
-                $length = strlen($needle);
-                return (substr($haystack, 0, $length) === $needle);
-            }
-        #endregion # END OF: Nested functions area
+            return $value_set;
+        }
+
+        function StringStartsWith($haystack, $needle): bool {
+            $length = strlen($needle);
+            return (substr($haystack, 0, $length) === $needle);
+        }
+
+        #endregion # END OF: Nested functions
 
         /* search extended version */
         $extended_param_key_index = array_search($extended_param_key, $params);
-        if ($extended_param_key_index !== FALSE && count($params) > $extended_param_key_index + 1)
-        {
-            return GetValues($extended_param_key_index+1, $params);
+        if ($extended_param_key_index !== FALSE && count($params) > $extended_param_key_index + 1) {
+            return GetValues($extended_param_key_index + 1, $params);
         }
 
         /* search short version	 */
         $short_param_key_index = array_search($short_param_key, $params);
-        if ($short_param_key_index !== FALSE && count($params) > $short_param_key_index + 1)
-        {
-            return GetValues($short_param_key_index+1, $params);
+        if ($short_param_key_index !== FALSE && count($params) > $short_param_key_index + 1) {
+            return GetValues($short_param_key_index + 1, $params);
         }
 
         /* Parameter not found or invalid, return an empty array */
@@ -147,25 +142,27 @@ class ParametersManager extends BaseManager
     /**
      * Retrieve the gived parameter value from $params array
      *
-     * @param string $extended_param_key - the extended version of the param key
-     * @param string $short_param_key - the short version of the param key
-     * @param mixed $default_value - the fallback value to use if no one will be found
-     * @param array $params - the list of parameters passed by the user
+     * @param string - the extended version of the param key
+     * @param string - the short version of the param key
+     * @param mixed - the fallback value to use if no one will be found
+     * @param array - the list of parameters passed by the user
      * @return string - the value of the searched param or a default value if parameter will not be found or invalid
      */
     public function GetParam(string $extended_param_key, string $short_param_key, array $params = [], $default_value = ""): string {
         /* search extended version */
         $extended_param_key_index = array_search($extended_param_key, $params);
-        if ($extended_param_key_index !== FALSE && count($params) > $extended_param_key_index + 1)
+        if ($extended_param_key_index !== FALSE && count($params) > $extended_param_key_index + 1) {
             return $params[$extended_param_key_index + 1];
+        }
 
         /* search short version	 */
         $short_param_key_index = array_search($short_param_key, $params);
-        if ($short_param_key_index !== FALSE && count($params) > $short_param_key_index + 1)
+        if ($short_param_key_index !== FALSE && count($params) > $short_param_key_index + 1) {
             return $params[$short_param_key_index + 1];
+        }
 
         /* Parameter not found or invalid, return empty string */
-        return "";
+        return $default_value;
     }
 
     /**
@@ -179,13 +176,15 @@ class ParametersManager extends BaseManager
     public function HasParam(string $extended_param_key, string $short_param_key, $params = []): bool {
         /* search extended version */
         $extended_param_key_index = array_search($extended_param_key, $params);
-        if ($extended_param_key_index !== FALSE)
+        if ($extended_param_key_index !== FALSE) {
             return TRUE;
+        }
 
         /* search short version	 */
         $short_param_key_index = array_search($short_param_key, $params);
-        if ($short_param_key_index !== FALSE)
+        if ($short_param_key_index !== FALSE) {
             return TRUE;
+        }
 
         /* Param not found */
         return FALSE;
@@ -196,27 +195,13 @@ class ParametersManager extends BaseManager
      *
      * @return array
      */
-    public function ToArray() : array
-    {
+    public function ToArray(): array {
         return [
-            'help'              => $this->help,
-            'action'            => $this->action,
-            'urlset'            => $this->urlset,
-            'ignore_redirect'   => $this->ignore_redirect
+            'help' => $this->help,
+            'action' => $this->action,
+            'urlset' => $this->urlset,
+            'ignore_redirect' => $this->ignore_redirect
         ];
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

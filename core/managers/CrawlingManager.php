@@ -56,87 +56,92 @@ class CrawlingManager extends BaseManager {
         // Store params
         $this->params = $params;
 
-        while (count($this->urlset) > 0) {
-            $url = array_splice($this->urlset, 0, 1, NULL);
-            $this->GetAndStoreUrlContent($url[0]);
+        while (count($this->urlset) > 0) 
+        {
+            $url = array_splice($this->urlset, 0, 1, NULL);  
+            if(UrlHelper::IsValidUrl($url)) {
+                $this->ChooseAndRunSchemeHandlerMethod($url);
+            }            
         }
+                
     }
 
-    private function GetAndStoreUrlContent($url) {
-        $handler_method = $this->ChooseHandlerMethod($url);
-        if ($handler_method !== NULL) {
-            $this->{$handler_method}($url);
-        }
+#region - Content types handlers methods
+    private function ChooseAndRunContentTypeHandlerMethod() 
+    {
+        
     }
-
-    private function HandleHttpUrl($url) {
-        $requestResult = $this->httpManager->MakeRequest( $url, $this->params['ignore_redirect'] );
-
-        // Request Success
-        $curlGetinfoResult 	= $requestResult['curl_getinfo_result'];        
-        $curlExecResult	= $requestResult['curl_exec_result'];
+    
+    
+    private function HandleHtmlContent() {
+        //$requestResult['curl_getinfo_result'];
+        //$requestResult['curl_exec_result'];                     
         //$requestInfoDto = new RequestInfoDto( $curlGetinfoResult );
         //$domDocument = $this->domManager->ConvertStringToDOMDocument( $curlExecResult );        
-        //$requestResponseDto = $this->domManager->ExtractDataFromDOMDocument( $domDocument );
-        
-        
-
-
+        //$requestResponseDto = $this->domManager->ExtractDataFromDOMDocument( $domDocument );       
     }
-
-    private function HandleHttpsUrl($url) {
-        $this->HandleHttpUrl($url);
-    }
-
-    private function HandleFtpUrl($url) {
-        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["ftp"]);
-        return;
-    }
-
-    private function HandleFtpsUrl($url) {
-        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["ftps"]);
-        return;
-    }
-
-    private function HandleSftpUrl($url) {
-        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["sftp"]);
-        return;
-    }
-
-    private function HandleMailtoUrl($url) {
-        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["mailto"]);
-        return;
-    }
-
-    private function HandleTelUrl($url) {
-        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["tel"]);
-        return;
-    }
-
-    private function HandleSkypeUrl($url) {
-        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["skype"]);
-        return;
-    }
-
-    /**
+    
+#endregion - END OF: Content types handlers methods    
+#region - Scheme handlers methods
+    
+     /**
      * This method try to get scheme of the url and choose the method that can handle
      *
      * @param string $url
      * @return string
      */
-    private function ChooseHandlerMethod($url): string {
+    private function ChooseAndRunSchemeHandlerMethod($url): string {
         $url_scheme = UrlHelper::GetUrlScheme($url);
         switch ($url_scheme) {
-            case 'http': return "HandleHttpUrl";
-            case 'https': return "HandleHttpsUrl";
-            case 'ftp': return "HandleFtpUrl";
-            case 'ftps': return "HandleFtpsUrl";
-            case 'sftp': return "HandleSftpUrl";
-            case 'mailto': return "HandleMailtoUrl";
-            case 'tel': return "HandleTelUrl";
-            case 'skype': return "HandleSkypeUrl";
-            default: return "HandleHttpUrl";
+            case 'http':    $this->HandleHttpSchemeUrl($url);
+            case 'https':   $this->HandleHttpsSchemeUrl($url);
+            case 'ftp':     $this->HandleFtpSchemeUrl($url);
+            case 'ftps':    $this->HandleFtpsSchemeUrl($url);
+            case 'sftp':    $this->HandleSftpSchemeUrl($url);
+            case 'mailto':  $this->HandleMailtoSchemeUrl($url);
+            case 'tel':     $this->HandleTelSchemeUrl($url);
+            case 'skype':   $this->HandleSkypeSchemeUrl($url);
+            default: $this->HandleHttpSchemeUrl($url);
         }
     }
-
+    private function HandleHttpSchemeUrl($url) {
+        $requestResult = $this->httpManager->MakeRequest( $url, $this->params['ignore_redirect'] );  
+        return $requestResult;        
+    }   
+    private function HandleHttpsSchemeUrl($url) {
+        $this->HandleHttpSchemeUrl($url);
+    }
+    private function HandleFtpSchemeUrl($url) {
+        echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
+        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["ftp"]);
+        return;
+    }
+    private function HandleFtpsSchemeUrl($url) {
+        echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
+        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["ftps"]);
+        return;
+    }
+    private function HandleSftpSchemeUrl($url) {
+        echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
+        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["sftp"]);
+        return;
+    }
+    private function HandleMailtoSchemeUrl($url) {
+        echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
+        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["mailto"]);
+        return;
+    }
+    private function HandleTelSchemeUrl($url) {
+        echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
+        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["tel"]);
+        return;
+    }
+    private function HandleSkypeSchemeUrl($url) {
+        echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
+        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["skype"]);
+        return;
+    }
+   
+#endregion - END OF: Scheme handlers methods
+    
 }
