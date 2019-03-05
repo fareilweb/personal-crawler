@@ -72,21 +72,12 @@ class CrawlingManager extends BaseManager {
     private function HandleHttpUrl($url) {
         $requestResult = $this->httpManager->MakeRequest( $url, $this->params['ignore_redirect'] );
 
-        if( !isset($requestResult) || empty($requestResult) ) 
-        {
-            // Request fails
-            // TODO - Store the results for the url to database
-
-            return;
-        }
-        
         // Request Success
         $curlGetinfoResult 	= $requestResult['curl_getinfo_result'];        
         $curlExecResult	= $requestResult['curl_exec_result'];
-        
-        $requestInfoDto = new RequestInfoDto( $curlGetinfoResult );
-        $domDocument = $this->domManager->ConvertStringToDOMDocument( $curlExecResult );        
-        $requestResponseDto = $this->domManager->ExtractDataFromDOMDocument( $domDocument );
+        //$requestInfoDto = new RequestInfoDto( $curlGetinfoResult );
+        //$domDocument = $this->domManager->ConvertStringToDOMDocument( $curlExecResult );        
+        //$requestResponseDto = $this->domManager->ExtractDataFromDOMDocument( $domDocument );
         
         
 
