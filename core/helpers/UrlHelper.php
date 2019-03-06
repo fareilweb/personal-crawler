@@ -14,6 +14,8 @@ class UrlHelper {
         'whatsapp' => 'whatsapp'
     ];
 
+    public static $DefaultScheme = 'http';
+
     /**
      * Try to get the scheme of gived url
      *
@@ -55,24 +57,15 @@ class UrlHelper {
      */
     public static function FixUrl($main_url, $parent_url = NULL) {
         $valid_url = "";
+        
+        $main_url_parts = parse_url($main_url);
+        $parent_url_parts = isset($parent_url) ? parse_url($parent_url) : NULL;
 
-        $url_parts = parse_url($main_url);
-        if (isset($parent_url)) {
-            $parent_url_parts = parse_url($parent_url);
-        }
-
-        // Fix Url scheme
-        if( isset( $url_parts['scheme'] ) ) {
-            $valid_url .= $url_parts['scheme'];
-        } else {
-            
-        }
-
-        $valid_url .= isset($url_parts['scheme']) ? $url_parts['scheme'] . "://" : ( isset($parent_url_parts['scheme']) ? $parent_url_parts['scheme'] . "://" : "" );
-        $valid_url .= isset($url_parts['host']) ? $url_parts['host'] : ( isset($parent_url_parts['host']) ? $parent_url_parts['host'] : "" );
-        $valid_url .= isset($url_parts['path']) ? $url_parts['path'] : ( isset($parent_url_parts['path']) ? $parent_url_parts['path'] : "" );
-        $valid_url .= isset($url_parts['query']) ? "?" . $url_parts['query'] : ""; // ?
-        $valid_url .= isset($url_parts['fragment']) ? "#" . $url_parts['fragment'] : ""; // #
+        $valid_url .= isset($main_url_parts['scheme']) ? $main_url_parts['scheme'] . "://" : ( isset($parent_url_parts['scheme']) ? $parent_url_parts['scheme'] . "://" : "" );
+        $valid_url .= isset($main_url_parts['host']) ? $main_url_parts['host'] : ( isset($parent_url_parts['host']) ? $parent_url_parts['host'] : "" );
+        $valid_url .= isset($main_url_parts['path']) ? $main_url_parts['path'] : ( isset($parent_url_parts['path']) ? $parent_url_parts['path'] : "" );
+        $valid_url .= isset($main_url_parts['query']) ? "?" . $main_url_parts['query'] : ""; // ?
+        $valid_url .= isset($main_url_parts['fragment']) ? "#" . $main_url_parts['fragment'] : ""; // #
 
         return $valid_url;
     }
