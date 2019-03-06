@@ -15,8 +15,7 @@ $var_null = NULL;
 $var_empty = "";
 
 
-$result = empty(false);
-
+$result = isset($var_null);
 var_dump($result);
 
 exit;
