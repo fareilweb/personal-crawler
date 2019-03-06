@@ -69,17 +69,20 @@ class HttpManager extends BaseManager {
 
         // Set headers
         $headers = $this->headers['chrome'];
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        //curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 
         // Set URL
         curl_setopt($curl, CURLOPT_URL, $url);
 
         // Make request and get info about it
-        $results = [ 'curl_getinfo_result' => curl_getinfo($curl), 'curl_exec_result' => curl_exec($curl) ];
+        $curl_getinfo_result = curl_getinfo($curl);
+        $curl_exec_result = curl_exec($curl);
+
+        $result = ['curl_getinfo_result' => $curl_getinfo_result, 'curl_exec_result' => $curl_exec_result];
 
         curl_close($curl); // Close curl connection
 
-        return $results;
+        return $result;
     }
 
     /**

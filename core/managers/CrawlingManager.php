@@ -60,8 +60,11 @@ class CrawlingManager extends BaseManager {
         {
             $url = array_splice($this->urlset, 0, 1, NULL)[0];
             if(UrlHelper::IsValidUrl($url)) {
+
                 $handledResult = $this->ChooseAndRunSchemeHandlerMethod($url);
+
                 $this->ChooseAndRunContentTypeHandlerMethod($handledResult);
+
             } else {
                 //TODO
             }
@@ -93,7 +96,7 @@ class CrawlingManager extends BaseManager {
      * @param string $url
      * @return array
      */
-    private function ChooseAndRunSchemeHandlerMethod($url): array {
+    private function ChooseAndRunSchemeHandlerMethod($url): SchemeHandlerResultDto {
         $url_scheme = UrlHelper::GetUrlScheme($url);
         switch ($url_scheme) {
             case UrlHelper::$UrlSchemes['http'] :   return $this->HandleHttpSchemeUrl($url);
@@ -108,44 +111,47 @@ class CrawlingManager extends BaseManager {
                 return $this->HandleHttpSchemeUrl($url);
         }
     }
-    private function HandleHttpSchemeUrl($url) {
+    private function HandleHttpSchemeUrl($url) : SchemeHandlerResultDto {
         $requestResult = $this->httpManager->MakeCurlRequest( $url, $this->params['ignore_redirect'] );
 
+        $info = $requestResult['curl_getinfo_result'];
+        $content_type = $requestResult['curl_getinfo_result']['content_type'];
+        $content = $requestResult['curl_exec_result'];
 
-        return $requestResult;
+        return new SchemeHandlerResultDto($info, $content_type, $content);
     }
-    private function HandleHttpsSchemeUrl($url) {
+    private function HandleHttpsSchemeUrl($url) : SchemeHandlerResultDto {
         return $this->HandleHttpSchemeUrl($url);
     }
-    private function HandleFtpSchemeUrl($url) {
+    private function HandleFtpSchemeUrl($url) : SchemeHandlerResultDto {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
         echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["ftp"]);
-        return;
+        return new SchemeHandlerResultDto();
     }
-    private function HandleFtpsSchemeUrl($url) {
+    private function HandleFtpsSchemeUrl($url) : SchemeHandlerResultDto {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
         echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["ftps"]);
-        return;
+        return new SchemeHandlerResultDto();
     }
-    private function HandleSftpSchemeUrl($url) {
+    private function HandleSftpSchemeUrl($url) : SchemeHandlerResultDto {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
         echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["sftp"]);
-        return;
+        return new SchemeHandlerResultDto();
     }
-    private function HandleMailtoSchemeUrl($url) {
+    private function HandleMailtoSchemeUrl($url) : SchemeHandlerResultDto {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
         echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["mailto"]);
-        return;
+        return new SchemeHandlerResultDto();
     }
-    private function HandleTelSchemeUrl($url) {
+    private function HandleTelSchemeUrl($url) : SchemeHandlerResultDto {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
         echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["tel"]);
-        return;
+        return new SchemeHandlerResultDto();
     }
-    private function HandleSkypeSchemeUrl($url) {
+    private function HandleSkypeSchemeUrl($url) : SchemeHandlerResultDto {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
         echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["skype"]);
-        return;
+        return new SchemeHandlerResultDto();
     }
 
 #endregion - END OF: Scheme handlers methods
