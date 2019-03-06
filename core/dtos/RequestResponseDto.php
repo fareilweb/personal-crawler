@@ -1,5 +1,5 @@
 <?php
-class RequestResponseDto
+class RequestResponseDto extends BaseDto
 {
 	/** @var int */			public $id;
     /** @var string */      public $language;
@@ -19,11 +19,7 @@ class RequestResponseDto
 
 	}
 
-	public function __destruct()
-	{
-		foreach( get_object_vars($this) as $key => $val)
-		{
-			unset( $this->{$key} );
-		}
+	public function __destruct() {
+        parent::__destruct();
 	}
 }

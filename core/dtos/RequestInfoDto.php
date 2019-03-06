@@ -1,6 +1,6 @@
 <?php
 
-class RequestInfoDto
+class RequestInfoDto extends BaseDto
 {
 
     /** @var string */ public $url;
@@ -47,10 +47,7 @@ class RequestInfoDto
     }
 
 
-    public function __destruct()
-    {
-        foreach (get_object_vars($this) as $key => $val) {
-            unset($this->{$key});
-        }
+    public function __destruct() {
+        parent::__destruct();
     }
 }

@@ -51,7 +51,7 @@ class HttpManager extends BaseManager {
      * @param boolean $ignore_redirect
      * @return array
      */
-    public function MakeRequest(string $url, bool $ignore_redirect = FALSE): array {
+    public function MakeCurlRequest(string $url, bool $ignore_redirect = FALSE): array {
         $curl = curl_init(); // Initialize curl
 
         // Set hardcoded options

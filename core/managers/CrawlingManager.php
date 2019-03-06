@@ -36,8 +36,8 @@ class CrawlingManager extends BaseManager {
         $this->domManager = $dom_manager;
 
         // Initializations
-        $this->params = [];
-        $this->urlset = [];
+        $this->params = NULL;
+        $this->urlset = NULL;
 
         parent::__construct();
     }
@@ -58,9 +58,10 @@ class CrawlingManager extends BaseManager {
 
         while (count($this->urlset) > 0)
         {
-            $url = array_splice($this->urlset, 0, 1, NULL);
+            $url = array_splice($this->urlset, 0, 1, NULL)[0];
             if(UrlHelper::IsValidUrl($url)) {
-                $this->ChooseAndRunSchemeHandlerMethod($url);
+                $handledResult = $this->ChooseAndRunSchemeHandlerMethod($url);
+                $this->ChooseAndRunContentTypeHandlerMethod($handledResult);
             } else {
                 //TODO
             }
@@ -69,7 +70,7 @@ class CrawlingManager extends BaseManager {
     }
 
 #region - Content types handlers methods
-    private function ChooseAndRunContentTypeHandlerMethod()
+    private function ChooseAndRunContentTypeHandlerMethod($handledResult)
     {
 
     }
@@ -90,9 +91,9 @@ class CrawlingManager extends BaseManager {
      * This method try to get scheme of the url and choose the method that can handle
      *
      * @param string $url
-     * @return string
+     * @return array
      */
-    private function ChooseAndRunSchemeHandlerMethod($url): string {
+    private function ChooseAndRunSchemeHandlerMethod($url): array {
         $url_scheme = UrlHelper::GetUrlScheme($url);
         switch ($url_scheme) {
             case UrlHelper::$UrlSchemes['http'] :   return $this->HandleHttpSchemeUrl($url);
@@ -108,11 +109,13 @@ class CrawlingManager extends BaseManager {
         }
     }
     private function HandleHttpSchemeUrl($url) {
-        $requestResult = $this->httpManager->MakeRequest( $url, $this->params['ignore_redirect'] );
+        $requestResult = $this->httpManager->MakeCurlRequest( $url, $this->params['ignore_redirect'] );
+
+
         return $requestResult;
     }
     private function HandleHttpsSchemeUrl($url) {
-        $this->HandleHttpSchemeUrl($url);
+        return $this->HandleHttpSchemeUrl($url);
     }
     private function HandleFtpSchemeUrl($url) {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
