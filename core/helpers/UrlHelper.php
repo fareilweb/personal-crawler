@@ -65,7 +65,7 @@ class UrlHelper {
         if( isset( $url_parts['scheme'] ) ) {
             $valid_url .= $url_parts['scheme'];
         } else {
-            $valid_url .=
+            
         }
 
         $valid_url .= isset($url_parts['scheme']) ? $url_parts['scheme'] . "://" : ( isset($parent_url_parts['scheme']) ? $parent_url_parts['scheme'] . "://" : "" );

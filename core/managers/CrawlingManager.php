@@ -61,6 +61,8 @@ class CrawlingManager extends BaseManager {
             $url = array_splice($this->urlset, 0, 1, NULL);
             if(UrlHelper::IsValidUrl($url)) {
                 $this->ChooseAndRunSchemeHandlerMethod($url);
+            } else {
+                //TODO
             }
         }
 
