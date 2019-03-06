@@ -40,7 +40,9 @@ class HttpManager extends BaseManager {
     /**
      * The constructor of the class
      */
-    public function __construct() { }
+    public function __construct() {
+        parent::__construct();
+    }
 
     /**
      * Make an HTTP request by cURL
@@ -51,7 +53,7 @@ class HttpManager extends BaseManager {
      */
     public function MakeRequest(string $url, bool $ignore_redirect = FALSE): array {
         $curl = curl_init(); // Initialize curl
-        
+
         // Set hardcoded options
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_VERBOSE, true);
