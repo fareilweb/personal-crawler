@@ -11,6 +11,6 @@
  *
  * @author Luca
  */
-class DataResultsDto extends BaseDto {
+class DataDto extends BaseDto {
 
 }

@@ -1,6 +1,6 @@
 <?php
 
-class WebPageDataResultsDto extends DataResultsDto {
+class WebPageDataDto extends DataDto {
 
     /** @var int */
     public $id;

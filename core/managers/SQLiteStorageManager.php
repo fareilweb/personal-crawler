@@ -10,7 +10,7 @@ class SQLiteStorageManager extends BaseManager implements IStorageManager
         $this->sqlite = new SQLite3( $db_file );
     }
     
-    function InsertOrUpdateRequestResponse( RequestResponseModel $model ) : int
+    function InsertOrUpdateRequestResponse( BaseModel $model ) : int
     {
         return 0;
     }
@@ -30,14 +30,14 @@ class SQLiteStorageManager extends BaseManager implements IStorageManager
         return false;
     }
 
-    function GetRequestResultById( int $id ) : RequestResponseModel
+    function GetRequestResultById( int $id ) : BaseModel
     {
-        return new RequestResponseModel();
+        return new BaseModel();
     }
 
-    function GetRequestResultByUrl( string $url ) : RequestResponseModel
+    function GetRequestResultByUrl( string $url ) : BaseModel
     {
-        return new RequestResponseModel();
+        return new BaseModel();
     }
 
     function GetRequestResultsByInsertDateRange( DateTime $start_date, DateTime $end_date ) : array

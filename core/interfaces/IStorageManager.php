@@ -4,15 +4,15 @@ interface IStorageManager
     /**
      * Insert a RequestResponse
      *
-     * @param RequestResponseModel
+     * @param BaseModel
      * @return int - the id of the just inserted/updated row or 0 if fails
      */
-    function InsertOrUpdateRequestResponse( RequestResponseModel $model ) : int;
+    function InsertOrUpdateRequestResponse( BaseModel $model ) : int;
 
     /**
      * Insert a list of RequestResponse at once
      *
-     * @param RequestResponseModel[] $models
+     * @param BaseModel[] $models
      * @return int - the id of the just inserted/updated rows or an empty array if fails
      */
     function InsertOrUpdateRequestResponses( array $models ) : int;
@@ -37,24 +37,24 @@ interface IStorageManager
      * Get a row by id
      *
      * @param integer $id
-     * @return RequestResponseModel
+     * @return BaseModel
      */
-    function GetRequestResultById( int $id ) : RequestResponseModel;
+    function GetRequestResultById( int $id ) : BaseModel;
 
     /**
      * Get a row by url
      *
      * @param string $url
-     * @return RequestResponseModel
+     * @return BaseModel
      */
-    function GetRequestResultByUrl( string $url ) : RequestResponseModel;
+    function GetRequestResultByUrl( string $url ) : BaseModel;
 
     /**
      * Get a list of all rows inserted beetwen the gived range of dates
      *
      * @param DateTime $start_date
      * @param DateTime $end_date
-     * @return RequestResponseModel[]
+     * @return BaseModel[]
      */
     function GetRequestResultsByInsertDateRange( DateTime $start_date, DateTime $end_date ) : array;
 
@@ -63,7 +63,7 @@ interface IStorageManager
      *
      * @param DateTime $start_date
      * @param DateTime $end_date
-     * @return RequestResponseModel[]
+     * @return BaseModel[]
      */
     function GetRequestResultsByUpdateDateRange( DateTime $start_date, DateTime $end_date ) : array;
 

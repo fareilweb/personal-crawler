@@ -10,10 +10,10 @@ class DomManager extends BaseManager
      * Collect data from dom document
      *
      * @param string
-     * @return WebPageDataResultsDto
+     * @return WebPageDataDto
      */
-    public function ExtractDataFromHtml( string $html, CurlRequestInfoDto $info ) : WebPageDataResultsDto {
-        $resultsDataDto = new WebPageDataResultsDto($info);
+    public function ExtractDataFromHtml( string $html, CurlRequestInfoDto $info ) : WebPageDataDto {
+        $resultsDataDto = new WebPageDataDto($info);
 
         $domDocument = $this->ConvertStringToDOMDocument($html);
 
