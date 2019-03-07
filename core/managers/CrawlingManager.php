@@ -82,14 +82,14 @@ class CrawlingManager extends BaseManager {
             case 'text/html': return $this->HandleHtmlContent($schemeHandlerResultDto);
             default:
                 return $this->HandleHtmlContent();
-
         }
     }
 
     private function HandleHtmlContent(SchemeHandlerResultDto $schemeHandlerResultDto) {
-        $domDocument = $this->domManager->ConvertStringToDOMDocument( $schemeHandlerResultDto->content );
-        $requestResponseDto = $this->domManager->ExtractDataFromDOMDocument( $domDocument );
+        $domDocument = $this->domManager->ConvertStringToDOMDocument($schemeHandlerResultDto->content);
+        $requestContentDto = $this->domManager->ExtractDataFromDOMDocument($domDocument, $schemeHandlerResultDto->info);
     }
+
 
 #endregion - END OF: Content types handlers methods
 #region - Scheme handlers methods

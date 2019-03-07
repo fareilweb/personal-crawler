@@ -1,6 +1,6 @@
 <?php
 
-class DomManager extends BaseManager 
+class DomManager extends BaseManager
 {
     private $default_encoding = "";
     private $default_version = "";
@@ -10,12 +10,11 @@ class DomManager extends BaseManager
      * Collect data from dom document
      *
      * @param DOMDocument
-     * @return RequestResponseDto
+     * @return ResultsDataDto
      */
-    public function ExtractDataFromDOMDocument( DOMDocument $dom )
-    {
+    public function ExtractDataFromDOMDocument( DOMDocument $dom, CurlRequestInfoDto $info ) : ResultsDataDto {
         // Get model instance
-        $dto = new WebPageModel();
+        $resultsDataDto = new ResultsDataDto($info);
 
         // // Language
         // $html = $dom->getElementsByTagName('html');
@@ -63,7 +62,7 @@ class DomManager extends BaseManager
         //     $page->top_word = $top_word;
         // }
 
-        return $dto;
+        return $resultsDataDto;
     }
 
 

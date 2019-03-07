@@ -1,6 +1,6 @@
 <?php
 
-class RequestContentDto extends BaseDto {
+class ResultsDataDto extends BaseDto {
 
     /** @var int */
     public $id;
@@ -35,11 +35,13 @@ class RequestContentDto extends BaseDto {
     /** @var DateTime */
     public $update_date;
 
-    /** @var array */
-    public $request_info;
+    /** @var CurlRequestInfoDto */
+    public $info;
 
-    public function __construct() {
-
+    public function __construct(CurlRequestInfoDto $info = NULL) {
+        if(isset($info)) {
+            $this->info = $info;
+        }
     }
 
     public function __destruct() {
