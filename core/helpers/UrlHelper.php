@@ -14,6 +14,7 @@ class UrlHelper {
         'whatsapp' => 'whatsapp'
     ];
 
+    /** @var string */
     public static $DefaultScheme = 'http';
 
     /**
@@ -57,7 +58,7 @@ class UrlHelper {
      */
     public static function FixUrl($main_url, $parent_url = NULL) {
         $valid_url = "";
-        
+
         $main_url_parts = parse_url($main_url);
         $parent_url_parts = isset($parent_url) ? parse_url($parent_url) : NULL;
 
