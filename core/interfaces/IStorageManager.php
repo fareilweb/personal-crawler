@@ -1,10 +1,10 @@
 <?php
-interface IStorageManager 
+interface IStorageManager
 {
     /**
      * Insert a RequestResponse
      *
-     * @param RequestResponseModel $model
+     * @param RequestResponseModel
      * @return int - the id of the just inserted/updated row or 0 if fails
      */
     function InsertOrUpdateRequestResponse( RequestResponseModel $model ) : int;
@@ -65,6 +65,6 @@ interface IStorageManager
      * @param DateTime $end_date
      * @return RequestResponseModel[]
      */
-    function GetRequestResultsByUpdateDateRange( DateTime $start_date, DateTime $end_date ) : array;    
+    function GetRequestResultsByUpdateDateRange( DateTime $start_date, DateTime $end_date ) : array;
 
 }
