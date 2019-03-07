@@ -1,19 +1,15 @@
 <?php
 class SchemeHandlerResultDto extends BaseDto {
 
-    /** @var array */
+    /** @var CurlRequestInfoDto */
     public $info;
-
-    /** @var string */
-    public $content_type;
 
     /** @var string */
     public $content;
 
-    public function __construct(array $info = NULL, string $content_type = NULL, string $content = NULL) {
-        $this->info         = $info;
-        $this->content_type = $content_type;
-        $this->content      = $content;
+    public function __construct(CurlRequestInfoDto $info = NULL, string $content = NULL) {
+        $this->info = $info;
+        $this->content = $content;
     }
 
     public function __destruct() {

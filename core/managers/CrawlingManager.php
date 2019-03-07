@@ -74,20 +74,21 @@ class CrawlingManager extends BaseManager {
 #region - Content types handlers methods
     private function ChooseAndRunContentTypeHandlerMethod(SchemeHandlerResultDto $schemeHandlerResultDto)
     {
-        $content_type = $schemeHandlerResultDto->content_type;
+        // Get contenty_type only by removing every other information is in the same string
+        $separator_pos = strpos($schemeHandlerResultDto->info->content_type, ';');
+        $content_type = substr($schemeHandlerResultDto->info->content_type, 0, $separator_pos);
+
         switch($content_type) {
-            case '':
+            case 'text/html': return $this->HandleHtmlContent($schemeHandlerResultDto);
+            default:
+                return $this->HandleHtmlContent();
 
         }
     }
 
-
-    private function HandleHtmlContent() {
-        //$requestResult['curl_getinfo_result'];
-        //$requestResult['curl_exec_result'];
-        //$requestInfoDto = new RequestInfoDto( $curlGetinfoResult );
-        //$domDocument = $this->domManager->ConvertStringToDOMDocument( $curlExecResult );
-        //$requestResponseDto = $this->domManager->ExtractDataFromDOMDocument( $domDocument );
+    private function HandleHtmlContent(SchemeHandlerResultDto $schemeHandlerResultDto) {
+        $domDocument = $this->domManager->ConvertStringToDOMDocument( $schemeHandlerResultDto->content );
+        $requestResponseDto = $this->domManager->ExtractDataFromDOMDocument( $domDocument );
     }
 
 #endregion - END OF: Content types handlers methods
@@ -116,12 +117,9 @@ class CrawlingManager extends BaseManager {
     }
     private function HandleHttpSchemeUrl($url) : SchemeHandlerResultDto {
         $requestResult = $this->httpManager->MakeCurlRequest( $url, $this->params['ignore_redirect'] );
-
         $info = $requestResult['curl_getinfo_result'];
-        $content_type = $requestResult['curl_getinfo_result']['content_type'];
         $content = $requestResult['curl_exec_result'];
-
-        return new SchemeHandlerResultDto($info, $content_type, $content);
+        return new SchemeHandlerResultDto($info, $content);
     }
     private function HandleHttpsSchemeUrl($url) : SchemeHandlerResultDto {
         return $this->HandleHttpSchemeUrl($url);
