@@ -9,18 +9,21 @@ class DomManager extends BaseManager
     /**
      * Collect data from dom document
      *
-     * @param DOMDocument
-     * @return ResultsDataDto
+     * @param string
+     * @return WebPageDataResultsDto
      */
-    public function ExtractDataFromDOMDocument( DOMDocument $dom, CurlRequestInfoDto $info ) : ResultsDataDto {
-        // Get model instance
-        $resultsDataDto = new ResultsDataDto($info);
+    public function ExtractDataFromHtml( string $html, CurlRequestInfoDto $info ) : WebPageDataResultsDto {
+        $resultsDataDto = new WebPageDataResultsDto($info);
 
-        // // Language
-        // $html = $dom->getElementsByTagName('html');
-        // if ($html->length > 0 && $html->item(0)->hasAttribute('lang')) {
-        //     $page->lang = $html->item(0)->getAttribute('lang');
-        // }
+        $domDocument = $this->ConvertStringToDOMDocument($html);
+
+        // Language
+        $tagsHtml = $domDocument->getElementsByTagName('html');
+        if($tagsHtml->length > 0 && $tagsHtml->item(0)->hasAttribute('lang')) {
+            $resultsDataDto->language = $tagsHtml->item(0)->getAttribute('lang');
+        }
+
+        return $resultsDataDto;
 
         // // Title
         // $title = $dom->getElementsByTagName('title');
@@ -62,7 +65,6 @@ class DomManager extends BaseManager
         //     $page->top_word = $top_word;
         // }
 
-        return $resultsDataDto;
     }
 
 

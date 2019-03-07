@@ -65,14 +65,16 @@ class CrawlingManager extends BaseManager {
 
             $schemeHandlerResultDto = $this->ChooseAndRunSchemeHandlerMethod($url);
 
-            $this->ChooseAndRunContentTypeHandlerMethod($schemeHandlerResultDto);
+            $dataResultsDto = $this->ChooseAndRunContentTypeHandlerMethod($schemeHandlerResultDto);
+
+            // Do storage
 
         }
 
     }
 
 #region - Content types handlers methods
-    private function ChooseAndRunContentTypeHandlerMethod(SchemeHandlerResultDto $schemeHandlerResultDto)
+    private function ChooseAndRunContentTypeHandlerMethod(SchemeHandlerResultDto $schemeHandlerResultDto) : DataResultsDto
     {
         // Get contenty_type only by removing every other information is in the same string
         $separator_pos = strpos($schemeHandlerResultDto->info->content_type, ';');
@@ -81,13 +83,12 @@ class CrawlingManager extends BaseManager {
         switch($content_type) {
             case 'text/html': return $this->HandleHtmlContent($schemeHandlerResultDto);
             default:
-                return $this->HandleHtmlContent();
+                return $this->HandleHtmlContent($schemeHandlerResultDto);
         }
     }
 
-    private function HandleHtmlContent(SchemeHandlerResultDto $schemeHandlerResultDto) {
-        $domDocument = $this->domManager->ConvertStringToDOMDocument($schemeHandlerResultDto->content);
-        $requestContentDto = $this->domManager->ExtractDataFromDOMDocument($domDocument, $schemeHandlerResultDto->info);
+    private function HandleHtmlContent(SchemeHandlerResultDto $schemeHandlerResultDto) : WebPageDataResultsDto {
+        $dataResultsDto = $this->domManager->ExtractDataFromHtml($schemeHandlerResultDto->content, $schemeHandlerResultDto->info);
     }
 
 
