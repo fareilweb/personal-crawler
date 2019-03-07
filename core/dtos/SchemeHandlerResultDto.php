@@ -7,13 +7,13 @@ class SchemeHandlerResultDto extends BaseDto {
     /** @var string */
     public $content_type;
 
-    /** @var mixed */
+    /** @var string */
     public $content;
 
     public function __construct(array $info = NULL, string $content_type = NULL, string $content = NULL) {
-        $this->info = $info;
+        $this->info         = $info;
         $this->content_type = $content_type;
-        $this->content = $content;
+        $this->content      = $content;
     }
 
     public function __destruct() {

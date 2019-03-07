@@ -62,18 +62,23 @@ class CrawlingManager extends BaseManager {
             if(!UrlHelper::IsValidUrl($url)) {
                 $url = UrlHelper::FixUrl($url);
             }
-            
-            $handledResult = $this->ChooseAndRunSchemeHandlerMethod($url);
-            $this->ChooseAndRunContentTypeHandlerMethod($handledResult);
+
+            $schemeHandlerResultDto = $this->ChooseAndRunSchemeHandlerMethod($url);
+
+            $this->ChooseAndRunContentTypeHandlerMethod($schemeHandlerResultDto);
 
         }
 
     }
 
 #region - Content types handlers methods
-    private function ChooseAndRunContentTypeHandlerMethod($handledResult)
+    private function ChooseAndRunContentTypeHandlerMethod(SchemeHandlerResultDto $schemeHandlerResultDto)
     {
+        $content_type = $schemeHandlerResultDto->content_type;
+        switch($content_type) {
+            case '':
 
+        }
     }
 
 
