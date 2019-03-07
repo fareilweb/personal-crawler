@@ -79,6 +79,7 @@ class CrawlingManager extends BaseManager {
         // Get contenty_type only by removing every other information is in the same string        
         $info_content_type = $schemeHandlerResultDto->info->content_type;
 
+        // Choose the best handler
         if(strpos($info_content_type, 'text/html') !== FALSE) {
             return $this->HandleHtmlContent($schemeHandlerResultDto);
         } else {
@@ -91,8 +92,6 @@ class CrawlingManager extends BaseManager {
         $dataResultsDto = $this->domManager->ExtractDataFromHtml($schemeHandlerResultDto->content, $schemeHandlerResultDto->info);
         return $dataResultsDto;
     }
-
-
 #endregion - END OF: Content types handlers methods
 #region - Scheme handlers methods
 
