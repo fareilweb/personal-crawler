@@ -72,6 +72,12 @@ class CrawlingManager extends BaseManager {
 
 #region - Content types handlers methods
 
+    /**
+     * This method try to get the content type of the request results and choose the method that can handle it
+     *
+     * @param SchemeHandlerResultDto $schemeHandlerResultDto
+     * @return DataDto
+     */
     private function ChooseAndRunContentTypeHandlerMethod(SchemeHandlerResultDto $schemeHandlerResultDto): DataDto {
         // Get contenty_type only by removing every other information is in the same string
         $info_content_type = $schemeHandlerResultDto->info->content_type;
