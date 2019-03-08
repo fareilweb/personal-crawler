@@ -70,6 +70,9 @@ class CrawlingManager extends BaseManager {
         }
     }
 
+
+
+    
 #region - Content types handlers methods
 
     /**
@@ -92,17 +95,15 @@ class CrawlingManager extends BaseManager {
     }
 
     private function HandleHtmlContent(SchemeHandlerResultDto $schemeHandlerResultDto): WebPageDataDto {
-        $dataResultsDto = $this->domManager->ExtractDataFromHtml($schemeHandlerResultDto->content, $schemeHandlerResultDto->info);
+        $dataResultsDto = $this->domManager->ExtractDataFromSchemeHandlerResultDto($schemeHandlerResultDto);
         return $dataResultsDto;
     }
 
 #endregion - END OF: Content types handlers methods
-#
-#
-#
-#
-#
-#
+
+
+
+
 #region - Scheme handlers methods
 
     /**
@@ -175,4 +176,6 @@ class CrawlingManager extends BaseManager {
     }
 
 #endregion - END OF: Scheme handlers methods
+
+
 }

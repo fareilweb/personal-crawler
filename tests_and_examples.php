@@ -10,12 +10,8 @@ function GetUrlAndStoreToFolder( $document_url, $file_name )
 	file_put_contents($file_path, $request_result->content);
 }
 
-$arr_empty = [];
-$var_null = NULL;
-$var_empty = "";
 
-
-
+var_dump( gettype(function() {}) );
 
 exit;
 
