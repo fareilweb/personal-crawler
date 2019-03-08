@@ -11,20 +11,11 @@ class WebPageDataDto extends DataDto {
     /** @var string */
     public $title;
 
-    /** @var string */
-    public $h1;
-
-    /** @var string */
-    public $h2;
-
-    /** @var string */
-    public $h3;
+    /** @var array */
+    public $headers;
 
     /** @var array */
-    public $meta_keywords;
-
-    /** @var string */
-    public $meta_description;
+    public $meta_data;
 
     /** @var array */
     public $top_words;

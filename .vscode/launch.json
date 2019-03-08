@@ -20,9 +20,13 @@
                 "--action",
                 "crawl",
                 "--urlset",
+                "https://www.01webdirectory.com",
                 "https://www.fareilweb.com/"
             ],
-            "port": 9000
+            "port": 9000,
+            "xdebugSettings": {
+                "max_children": 100
+            }
         },
         {
             "name": "Debug Help",

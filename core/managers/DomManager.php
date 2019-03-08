@@ -49,41 +49,19 @@ class DomManager extends BaseManager
         }
 
         // Language
-        $resultDto->language = $this->GetWebPageContentLanguage($domDocument);
+        $resultDto->language = $this->GetWebPageLanguage($domDocument);
 
-        // // Title
-        // $title = $dom->getElementsByTagName('title');
-        // if ($title->length > 0) {
-        //     $page->title = $title[0]->textContent;
-        // }
-        // // H1
-        // $h1 = $dom->getElementsByTagName('h1');
-        // if ($h1->length > 0) {
-        //     $page->h1 = $h1[0]->textContent;
-        // }
-        // // H2
-        // $h2 = $dom->getElementsByTagName('h2');
-        // if ($h2->length > 0) {
-        //     $page->h2 = $h2[0]->textContent;
-        // }
-        // // Meta Data
-        // $metas = $dom->getElementsByTagName('meta');
-        // if ($metas->length > 0) {
-        //     foreach ($metas as $k => $elem) {
-        //         $name = $elem->getAttribute('name');
-        //         // Meta Description
-        //         if ($name == 'description')
-        //             $page->metadescription = $elem->getAttribute('document_content');
-        //         // Meta Keywords
-        //         if ($name == 'keywords')
-        //             $page->metakeywords = $elem->getAttribute('document_content');
-        //     }
-        // }
-        // // Most Repeated Word
-        // $top_word = $this->getDomTopWord($dom);
-        // if ($top_word !== FALSE) {
-        //     $page->top_word = $top_word;
-        // }
+        // Title
+        $resultDto->title = $this->GetWebPageTitle($domDocument);
+
+        // Headers
+        $resultDto->headers = $this->GetHeadersContent($domDocument);
+
+        // Meta Data
+        $resultDto->meta_data = $this->GetMetaData($domDocument);
+
+        // Most Repeated Word
+        $resultDto->top_words = $this->GetMostRepeatedWords($domDocument);        
 
         return $resultDto;
     }
@@ -105,30 +83,108 @@ class DomManager extends BaseManager
         return $founds[0];
     }
 
+    /**
+     * Get Most Repeated Word From a DOMDocument object
+     * 
+     * @param DOMDocument $domDocument
+     * @return string[]
+     */
+    public function GetMostRepeatedWords(DOMDocument $domDocument) {        
+        // Get Body Content
+        $body = $domDocument->getElementsByTagName('body');
 
-    public function GetWebPageContentLanguage(DOMDocument $domDocument) {
-        $lang = "";
+        $bodyAsString = "";
+        if ($body->length > 0) {
+            $bodyAsString = $body[0]->textContent;
+        }
+
+        $allWords = array_filter(
+            str_word_count($bodyAsString, 2), function($word) {
+                return strlen($word) >= 4;
+            }
+        );
+
+        if (count($allWords) === 0) {
+            return FALSE;
+        }
+            
+        $wordsCount = array_count_values($allWords);
+        if (count($wordsCount) === 0) {
+            return FALSE;
+        }
+            
+        $max_value = max($wordsCount);
+        if ($max_value === FALSE) {
+            return FALSE;
+        }
+            
+        $top_word = array_search($max_value, $wordsCount);
+        if ($top_word === FALSE) {
+            return FALSE;
+        }
+            
+        return $top_word;
+    }
+
+
+
+    public function GetMetaData(DOMDocument $domDocument) : array {
+        $metaData = [];
+        $metaTags = $domDocument->getElementsByTagName('meta');
+        if ($metaTags->length > 0) {
+            foreach ($metaTags as $k => $elem) {
+                $name       = $elem->getAttribute('name');
+                $content    = $elem->getAttribute('content');
+                array_push($metaData, ['name' => $name, 'content' => $content]);
+            }
+        }
+        return $metaData;
+    }
+
+    public function GetHeadersContent(DOMDocument $domDocument) : array {
+        $hxs = [ 'h1' => [], 'h2' => [], 'h3' => [], 'h4' => [], 'h5' => [], 'h6' => [] ];
+        foreach ($hxs as $key => $value) {
+            $hx = $domDocument->getElementsByTagName($key);
+            if (!empty($hx) && $hx->length > 0) {
+                foreach ($hx as $hxValue) {
+                    array_push($hxs[$key], $hxValue->textContent);
+                }
+            }
+        }
+        return $hxs;
+    }
+    
+    public function GetWebPageTitle(DOMDocument $domDocument) {
+        $title = "";
+        $titleTags = $domDocument->getElementsByTagName('title');
+        if(!empty($titleTags) && $titleTags->length > 0) {
+            $title = $titleTags[0]->textContent;
+        }
+        return $title;
+    }
         
-        // Search language in html tag
+    public function GetWebPageLanguage(DOMDocument $domDocument) {
+        $lang = "";
+
+        // Search language in HTML tag
         $htmlTags = $domDocument->getElementsByTagName('html');
         if ($htmlTags->length > 0 && $htmlTags->item(0)->hasAttribute('lang')) {
             $lang = $htmlTags->item(0)->getAttribute('lang');
+            if(!empty($lang)) { return $lang; }
         }
-        if(!empty($lang)) { return $lang; }
         
-        // Search language in meta tags            
+        // Search language in META tags            
         $metaTags = $domDocument->getElementsByTagName('meta');
         if ($metaTags->length > 0) {            
             $found = $this->FindFirstByAttribute($metaTags, "http-equiv", "Content-Language");
             if($found && $found->hasAttribute("content")) {                
                 $lang = $found->getAttribute("content");
+                if(!empty($lang)) { return $lang; }
             }
-        }        
-        if(!empty($lang)) { return $lang; }
-        
+        } 
+           
         return $lang;
     }
-
 
 
 
@@ -203,44 +259,5 @@ class DomManager extends BaseManager
         }
         return $urlList;
     }
-    /**
-     * Get Most Repeated Word From a DomDocument
-     *
-     * @param DOMDocument $dom
-     * @return string $top_word
-     */
-    public function old__getDomTopWord($dom = NULL) {
-        if (empty($dom))
-            return FALSE;
-
-        // Get Body Content
-        $body = $dom->getElementsByTagName('body');
-        $body_string = "";
-        if ($body->length > 0) {
-            $body_string = $body[0]->textContent;
-        }
-
-        $words = array_filter(
-            str_word_count($body_string, 2), function($word) {
-            return strlen($word) >= 4;
-        }
-        );
-
-        if (count($words) === 0)
-            return FALSE;
-
-        $words_count = array_count_values($words);
-        if (count($words_count) === 0)
-            return FALSE;
-
-        $max_value = max($words_count);
-        if ($max_value === FALSE)
-            return FALSE;
-
-        $top_word = array_search($max_value, $words_count);
-        if ($top_word === FALSE)
-            return FALSE;
-
-        return $top_word;
-    }
+   
 }
