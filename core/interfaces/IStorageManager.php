@@ -1,70 +1,75 @@
 <?php
 interface IStorageManager
 {
+
+#region # Web Pages
+
     /**
-     * Insert a RequestResponse
+     * Insert a Web Page
      *
-     * @param BaseModel
+     * @param WebPageModel
      * @return int - the id of the just inserted/updated row or 0 if fails
      */
-    function InsertOrUpdateRequestResponse( BaseModel $model ) : int;
+    function InsertOrUpdateWebPage( WebPageModel $model ) : int;
 
     /**
-     * Insert a list of RequestResponse at once
+     * Insert a list of Web Pages at once
      *
-     * @param BaseModel[] $models
-     * @return int - the id of the just inserted/updated rows or an empty array if fails
+     * @param WebPageModel[] $models
+     * @return int[] - the ids of the just inserted/updated rows or an empty array if fails
      */
-    function InsertOrUpdateRequestResponses( array $models ) : int;
+    function InsertOrUpdateWebPages( array $models ) : array;
 
     /**
-     * Delete a row by id
-     *
-     * @param integer $id
-     * @return boolean - TRUE if success FALSE if fails
-     */
-    function DeleteRequestResponseById( int $id ) : bool;
-
-    /**
-     * Delete a row by url
-     *
-     * @param string $url
-     * @return boolean - TRUE if success FALSE if fails
-     */
-    function DeleteRequestResponseByUrl( string $url ) : bool;
-
-    /**
-     * Get a row by id
+     * Get a Web Page by id
      *
      * @param integer $id
-     * @return BaseModel
+     * @return WebPageModel
      */
-    function GetRequestResultById( int $id ) : BaseModel;
+    function GetWebPageById( int $id ) : WebPageModel;
 
     /**
-     * Get a row by url
+     * Get a Web Page by url
      *
      * @param string $url
-     * @return BaseModel
+     * @return WebPageModel
      */
-    function GetRequestResultByUrl( string $url ) : BaseModel;
+    function GetWebPageByUrl( string $url ) : WebPageModel;
 
     /**
-     * Get a list of all rows inserted beetwen the gived range of dates
+     * Get a list of all Web Pages inserted beetwen the gived range of dates
      *
      * @param DateTime $start_date
      * @param DateTime $end_date
-     * @return BaseModel[]
+     * @return WebPageModel[]
      */
-    function GetRequestResultsByInsertDateRange( DateTime $start_date, DateTime $end_date ) : array;
+    function GetWebPagesByInsertDateRange( DateTime $start_date, DateTime $end_date ) : array;
 
     /**
-     * Get a list of all rows updated beetwen the gived range of dates
+     * Get a list of all Web Pages updated beetwen the gived range of dates
      *
      * @param DateTime $start_date
      * @param DateTime $end_date
-     * @return BaseModel[]
+     * @return WebPageModel[]
      */
-    function GetRequestResultsByUpdateDateRange( DateTime $start_date, DateTime $end_date ) : array;
+    function GetWebPagesByUpdateDateRange( DateTime $start_date, DateTime $end_date ) : array;
+    
+    /**
+     * Delete a Web Page by id
+     *
+     * @param int $id
+     * @return int - the id of the just deleted row or FALSE if fails
+     */
+    function DeleteWebPageById( int $id ) : int;
+
+    /**
+     * Delete a Web Page by url
+     *
+     * @param string $url
+     * @return int - the id of the just deleted row or FALSE if fails
+     */
+    function DeleteWebPageByUrl( string $url ) : int;
+
+#endregion # Web Pages
 
 }

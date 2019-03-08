@@ -10,8 +10,11 @@ function GetUrlAndStoreToFolder( $document_url, $file_name )
 	file_put_contents($file_path, $request_result->content);
 }
 
+$myarray = ["Key1" => 1, "Key2" => 2, "Key3" => 3];
 
-var_dump( gettype(function() {}) );
+$spliced =  array_slice($myarray, 0, 100, true);
+
+print_r($spliced);
 
 exit;
 

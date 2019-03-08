@@ -20,12 +20,12 @@
                 "--action",
                 "crawl",
                 "--urlset",
-                "https://www.01webdirectory.com",
-                "https://www.fareilweb.com/"
+                "https://www.fareilweb.com/",
+                "https://www.01webdirectory.com"                
             ],
             "port": 9000,
             "xdebugSettings": {
-                "max_children": 100
+                "max_children": 999
             }
         },
         {

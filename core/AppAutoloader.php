@@ -25,7 +25,8 @@ function AppAutoloader ( $class_name )
 		PATH_MODELS,
 		PATH_DTOS,
 		PATH_HELPERS,
-		PATH_INTERFACES
+		PATH_INTERFACES,
+        PATH_CONVERTERS
 	];
 
 	$index = 0;

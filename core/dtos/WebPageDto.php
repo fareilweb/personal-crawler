@@ -1,6 +1,9 @@
 <?php
 
-class WebPageDataDto extends DataDto {
+class WebPageDto extends BaseDto {
+
+    /** #var string*/
+    public $content_type;
 
     /** @var int */
     public $id;
@@ -32,6 +35,7 @@ class WebPageDataDto extends DataDto {
     public function __construct(CurlRequestInfoDto $info = NULL) {
         if(isset($info)) {
             $this->info = $info;
+            $this->content_type = $info->content_type;
         }
     }
 

@@ -9,46 +9,42 @@ class SQLiteStorageManager extends BaseManager implements IStorageManager
         $db_file = PATH_SQLITE . DIRECTORY_SEPARATOR . SQLITE_DB_NAME;
         $this->sqlite = new SQLite3( $db_file );
     }
+
     
-    function InsertOrUpdateRequestResponse( BaseModel $model ) : int
-    {
+    
+    function InsertOrUpdateWebPage( WebPageModel $model ) : int {
         return 0;
     }
 
-    function InsertOrUpdateRequestResponses( array $models ) : int
-    {
+    function InsertOrUpdateWebPages( array $models ) : array {
+        return [];
+    }
+
+    function GetWebPageById( int $id ) : WebPageModel {
+        return new WebPageModel();
+    }
+
+    function GetWebPageByUrl( string $url ) : WebPageModel {
+        return new WebPageModel();
+    }
+
+    function GetWebPagesByInsertDateRange( DateTime $start_date, DateTime $end_date ) : array {
+        return [new WebPageModel()];
+    }
+
+    function GetWebPagesByUpdateDateRange( DateTime $start_date, DateTime $end_date ) : array {
+        return [new WebPageModel()];
+    }
+    
+    function DeleteWebPageById( int $id ) : int {
         return 0;
     }
 
-    function DeleteRequestResponseById( int $id ) : bool
-    {
-        return false;
+    function DeleteWebPageByUrl( string $url ) : int {
+        return 0;
     }
 
-    function DeleteRequestResponseByUrl( string $url ) : bool
-    {
-        return false;
-    }
 
-    function GetRequestResultById( int $id ) : BaseModel
-    {
-        return new BaseModel();
-    }
-
-    function GetRequestResultByUrl( string $url ) : BaseModel
-    {
-        return new BaseModel();
-    }
-
-    function GetRequestResultsByInsertDateRange( DateTime $start_date, DateTime $end_date ) : array
-    {
-        return [];
-    }
-
-    function GetRequestResultsByUpdateDateRange( DateTime $start_date, DateTime $end_date ) : array
-    {
-        return [];
-    }
     
     function __destruct() {
         $this->sqlite->close(); // Close DB connection        

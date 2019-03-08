@@ -40,7 +40,7 @@ class WebPageModel extends BaseModel {
     }
 
     public function FromDto() {
-        
+
     }
 
     public function __destruct() {

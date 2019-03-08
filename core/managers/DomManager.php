@@ -33,11 +33,11 @@ class DomManager extends BaseManager
      * Collect data from dom document
      *
      * @param string
-     * @return WebPageDataDto
+     * @return WebPageDto
      */
-    public function ExtractDataFromSchemeHandlerResultDto(SchemeHandlerResultDto $sourceDto) : WebPageDataDto {
+    public function ExtractDataFromSchemeHandlerResultDto(SchemeHandlerResultDto $sourceDto) : WebPageDto {
 
-        $resultDto = new WebPageDataDto($sourceDto->info);
+        $resultDto = new WebPageDto($sourceDto->info);
 
         if(!isset($sourceDto->content) || empty($sourceDto->content)) {
             return $resultDto;
@@ -61,7 +61,9 @@ class DomManager extends BaseManager
         $resultDto->meta_data = $this->GetMetaData($domDocument);
 
         // Most Repeated Word
-        $resultDto->top_words = $this->GetMostRepeatedWords($domDocument);        
+        $resultDto->top_words = $this->GetMostRepeatedWords($domDocument);
+
+
 
         return $resultDto;
     }
@@ -69,8 +71,8 @@ class DomManager extends BaseManager
     public function FindByAttribute(DOMNodeList $domNodeList, string $attributeName, string $attributeValue = NULL) : array {
         $found_elements = [];
         foreach ($domNodeList as $item) {
-            if($item->hasAttribute($attributeName)  && ($attributeValue == NULL || $attributeValue == $item->getAttribute($attributeName))) {          
-                array_push($found_elements, $item);          
+            if($item->hasAttribute($attributeName)  && ($attributeValue == NULL || $attributeValue == $item->getAttribute($attributeName))) {
+                array_push($found_elements, $item);
             }
         }
         return $found_elements;
@@ -85,11 +87,14 @@ class DomManager extends BaseManager
 
     /**
      * Get Most Repeated Word From a DOMDocument object
-     * 
+     *
      * @param DOMDocument $domDocument
+     * @param int
      * @return string[]
      */
-    public function GetMostRepeatedWords(DOMDocument $domDocument) {        
+    public function GetMostRepeatedWords(DOMDocument $domDocument, int $howManyWords = NULL) : array {
+        $topWords = [];
+
         // Get Body Content
         $body = $domDocument->getElementsByTagName('body');
 
@@ -104,26 +109,17 @@ class DomManager extends BaseManager
             }
         );
 
-        if (count($allWords) === 0) {
-            return FALSE;
-        }
-            
+        if (count($allWords) === 0) { return FALSE; }
+
         $wordsCount = array_count_values($allWords);
-        if (count($wordsCount) === 0) {
-            return FALSE;
-        }
-            
-        $max_value = max($wordsCount);
-        if ($max_value === FALSE) {
-            return FALSE;
-        }
-            
-        $top_word = array_search($max_value, $wordsCount);
-        if ($top_word === FALSE) {
-            return FALSE;
-        }
-            
-        return $top_word;
+        if (count($wordsCount) === 0) { return FALSE; }
+
+        arsort($wordsCount);
+
+        $howManyWords = isset($howManyWords) ? $howManyWords : 20;
+        $topWords = array_slice($wordsCount, 0, $howManyWords, true);
+
+        return $topWords;
     }
 
 
@@ -153,7 +149,7 @@ class DomManager extends BaseManager
         }
         return $hxs;
     }
-    
+
     public function GetWebPageTitle(DOMDocument $domDocument) {
         $title = "";
         $titleTags = $domDocument->getElementsByTagName('title');
@@ -162,7 +158,7 @@ class DomManager extends BaseManager
         }
         return $title;
     }
-        
+
     public function GetWebPageLanguage(DOMDocument $domDocument) {
         $lang = "";
 
@@ -172,17 +168,17 @@ class DomManager extends BaseManager
             $lang = $htmlTags->item(0)->getAttribute('lang');
             if(!empty($lang)) { return $lang; }
         }
-        
-        // Search language in META tags            
+
+        // Search language in META tags
         $metaTags = $domDocument->getElementsByTagName('meta');
-        if ($metaTags->length > 0) {            
+        if ($metaTags->length > 0) {
             $found = $this->FindFirstByAttribute($metaTags, "http-equiv", "Content-Language");
-            if($found && $found->hasAttribute("content")) {                
+            if($found && $found->hasAttribute("content")) {
                 $lang = $found->getAttribute("content");
                 if(!empty($lang)) { return $lang; }
             }
-        } 
-           
+        }
+
         return $lang;
     }
 
@@ -259,5 +255,5 @@ class DomManager extends BaseManager
         }
         return $urlList;
     }
-   
+
 }

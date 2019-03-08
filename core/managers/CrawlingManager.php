@@ -21,7 +21,7 @@ class CrawlingManager extends BaseManager {
     private $urlset;
 
     /**
-     * COnstructor of the class
+     * Constructor of the class
      *
      * @param IStorageManager
      * @param HttpManager
@@ -62,26 +62,27 @@ class CrawlingManager extends BaseManager {
                 $url = UrlHelper::FixUrl($url);
             }
 
-            $schemeHandlerResultDto = $this->ChooseAndRunSchemeHandlerMethod($url);
+            // Play with stored date to decide if update or not the content
+            //$storedWebPageModel = $this->storageManager->GetWebPageByUrl($url);
+            //if($storedWebPageModel->update_date) {
+            //}
 
-            $dataResultsDto = $this->ChooseAndRunContentTypeHandlerMethod($schemeHandlerResultDto);
+            $schemeHandlerResultDto = $this->ChooseAndRunSchemeHandler($url);
 
-            // Do storage
+            $this->ChooseAndRunContentTypeHandler($schemeHandlerResultDto);
         }
     }
 
 
-
-    
-#region - Content types handlers methods
+#region - Content Types Handlers
 
     /**
      * This method try to get the content type of the request results and choose the method that can handle it
      *
      * @param SchemeHandlerResultDto $schemeHandlerResultDto
-     * @return DataDto
+     * @return BaseDto
      */
-    private function ChooseAndRunContentTypeHandlerMethod(SchemeHandlerResultDto $schemeHandlerResultDto): DataDto {
+    private function ChooseAndRunContentTypeHandler(SchemeHandlerResultDto $schemeHandlerResultDto): BaseDto {
         // Get contenty_type only by removing every other information is in the same string
         $info_content_type = $schemeHandlerResultDto->info->content_type;
 
@@ -94,17 +95,20 @@ class CrawlingManager extends BaseManager {
         }
     }
 
-    private function HandleHtmlContent(SchemeHandlerResultDto $schemeHandlerResultDto): WebPageDataDto {
-        $dataResultsDto = $this->domManager->ExtractDataFromSchemeHandlerResultDto($schemeHandlerResultDto);
-        return $dataResultsDto;
+    private function HandleHtmlContent(SchemeHandlerResultDto $schemeHandlerResultDto)  {
+        $webPageDto = $this->domManager->ExtractDataFromSchemeHandlerResultDto($schemeHandlerResultDto);
+
+        $webPageModel = WebPageConverter::ToModel($webPageDto);
+
+        $this->storageManager->InsertOrUpdateWebPage($webPageModel);
     }
 
-#endregion - END OF: Content types handlers methods
+#endregion - Content Types Handlers
 
 
 
 
-#region - Scheme handlers methods
+#region - Scheme Handlers
 
     /**
      * This method try to get scheme of the url and choose the method that can handle
@@ -112,7 +116,7 @@ class CrawlingManager extends BaseManager {
      * @param string $url
      * @return SchemeHandlerResultDto
      */
-    private function ChooseAndRunSchemeHandlerMethod($url): SchemeHandlerResultDto {
+    private function ChooseAndRunSchemeHandler($url): SchemeHandlerResultDto {
         $url_scheme = UrlHelper::GetUrlScheme($url);
         switch ($url_scheme) {
             case UrlHelper::$UrlSchemes['http'] : return $this->HandleHttpSchemeUrl($url);
@@ -175,7 +179,7 @@ class CrawlingManager extends BaseManager {
         return new SchemeHandlerResultDto();
     }
 
-#endregion - END OF: Scheme handlers methods
+#endregion - Scheme Handlers
 
 
 }
