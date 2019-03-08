@@ -73,6 +73,9 @@ class CrawlingManager extends BaseManager {
         }
     }
 
+    private function Test(string $t) {
+        return "OK! - " . $t;
+    }
 
 #region - Content Types Handlers
 
@@ -82,25 +85,33 @@ class CrawlingManager extends BaseManager {
      * @param SchemeHandlerResultDto $schemeHandlerResultDto
      * @return BaseDto
      */
-    private function ChooseAndRunContentTypeHandler(SchemeHandlerResultDto $schemeHandlerResultDto): BaseDto {
+    private function ChooseAndRunContentTypeHandler(SchemeHandlerResultDto $schemeHandlerResultDto) {
         // Get contenty_type only by removing every other information is in the same string
         $info_content_type = $schemeHandlerResultDto->info->content_type;
 
         // Choose the best handler
         if (strpos($info_content_type, 'text/html') !== FALSE) {
-            return $this->HandleHtmlContent($schemeHandlerResultDto);
+            $this->HandleHtmlContent($schemeHandlerResultDto);
         } else {
             // Can't inference content type. Do default action
-            return $this->HandleHtmlContent($schemeHandlerResultDto);
+            $this->HandleHtmlContent($schemeHandlerResultDto);
         }
     }
 
-    private function HandleHtmlContent(SchemeHandlerResultDto $schemeHandlerResultDto)  {
+    private function HandleHtmlContent(SchemeHandlerResultDto $schemeHandlerResultDto) : bool {
         $webPageDto = $this->domManager->ExtractDataFromSchemeHandlerResultDto($schemeHandlerResultDto);
+        $webPageConverter = new WebPageConverter();
+        $webPageModel = $webPageConverter->ToModel($webPageDto);
 
-        $webPageModel = WebPageConverter::ToModel($webPageDto);
+        // Insert Url
+        $url_id = $this->storageManager->InsertUrl($webPageModel);
+        if($url_id === FALSE) { return FALSE; }
 
-        $this->storageManager->InsertOrUpdateWebPage($webPageModel);
+        // Insert WebPage
+        $web_page_id  = $this->storageManager->InsertWebPage($webPageModel, $url_id);
+        if($web_page_id === FALSE) { return FALSE; }
+
+        return TRUE;
     }
 
 #endregion - Content Types Handlers
@@ -116,10 +127,10 @@ class CrawlingManager extends BaseManager {
      * @param string $url
      * @return SchemeHandlerResultDto
      */
-    private function ChooseAndRunSchemeHandler($url): SchemeHandlerResultDto {
+    private function ChooseAndRunSchemeHandler(string $url) : SchemeHandlerResultDto {
         $url_scheme = UrlHelper::GetUrlScheme($url);
         switch ($url_scheme) {
-            case UrlHelper::$UrlSchemes['http'] : return $this->HandleHttpSchemeUrl($url);
+            case UrlHelper::$UrlSchemes['http']: return $this->HandleHttpSchemeUrl($url);
             case UrlHelper::$UrlSchemes['https']: return $this->HandleHttpsSchemeUrl($url);
             case UrlHelper::$UrlSchemes['ftp']: return $this->HandleFtpSchemeUrl($url);
             case UrlHelper::$UrlSchemes['ftps']: return $this->HandleFtpsSchemeUrl($url);
@@ -132,48 +143,48 @@ class CrawlingManager extends BaseManager {
         }
     }
 
-    private function HandleHttpSchemeUrl($url): SchemeHandlerResultDto {
+    private function HandleHttpSchemeUrl(string $url): SchemeHandlerResultDto {
         $requestResult = $this->httpManager->MakeCurlRequest($url, $this->params['ignore_redirect']);
         $info = $requestResult['curl_getinfo_result'];
         $content = $requestResult['curl_exec_result'];
         return new SchemeHandlerResultDto($info, $content);
     }
 
-    private function HandleHttpsSchemeUrl($url): SchemeHandlerResultDto {
+    private function HandleHttpsSchemeUrl(string $url): SchemeHandlerResultDto {
         return $this->HandleHttpSchemeUrl($url);
     }
 
-    private function HandleFtpSchemeUrl($url): SchemeHandlerResultDto {
+    private function HandleFtpSchemeUrl(string $url): SchemeHandlerResultDto {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
         echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["ftp"]);
         return new SchemeHandlerResultDto();
     }
 
-    private function HandleFtpsSchemeUrl($url): SchemeHandlerResultDto {
+    private function HandleFtpsSchemeUrl(string $url): SchemeHandlerResultDto {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
         echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["ftps"]);
         return new SchemeHandlerResultDto();
     }
 
-    private function HandleSftpSchemeUrl($url): SchemeHandlerResultDto {
+    private function HandleSftpSchemeUrl(string $url): SchemeHandlerResultDto {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
         echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["sftp"]);
         return new SchemeHandlerResultDto();
     }
 
-    private function HandleMailtoSchemeUrl($url): SchemeHandlerResultDto {
+    private function HandleMailtoSchemeUrl(string $url): SchemeHandlerResultDto {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
         echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["mailto"]);
         return new SchemeHandlerResultDto();
     }
 
-    private function HandleTelSchemeUrl($url): SchemeHandlerResultDto {
+    private function HandleTelSchemeUrl(string $url): SchemeHandlerResultDto {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
         echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["tel"]);
         return new SchemeHandlerResultDto();
     }
 
-    private function HandleSkypeSchemeUrl($url): SchemeHandlerResultDto {
+    private function HandleSkypeSchemeUrl(string $url): SchemeHandlerResultDto {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
         echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["skype"]);
         return new SchemeHandlerResultDto();

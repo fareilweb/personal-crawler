@@ -14,4 +14,11 @@ class BaseModel implements IBaseModel
     public function __construct(string $table_name) {
         $this->table_name = $table_name;
     }
+
+    public function __destruct() {
+        foreach (get_object_vars($this) as $key => $val) {
+            $val = NULL;
+            unset($this->{$key});
+        }
+    }
 }

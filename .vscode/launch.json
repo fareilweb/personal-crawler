@@ -20,8 +20,7 @@
                 "--action",
                 "crawl",
                 "--urlset",
-                "https://www.fareilweb.com/",
-                "https://www.01webdirectory.com"                
+                "https://crawlme.local/"
             ],
             "port": 9000,
             "xdebugSettings": {

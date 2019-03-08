@@ -26,8 +26,9 @@ function AppAutoloader ( $class_name )
 		PATH_DTOS,
 		PATH_HELPERS,
 		PATH_INTERFACES,
-        PATH_CONVERTERS
-	];
+        PATH_CONVERTERS,
+        PATH_ENUMERATIONS
+    ];
 
 	$index = 0;
 	$directories_count = count($directories);

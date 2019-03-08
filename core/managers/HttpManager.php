@@ -59,6 +59,9 @@ class HttpManager extends BaseManager {
         curl_setopt($curl, CURLOPT_VERBOSE, true);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
+        // Set Timeout for requests
+        curl_setopt($curl, CURLOPT_TIMEOUT, WEB_REQUEST_TIMEOUT);
+
         // Set if follow redirects
         $follow_redirect = !$ignore_redirect; // Invert logic
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, $follow_redirect);

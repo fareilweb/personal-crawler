@@ -10,12 +10,11 @@ function GetUrlAndStoreToFolder( $document_url, $file_name )
 	file_put_contents($file_path, $request_result->content);
 }
 
+$array = array(0 => ['name'=>'color', 'value' => 'blue'], 1 => ['name' => 'color', 'value' => 'green'], 3 => ['name' => 'color', 'value' => 'pink']);
 
-$meta_keywords = (function() {
-    return ["primo" => 1];
-})();
+$key = array_search('pink', array_column($array, 'value'));
 
-print_r($meta_keywords);
+print_r($key);
 
 exit;
 
