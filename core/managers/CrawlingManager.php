@@ -67,8 +67,8 @@ class CrawlingManager extends BaseManager {
             //if($storedWebPageModel->update_date) {
             //}
 
-            $schemeHandlerResultDto = $this->ChooseAndRunSchemeHandler($url);
 
+            $schemeHandlerResultDto = $this->ChooseAndRunSchemeHandler($url);
             $this->ChooseAndRunContentTypeHandler($schemeHandlerResultDto);
         }
     }

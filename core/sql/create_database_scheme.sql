@@ -11,7 +11,9 @@ CREATE TABLE UrlList (
     info_redirect_url   VARCHAR (1000),
     info_primary_ip     VARCHAR (50),
     info_primary_port   INTEGER (6),
-    content_table_name  VARCHAR (20)
+    content_table_name  VARCHAR (20),
+    insert_date         DATETIME,
+    update_date         DATETIME
 );
 
 CREATE TABLE WebPageList (

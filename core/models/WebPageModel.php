@@ -41,6 +41,12 @@ class WebPageModel extends BaseModel {
     /** @var DateTime */
     public $update_date;
 
+    /** @var DateTime */
+    public $url_insert_date;
+
+    /** @var DateTime */
+    public $url_update_date;
+
     /** Curl request Info */
 
     /** @var string */
@@ -63,7 +69,6 @@ class WebPageModel extends BaseModel {
 
     /** @var integer */
     public $info_primary_port;
-
 
     public function __construct(string $table_name) {
         parent::__construct($table_name);

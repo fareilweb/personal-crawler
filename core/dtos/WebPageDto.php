@@ -29,6 +29,12 @@ class WebPageDto extends BaseDto {
     /** @var DateTime */
     public $update_date;
 
+    /** @var DateTime */
+    public $url_insert_date;
+
+    /** @var DateTime */
+    public $url_update_date;
+
     /** @var CurlRequestInfoDto */
     public $info;
 
