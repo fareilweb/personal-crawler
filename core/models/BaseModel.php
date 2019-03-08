@@ -1,17 +1,17 @@
 <?php
-class BaseModel implements IBaseDto
+class BaseModel implements IBaseModel
 {
-    public static $Tables = [
-        'web_pages' => 'web_pages'
-    ];
-
     /** @var int $id */
     public $id;
 
-    /** @var string */
-    public $table;
+    /** @var string - the name of the corresponding table on database */
+    public $table_name;
 
-    public function FromDto(BaseDto $dto) {
-        
+    /**
+     * Construct of the class
+     * @param string
+     */
+    public function __construct(string $table_name) {
+        $this->table_name = $table_name;
     }
 }

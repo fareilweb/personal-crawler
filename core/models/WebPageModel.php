@@ -17,6 +17,15 @@ class WebPageModel extends BaseModel {
     /** @var string */
     public $h3;
 
+    /** @var string */
+    public $h4;
+
+    /** @var string */
+    public $h5;
+
+    /** @var string */
+    public $h6;
+
     /** @var array */
     public $meta_keywords;
 
@@ -35,12 +44,8 @@ class WebPageModel extends BaseModel {
     /** @var CurlRequestInfoDto */
     public $info;
 
-    public function __construct() {
-        $this->table = BaseModel::$Tables['web_pages'];
-    }
-
-    public function FromDto() {
-
+    public function __construct(string $table_name) {
+        parent::__construct($table_name);
     }
 
     public function __destruct() {

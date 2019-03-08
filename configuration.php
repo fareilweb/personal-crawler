@@ -8,6 +8,7 @@ const PATH_DTOS             = PATH_APP . DIRECTORY_SEPARATOR . "core" . DIRECTOR
 const PATH_HELPERS          = PATH_APP . DIRECTORY_SEPARATOR . "core" . DIRECTORY_SEPARATOR . "helpers";
 const PATH_INTERFACES       = PATH_APP . DIRECTORY_SEPARATOR . "core" . DIRECTORY_SEPARATOR . "interfaces";
 const PATH_CONVERTERS       = PATH_APP . DIRECTORY_SEPARATOR . "core" . DIRECTORY_SEPARATOR . "converters";
+const PATH_ENUMERATIONS     = PATH_APP . DIRECTORY_SEPARATOR . "core" . DIRECTORY_SEPARATOR . "enumerations";
 // ----------------------------------------------------------------------------------------------------------
 const PATH_LOCALIZATIONS    = PATH_APP . DIRECTORY_SEPARATOR . "localizations";
 const PATH_DOC              = PATH_APP . DIRECTORY_SEPARATOR . "doc";

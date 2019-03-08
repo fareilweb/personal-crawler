@@ -117,6 +117,7 @@ class DomManager extends BaseManager
         arsort($wordsCount);
 
         $howManyWords = isset($howManyWords) ? $howManyWords : 20;
+
         $topWords = array_slice($wordsCount, 0, $howManyWords, true);
 
         return $topWords;
@@ -128,7 +129,7 @@ class DomManager extends BaseManager
         $metaData = [];
         $metaTags = $domDocument->getElementsByTagName('meta');
         if ($metaTags->length > 0) {
-            foreach ($metaTags as $k => $elem) {
+            foreach ($metaTags as $elem) {
                 $name       = $elem->getAttribute('name');
                 $content    = $elem->getAttribute('content');
                 array_push($metaData, ['name' => $name, 'content' => $content]);

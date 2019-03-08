@@ -2,6 +2,18 @@
 interface IStorageManager
 {
 
+#region - Generics
+
+    /**
+     * Gived a url retrieve the table name where the full content was stored
+     * @param string $url
+     * @return string
+     */
+    function GetTableByUrl(string $url) : string;
+
+#endregion - Generics
+
+
 #region # Web Pages
 
     /**
@@ -53,7 +65,7 @@ interface IStorageManager
      * @return WebPageModel[]
      */
     function GetWebPagesByUpdateDateRange( DateTime $start_date, DateTime $end_date ) : array;
-    
+
     /**
      * Delete a Web Page by id
      *

@@ -10,11 +10,12 @@ function GetUrlAndStoreToFolder( $document_url, $file_name )
 	file_put_contents($file_path, $request_result->content);
 }
 
-$myarray = ["Key1" => 1, "Key2" => 2, "Key3" => 3];
 
-$spliced =  array_slice($myarray, 0, 100, true);
+$meta_keywords = (function() {
+    return ["primo" => 1];
+})();
 
-print_r($spliced);
+print_r($meta_keywords);
 
 exit;
 

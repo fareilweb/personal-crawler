@@ -3,15 +3,19 @@
 class SQLiteStorageManager extends BaseManager implements IStorageManager
 {
     private $sqlite;
-    
+
     function __construct()
-    {                       
+    {
         $db_file = PATH_SQLITE . DIRECTORY_SEPARATOR . SQLITE_DB_NAME;
         $this->sqlite = new SQLite3( $db_file );
     }
 
-    
-    
+    public function GetTableByUrl(string $url): string {
+        $table_name = "";
+        
+        return $table_name;
+    }
+
     function InsertOrUpdateWebPage( WebPageModel $model ) : int {
         return 0;
     }
@@ -35,7 +39,7 @@ class SQLiteStorageManager extends BaseManager implements IStorageManager
     function GetWebPagesByUpdateDateRange( DateTime $start_date, DateTime $end_date ) : array {
         return [new WebPageModel()];
     }
-    
+
     function DeleteWebPageById( int $id ) : int {
         return 0;
     }
@@ -45,9 +49,9 @@ class SQLiteStorageManager extends BaseManager implements IStorageManager
     }
 
 
-    
+
     function __destruct() {
-        $this->sqlite->close(); // Close DB connection        
+        $this->sqlite->close(); // Close DB connection
         parent::__destruct();
     }
 }
