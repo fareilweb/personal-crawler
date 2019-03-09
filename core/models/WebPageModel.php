@@ -41,12 +41,20 @@ class WebPageModel extends BaseModel {
     /** @var DateTime */
     public $update_timestamp;
 
-    /** @var UrlModel */
-    public $url;
+    /** @var int */
+    public $UrlList_url_id;
 
     public function __construct(string $table_name, UrlModel $url = NULL) {
         $this->url = $url;
         parent::__construct($table_name);
+    }
+
+    public function SetFromArray(array $data_array) {
+        foreach ($data_array as $key => $value) {
+            if(property_exists($this, $key)) {
+                $this->{$key} = $value;
+            }
+        }
     }
 
     /**

@@ -1,12 +1,14 @@
 <?php
 
-class SQLiteStorageManager extends BaseManager implements IStorageManager
+class StorageManagerSQLite extends BaseManager implements IStorageManager
 {
+    /** @var SQLite3 */
     private $db;
+
     private $UrlListTableName;
     private $WebPagesTableName;
 
-    function __construct()
+    public function __construct()
     {
         $db_file = PATH_SQLITE . DIRECTORY_SEPARATOR . SQLITE_DB_NAME;
         $this->db = new SQLite3( $db_file );
@@ -14,6 +16,8 @@ class SQLiteStorageManager extends BaseManager implements IStorageManager
         // Set Tables Names
         $this->UrlListTableName = DBTablesEnum::UrlListTableName;
         $this->WebPagesTableName = DBTablesEnum::WebPageListTableName;
+
+        parent::__construct();
     }
 
     /**
@@ -22,10 +26,10 @@ class SQLiteStorageManager extends BaseManager implements IStorageManager
      * @param string $url
      * @return string - the table name if success, an empty string if url was not found, FALSE if fail
      */
-    public function GetTableByUrl(string $url): string {
+    public function GetContentTableNameByUrl(string $url): string {
         $query = "SELECT content_table_name FROM {$this->UrlListTableName} WHERE url = '{$url}'";
-        $result = $this->db->querySingle($query);
-        if($result === FALSE) { return FALSE; } // Query Failed
+        $result = $this->db->querySingle($query, true);
+        if(empty($result)) { return FALSE; } // NULL or FALSE or [] - return FALSE
         return $result['content_table_name'];
     }
 
@@ -37,14 +41,13 @@ class SQLiteStorageManager extends BaseManager implements IStorageManager
      * @param int $id
      * @return array
      */
-    public function GetUrlById(int $id) : UrlModel {
+    public function GetUrlModelById(int $id) : UrlModel {
         $query = "SELECT * FROM {$this->UrlListTableName} WHERE id = {$id}";
-        $result = $this->db->querySingle($query);
-        if($result === FALSE) { return FALSE; } // Query fail
-
-        $model = new UrlModel($this->UrlListTableName);
-
-        return $result;
+        $result = $this->db->querySingle($query, true);
+        if(empty($result)) { return FALSE; } // NULL or FALSE or [] - return FALSE
+        $urlModel = new UrlModel($this->UrlListTableName);
+        $urlModel->SetDataFromArray($result);
+        return $urlModel;
     }
 
     /**
@@ -52,10 +55,13 @@ class SQLiteStorageManager extends BaseManager implements IStorageManager
      * @param string $url
      * @return array
      */
-    public function GetUrlByUrl(string $url) : UrlModel {
+    public function GetUrlModelByUrl(string $url) : UrlModel {
         $query = "SELECT * FROM {$this->UrlListTableName} WHERE url = '{$url}'";
-        $result = $this->db->querySingle($query);
-        return $result;
+        $result = $this->db->querySingle($query, true);
+        if(empty($result)) { return FALSE; } // NULL or FALSE or [] - return FALSE
+        $urlModel = new UrlModel($this->UrlListTableName);
+        $urlModel->SetDataFromArray($result);
+        return $urlModel;
     }
 
     /**
@@ -65,7 +71,9 @@ class SQLiteStorageManager extends BaseManager implements IStorageManager
      * @return int - return: UrlList "lastInsertRowID" if success FALSE otherwise
      */
     public function InsertUrl(UrlModel $model) : int {
-        // Insert to UrlList
+        $insert_timestamp = (new DateTime())->getTimestamp();
+        $update_timestamp = $insert_timestamp;
+
         $query = <<<EOT
             INSERT INTO {$this->UrlListTableName} (
                 url,
@@ -80,17 +88,17 @@ class SQLiteStorageManager extends BaseManager implements IStorageManager
                 insert_timestamp,
                 update_timestamp
             ) VALUES (
-                '{$model->url}',
-                {$model->content_type},
-                {$model->http_code},
-                {$model->redirect_count},
-                '{$model->redirect_url}',
-                '{$model->primary_ip}',
-                {$model->primary_port},
-                {$model->has_content},
-                '{$model->content_table_name}',
-                '{$model->insert_timestamp->getTimestamp()}',
-                '{$model->update_timestamp->getTimestamp()}'
+                '$model->url',
+                $model->content_type,
+                $model->http_code,
+                $model->redirect_count,
+                '$model->redirect_url',
+                '$model->primary_ip',
+                $model->primary_port,
+                $model->has_content,
+                '$model->content_table_name',
+                $insert_timestamp,
+                $update_timestamp
             );
 EOT;
 
@@ -109,20 +117,21 @@ EOT;
      * @return int - return: UrlList updated ID if success FALSE otherwise
      */
     public function UpdateUrl(UrlModel $model) : int {
-        // Insert to UrlList
+        $update_timestamp = (new DateTime())->getTimestamp();
+
         $query = <<<EOT
            UPDATE {$this->UrlListTableName}
            SET
-                url='{$model->url}',
-                content_type='{$model->content_type}',
-                http_code={$model->http_code},
-                redirect_count={$model->redirect_count},
-                redirect_url='{$model->redirect_url}',
-                primary_ip='{$model->primary_ip}',
-                primary_port={$model->primary_port},
-                has_content={$model->has_content},
-                content_table_name='{$model->table_name}',
-                update_timestamp='{$model->update_timestamp->getTimestamp()}'
+                url='$model->url',
+                content_type='$model->content_type',
+                http_code=$model->http_code,
+                redirect_count=$model->redirect_count,
+                redirect_url='$model->redirect_url',
+                primary_ip='$model->primary_ip',
+                primary_port=$model->primary_port,
+                has_content=$model->has_content,
+                content_table_name='$model->table_name',
+                update_timestamp=$update_timestamp
             WHERE id = $model->id;
 EOT;
 
@@ -140,21 +149,28 @@ EOT;
 
 #region - WebPageList
 
-    public function GetWebPageById(int $id) : array {
+    /**
+     * Get a WebPageModel from database by ID
+     * @param int $id
+     * @return WebPageModel
+     */
+    public function GetWebPageModelById(int $id) : WebPageModel {
         $query = "SELECT * FROM {$this->WebPagesTableName} WHERE id = {$id}";
         $result = $this->db->querySingle($query);
-        return $result;
+        $webPageModel = new WebPageModel($this->WebPagesTableName);
+        return $webPageModel;
     }
 
-    public function GetWebPageByUrl(string $url) : array {
-
-
-
-        $query_webpage = "SELECT * FROM {$this->WebPagesTableName} WHERE UrlList_url = '{$id}'";
-
-
+    /**
+     * Get a WebPageModel from database by URL
+     * @param int $id
+     * @return WebPageModel
+     */
+    public function GetWebPageModelByUrl(string $url) : WebPageModel {
+        $query_webpage = "SELECT * FROM {$this->WebPagesTableName} WHERE UrlList_url = '{$url}'";
         $result = $this->db->querySingle($query_webpage);
-        return $result;
+        $webPageModel = new WebPageModel($this->WebPagesTableName);
+        return $webPageModel;
     }
 
     /**

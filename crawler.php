@@ -10,7 +10,7 @@ require_once (__DIR__ . '/core/AppAutoloader.php');
 
 // Get instance that can be shared
 $localization_manager_intance   = new LocalizationManager();
-$storage_manager_instance       = new SQLiteStorageManager();
+$storage_manager_instance       = new StorageManagerSQLite();
 $http_manager_instance          = new HttpManager();
 $parameters_manager_instance    = new ParametersManager( $localization_manager_intance );
 $dom_manager_instance           = new DomManager();

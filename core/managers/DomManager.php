@@ -35,37 +35,36 @@ class DomManager extends BaseManager
      * @param string
      * @return WebPageDto
      */
-    public function ExtractDataFromSchemeHandlerResultDto(SchemeHandlerResultDto $sourceDto) : WebPageDto {
+    public function ExtractDataFromSchemeHandlerResultDto(SchemeHandlerResultDto $sourceDto, UrlModel $url) : WebPageModel {
 
-        $resultDto = new WebPageDto($sourceDto->info);
+        $webPageModel = new WebPageModel($table_name, $url);
 
         if(!isset($sourceDto->content) || empty($sourceDto->content)) {
-            return $resultDto;
+            return $webPageModel;
         }
 
         $domDocument = $this->ConvertStringToDOMDocument($sourceDto->content);
         if (!isset($domDocument) || empty($domDocument)) {
-            return $resultDto;
+            return $webPageModel;
         }
 
         // Language
-        $resultDto->language = $this->GetWebPageLanguage($domDocument);
+        $webPageModel->language = $this->GetWebPageLanguage($domDocument);
 
         // Title
-        $resultDto->title = $this->GetWebPageTitle($domDocument);
+        $webPageModel->title = $this->GetWebPageTitle($domDocument);
 
         // Headers
-        $resultDto->headers = $this->GetHeadersContent($domDocument);
+        $webPageModel->headers = $this->GetHeadersContent($domDocument);
 
         // Meta Data
-        $resultDto->meta_data = $this->GetMetaData($domDocument);
+        $webPageModel->meta_data = $this->GetMetaData($domDocument);
 
         // Most Repeated Word
-        $resultDto->top_words = $this->GetMostRepeatedWords($domDocument);
+        $webPageModel->top_words = $this->GetMostRepeatedWords($domDocument);
 
 
-
-        return $resultDto;
+        return $webPageModel;
     }
 
     public function FindByAttribute(DOMNodeList $domNodeList, string $attributeName, string $attributeValue = NULL) : array {

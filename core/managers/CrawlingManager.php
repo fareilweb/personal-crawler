@@ -58,18 +58,34 @@ class CrawlingManager extends BaseManager {
 
         while (count($this->urlset) > 0) {
             $url = array_splice($this->urlset, 0, 1, NULL)[0];
-            if (!UrlHelper::IsValidUrl($url)) {
-                $url = UrlHelper::FixUrl($url);
-            }
 
-            // Play with stored date to decide if update or not the content
+            // Validate and fix url.
+            // TODO - assume that url is valid ---
+            //if (!UrlHelper::IsValidUrl($url)) {
+            //    $url = UrlHelper::FixUrl($url);
+            //}
+            // TODO END --------------------------
+
+            // Play with stored data to decide if update or not the content or skip
+            //$urlModel = $this->storageManager->GetUrlModelByUrl($url);
+
+            $tableName = $this->storageManager->GetContentTableNameByUrl($url);
+
+
+
+            // Get data from the url
+
+            // Elaborate retrieved data
+
+            // Storage elaborate data
+
+
+
             //$storedWebPageModel = $this->storageManager->GetWebPageByUrl($url);
             //if($storedWebPageModel->update_date) {
             //}
-
-
-            $schemeHandlerResultDto = $this->ChooseAndRunSchemeHandler($url);
-            $this->ChooseAndRunContentTypeHandler($schemeHandlerResultDto);
+            //$schemeHandlerResultDto = $this->ChooseAndRunSchemeHandler($url);
+            //$this->ChooseAndRunContentTypeHandler($schemeHandlerResultDto);
         }
     }
 
@@ -99,9 +115,12 @@ class CrawlingManager extends BaseManager {
     }
 
     private function HandleHtmlContent(SchemeHandlerResultDto $schemeHandlerResultDto) : bool {
-        $webPageDto = $this->domManager->ExtractDataFromSchemeHandlerResultDto($schemeHandlerResultDto);
-        $webPageConverter = new WebPageConverter();
-        $webPageModel = $webPageConverter->ToModel($webPageDto);
+
+        $urlModel = (new UrlModel(DBTablesEnum::UrlListTableName))->SetInfoFromCurlRequestInfoDto($curlRequestInfoDto);
+
+        $webPageModel = $this->domManager->ExtractDataFromSchemeHandlerResultDto($schemeHandlerResultDto);
+        //$webPageConverter = new WebPageConverter();
+        //$webPageModel = $webPageConverter->ToModel($webPageDto);
 
         // Insert Url
         $url_id = $this->storageManager->InsertUrl($webPageModel);
