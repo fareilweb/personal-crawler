@@ -5,8 +5,12 @@ class StorageManagerSQLite extends BaseManager implements IStorageManager
     /** @var SQLite3 */
     private $db;
 
+    /** @var string */
     private $UrlListTableName;
+
+    /** @var string */
     private $WebPagesTableName;
+
 
     public function __construct()
     {
@@ -19,6 +23,7 @@ class StorageManagerSQLite extends BaseManager implements IStorageManager
 
         parent::__construct();
     }
+
 
     public function GetContentTableNameByUrl(string $url): string {
         $query = "SELECT content_table_name FROM {$this->UrlListTableName} WHERE url = '{$url}'";
@@ -39,6 +44,7 @@ class StorageManagerSQLite extends BaseManager implements IStorageManager
         return $urlModel;
     }
 
+
     public function GetUrlModelByUrl(string $url) {
         $query = "SELECT * FROM {$this->UrlListTableName} WHERE url = '{$url}'";
         $result = $this->db->querySingle($query, true);
@@ -48,67 +54,108 @@ class StorageManagerSQLite extends BaseManager implements IStorageManager
         return $urlModel;
     }
 
+
     public function InsertUrl(UrlModel $model) : int {
-        $insert_timestamp = (new DateTime())->getTimestamp();
-        $update_timestamp = $insert_timestamp;
         $query = <<<EOT
             INSERT INTO {$this->UrlListTableName} (
                 url,
-                content_type,
-                http_code,
-                redirect_count,
-                redirect_url,
-                primary_ip,
-                primary_port,
+                curl_url,
+                curl_content_type,
+                curl_http_code,
+                curl_redirect_count,
+                curl_redirect_url,
+                curl_primary_ip,
+                curl_primary_port,
                 has_content,
                 content_table_name,
                 insert_timestamp,
                 update_timestamp
             ) VALUES (
-                '$model->url',
-                '$model->content_type',
-                '$model->http_code',
-                '$model->redirect_count',
-                '$model->redirect_url',
-                '$model->primary_ip',
-                '$model->primary_port',
-                '$model->has_content',
-                '$model->content_table_name',
-                '$insert_timestamp',
-                '$update_timestamp'
+                ':url',
+                ':curl_url'
+                ':curl_content_type',
+                 :curl_http_code,
+                 :curl_redirect_count,
+                ':curl_redirect_url',
+                ':curl_primary_ip',
+                 :curl_primary_port,
+                 :has_content,
+                ':content_table_name',
+                 :insert_timestamp,
+                 :update_timestamp
             );
 EOT;
+        $stmt = $this->db->prepare($query);
 
-        $insert_urllist_id = FALSE;
-        if($this->db->exec($query)) {
-            $insert_urllist_id = $this->db->lastInsertRowID();
+        $insert_timestamp = (new DateTime())->getTimestamp();
+        $update_timestamp = $insert_timestamp;
+
+        $stmt->bindParam(':url', $model->url, SQLITE3_TEXT);
+        $stmt->bindParam(':curl_url', $model->curl_url, SQLITE3_TEXT);
+        $stmt->bindParam(':content_type', $model->curl_content_type, SQLITE3_TEXT);
+        $stmt->bindParam(':http_code', $model->curl_http_code, SQLITE3_INTEGER);
+        $stmt->bindParam(':redirect_count', $model->curl_redirect_count, SQLITE3_INTEGER);
+        $stmt->bindParam(':redirect_url', $model->curl_redirect_url, SQLITE3_TEXT);
+        $stmt->bindParam(':primary_ip', $model->curl_primary_ip, SQLITE3_TEXT);
+        $stmt->bindParam(':primary_port', $model->curl_primary_port, SQLITE3_INTEGER);
+        $stmt->bindParam(':has_content', $model->has_content, SQLITE3_INTEGER);
+        $stmt->bindParam(':content_table_name', $model->content_table_name, SQLITE3_TEXT);
+        $stmt->bindParam(':insert_timestamp', $insert_timestamp, SQLITE3_INTEGER);
+        $stmt->bindParam(':update_timestamp', $update_timestamp, SQLITE3_INTEGER);
+
+        $result = $stmt->execute();
+
+        if($result === FALSE) {
+            return FALSE;
         }
-        return $insert_urllist_id;
+
+        return $this->db->lastInsertRowID();
     }
 
+
     public function UpdateUrl(UrlModel $model) : int {
-        $update_timestamp = (new DateTime())->getTimestamp();
         $query = <<<EOT
            UPDATE {$this->UrlListTableName}
            SET
-                url='$model->url',
-                content_type='$model->content_type',
-                http_code=$model->http_code,
-                redirect_count=$model->redirect_count,
-                redirect_url='$model->redirect_url',
-                primary_ip='$model->primary_ip',
-                primary_port=$model->primary_port,
-                has_content=$model->has_content,
-                content_table_name='$model->table_name',
-                update_timestamp=$update_timestamp
-            WHERE id = $model->id;
+                url=':url',
+                curl_url=':curl_url'
+                curl_content_type=':curl_content_type',
+                curl_http_code=:curl_http_code,
+                curl_redirect_count=:curl_redirect_count,
+                curl_redirect_url=':curl_redirect_url',
+                curl_primary_ip=':curl_primary_ip',
+                curl_primary_port=:curl_primary_port,
+                has_content=:has_content,
+                content_table_name=':table_name',
+                update_timestamp=:update_timestamp
+            WHERE id = :id;
 EOT;
+        $stmt = $this->db->prepare($query);
 
-        if($this->db->exec($query) === FALSE) {
+        $update_timestamp = (new DateTime())->getTimestamp();
+
+        $stmt->bindParam(':url', $model->url, SQLITE3_TEXT);
+        $stmt->bindParam(':curl_url', $model->curl_url, SQLITE3_TEXT);
+        $stmt->bindParam(':content_type', $model->curl_content_type, SQLITE3_TEXT);
+        $stmt->bindParam(':http_code', $model->curl_http_code, SQLITE3_INTEGER);
+        $stmt->bindParam(':redirect_count', $model->curl_redirect_count, SQLITE3_INTEGER);
+        $stmt->bindParam(':redirect_url', $model->curl_redirect_url, SQLITE3_TEXT);
+        $stmt->bindParam(':primary_ip', $model->curl_primary_ip, SQLITE3_TEXT);
+        $stmt->bindParam(':primary_port', $model->curl_primary_port, SQLITE3_INTEGER);
+        $stmt->bindParam(':has_content', $model->has_content, SQLITE3_INTEGER);
+        $stmt->bindParam(':content_table_name', $model->content_table_name, SQLITE3_TEXT);
+        $stmt->bindParam(':update_timestamp', $update_timestamp, SQLITE3_INTEGER);
+        $stmt->bindParam(':id', $model->id, SQLITE3_INTEGER);
+
+        $result = $stmt->execute();
+
+        if($result === FALSE) {
             return FALSE;
         }
+
         return $model->id;
     }
+
 
     public function InsertOrUpdateUrl(UrlModel $urlModel) : int {
         if(empty($urlModel->id)) {
@@ -124,89 +171,135 @@ EOT;
 #region - WebPageList
 
     public function GetWebPageModelById(int $id) : WebPageModel {
-        $query = "SELECT * FROM {$this->WebPagesTableName} WHERE id = {$id}";
-        $result = $this->db->querySingle($query);
-        $webPageModel = new WebPageModel($this->WebPagesTableName);
-        return $webPageModel;
+        $query = "SELECT * FROM {$this->WebPagesTableName} WHERE id = {$id};";
+        $result = $this->db->querySingle($query, true);
+        if (empty($result)) { return FALSE; } // NULL or FALSE or [] - return FALSE
+        $model = new WebPageModel($this->WebPagesTableName);
+        $model->SetDataFromArray($result);
+        return $model;
     }
 
-    public function GetWebPageModelByUrl(string $url) : WebPageModel {
-        $query_webpage = "SELECT * FROM {$this->WebPagesTableName} WHERE UrlList_url = '{$url}'";
-        $result = $this->db->querySingle($query_webpage);
-        $webPageModel = new WebPageModel($this->WebPagesTableName);
-        return $webPageModel;
+
+    public function GetWebPageModelByUrlId(int $UrlList_url_id) : WebPageModel {
+        $query = "SELECT * FROM {$this->WebPagesTableName} WHERE UrlList_url_id = '{$UrlList_url_id}';";
+        $result = $this->db->querySingle($query, true);
+        if (empty($result)) { return FALSE; } // NULL or FALSE or [] - return FALSE
+        $model = new WebPageModel($this->WebPagesTableName);
+        $model->SetDataFromArray($result);
+        return $model;
     }
+
 
     public function InsertWebPage(WebPageModel $model, int $UrlList_url_id) : int {
-        // Insert To WebPageList
         $query = <<<EOT
-        INSERT INTO {$this->WebPagesTableName} (
-            language,
-            title,
-            h1,
-            h2,
-            h3,
-            h4,
-            h5,
-            h6,
-            meta_keywords,
-            meta_description,
-            top_words,
-            insert_date,
-            update_date,
-            UrlList_url
-        ) VALUES (
-            '{$model->language}',
-            '{$model->title}',
-            '{$model->h1}',
-            '{$model->h2}',
-            '{$model->h3}',
-            '{$model->h4}',
-            '{$model->h5}',
-            '{$model->h6}',
-            '{$model->meta_keywords}',
-            '{$model->meta_description}',
-            '{$model->top_words}',
-            '{$model->insert_timestamp->date}',
-            '{$model->update_timestamp->date}',
-            '{$UrlList_url_id}'
-        );
+            INSERT INTO {$this->WebPagesTableName} (
+                language,
+                title,
+                h1,
+                h2,
+                h3,
+                h4,
+                h5,
+                h6,
+                meta_keywords,
+                meta_description,
+                top_words,
+                insert_date,
+                update_date,
+                UrlList_url
+            ) VALUES (
+                ':language',
+                ':title',
+                ':h1',
+                ':h2',
+                ':h3',
+                ':h4',
+                ':h5',
+                ':h6',
+                ':meta_keywords',
+                ':meta_description',
+                ':top_words',
+                 :insert_timestamp,
+                 :update_timestamp,
+                 :UrlList_url_id
+            );
 EOT;
 
-        $insert_webpage_id = FALSE;
-        if($this->db->exec($query)) {
-            $insert_webpage_id = $this->db->lastInsertRowID();
+        $stmt = $this->db->prepare($query);
+
+        $insert_timestamp = (new DateTime())->getTimestamp();
+        $update_timestamp = $insert_timestamp;
+
+        $stmt->bindParam(':language', $model->language, SQLITE3_TEXT);
+        $stmt->bindParam(':title', $model->title, SQLITE3_TEXT);
+        $stmt->bindParam(':h1', $model->h1, SQLITE3_TEXT);
+        $stmt->bindParam(':h2', $model->h2, SQLITE3_TEXT);
+        $stmt->bindParam(':h3', $model->h3, SQLITE3_TEXT);
+        $stmt->bindParam(':h4', $model->h4, SQLITE3_TEXT);
+        $stmt->bindParam(':h5', $model->h5, SQLITE3_TEXT);
+        $stmt->bindParam(':h6', $model->h6, SQLITE3_TEXT);
+        $stmt->bindParam(':meta_keywords', $model->meta_keywords, SQLITE3_TEXT);
+        $stmt->bindParam(':meta_description', $model->meta_description, SQLITE3_TEXT);
+        $stmt->bindParam(':top_words', $model->top_words, SQLITE3_TEXT);
+        $stmt->bindParam(':insert_timestamp', $insert_timestamp, SQLITE3_INTEGER);
+        $stmt->bindParam(':update_timestamp', $update_timestamp, SQLITE3_INTEGER);
+        $stmt->bindParam(':UrlList_url_id', $UrlList_url_id, SQLITE3_INTEGER);
+
+        $result = $stmt->execute();
+
+        if($result === FALSE) {
+            return FALSE;
         }
-        return $insert_webpage_id;
+        return $this->db->lastInsertRowID();
     }
 
+
     function UpdateWebPage(WebPageModel $model, int $UrlList_url_id) : int {
-        // Insert To WebPageList
         $query = <<<EOT
             UPDATE {$this->WebPagesTableName}
             SET
-                language='{$model->language}',
-                title='{$model->title}',
-                h1='{$model->h1}',
-                h2='{$model->h2}',
-                h3='{$model->h3}',
-                h4='{$model->h4}',
-                h5='{$model->h5}',
-                h6='{$model->h6}',
-                meta_keywords='{$model->meta_keywords}',
-                meta_description='{$model->meta_description}',
-                top_words='{$model->top_words}',
-                update_date='{$model->update_timestamp->date}',
-                UrlList_url='{$UrlList_url_id}'
-            WHERE id = {$model->id}
+                language=':language',
+                title=':title',
+                h1=':h1',
+                h2=':h2',
+                h3=':h3',
+                h4=':h4',
+                h5=':h5',
+                h6=':h6',
+                meta_keywords=':meta_keywords',
+                meta_description=':meta_description',
+                top_words=':top_words',
+                update_date=:update_timestamp,
+                UrlList_url=:UrlList_url_id
+            WHERE :id = {:id}
 EOT;
+        $stmt = $this->db->prepare($query);
 
-        //$this->db->changes();
-        if($this->db->exec($query) === FALSE) {
+        $update_timestamp = (new DateTime())->getTimestamp();
+
+        $stmt->bindParam(':id', $model->id, SQLITE3_INTEGER);
+        $stmt->bindParam(':language', $model->language, SQLITE3_TEXT);
+        $stmt->bindParam(':title', $model->title, SQLITE3_TEXT);
+        $stmt->bindParam(':h1', $model->h1, SQLITE3_TEXT);
+        $stmt->bindParam(':h2', $model->h2, SQLITE3_TEXT);
+        $stmt->bindParam(':h3', $model->h3, SQLITE3_TEXT);
+        $stmt->bindParam(':h4', $model->h4, SQLITE3_TEXT);
+        $stmt->bindParam(':h5', $model->h5, SQLITE3_TEXT);
+        $stmt->bindParam(':h6', $model->h6, SQLITE3_TEXT);
+        $stmt->bindParam(':meta_keywords', $model->meta_keywords, SQLITE3_TEXT);
+        $stmt->bindParam(':meta_description', $model->meta_description, SQLITE3_TEXT);
+        $stmt->bindParam(':top_words', $model->top_words, SQLITE3_TEXT);
+        $stmt->bindParam(':update_timestamp', $update_timestamp, SQLITE3_INTEGER);
+        $stmt->bindParam(':UrlList_url_id', $UrlList_url_id, SQLITE3_INTEGER);
+
+        $result = $stmt->execute();
+
+        if($result === FALSE) {
             return FALSE;
         }
         return $model->id;
     }
+
 
     function InsertOrUpdateWebPage(WebPageModel $webPageModel, int $UrlList_url_id): int {
         if(empty($webPageModel)) {
@@ -222,4 +315,5 @@ EOT;
         $this->db->close(); // Close DB connection
         parent::__destruct();
     }
+
 }

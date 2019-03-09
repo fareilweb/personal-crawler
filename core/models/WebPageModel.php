@@ -49,7 +49,7 @@ class WebPageModel extends BaseModel {
         parent::__construct($table_name);
     }
 
-    public function SetFromArray(array $data_array) {
+    public function SetDataFromArray(array $data_array) {
         foreach ($data_array as $key => $value) {
             if(property_exists($this, $key)) {
                 $this->{$key} = $value;

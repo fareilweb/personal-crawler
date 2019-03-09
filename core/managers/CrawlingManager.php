@@ -87,12 +87,12 @@ class CrawlingManager extends BaseManager {
 
         // Create instance of UrlModel if previus result was empty
         if(empty($urlModel)) {
-            $urlModel = new UrlModel(DBTablesEnum::UrlListTableName);
+            $urlModel = new UrlModel(DBTablesEnum::UrlListTableName, $url);
         }
 
         // Get data from scheme handler and populate/Update data of UrlModel
         $schemeHandlerResultDto = $this->ChooseAndRunSchemeHandler($url);
-        
+
         $urlModel->SetDataFromCurlRequestInfoDto($schemeHandlerResultDto->curl_info);
 
         // Manage request based on content type
@@ -144,7 +144,7 @@ class CrawlingManager extends BaseManager {
      **/
     private function ChooseAndRunContentTypeHandler(UrlModel $urlModel, $content) {
         // Choose the best handler
-        if (strpos($urlModel->content_type, 'text/html') !== FALSE) {
+        if (strpos($urlModel->curl_content_type, 'text/html') !== FALSE) {
             return $this->HandleHtmlContent($urlModel, $content);
         } else {
             // Can't inference content type. Do default action.
@@ -159,19 +159,23 @@ class CrawlingManager extends BaseManager {
         // Finalize to set last data on UrlModel
         if( !empty($webPageModel)) {
             $urlModel->has_content = TRUE;
-            $urlModel->content_table_name = DBTablesEnum::WebPageListTableName;
+        } else {
+            $urlModel->has_content = FALSE;
         }
 
         // Insert/Update URL
+        $urlModel->content_table_name = DBTablesEnum::WebPageListTableName;
         $url_id = $this->storageManager->InsertOrUpdateUrl($urlModel);
         if ($url_id === FALSE) {
             return FALSE;
         }
 
         // Insert/Update WebPage
-        $web_page_id = $this->storageManager->InsertOrUpdateWebPage($webPageModel, $url_id);
-        if ($web_page_id === FALSE) {
-            return FALSE;
+        if($urlModel->has_content === TRUE) {
+            $web_page_id = $this->storageManager->InsertOrUpdateWebPage($webPageModel, $url_id);
+            if ($web_page_id === FALSE) {
+                return FALSE;
+            }
         }
 
         return FALSE;

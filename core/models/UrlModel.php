@@ -6,22 +6,25 @@ class UrlModel extends BaseModel {
     public $url;
 
     /** @var string */
-    public $content_type;
-
-    /** @var integer */
-    public $http_code;
-
-    /** @var integer */
-    public $redirect_count;
+    public $curl_url;
 
     /** @var string */
-    public $redirect_url;
-
-    /** @var string */
-    public $primary_ip;
+    public $curl_content_type;
 
     /** @var integer */
-    public $primary_port;
+    public $curl_http_code;
+
+    /** @var integer */
+    public $curl_redirect_count;
+
+    /** @var string */
+    public $curl_redirect_url;
+
+    /** @var string */
+    public $curl_primary_ip;
+
+    /** @var integer */
+    public $curl_primary_port;
 
 #endregion cURL Data
 
@@ -38,18 +41,9 @@ class UrlModel extends BaseModel {
     public $update_timestamp;
 
 
-    public function __construct(string $table_name) {
+    public function __construct(string $table_name, $url = NULL) {
+        $this->url = $url;
         parent::__construct($table_name);
-    }
-
-    public function SetDataFromCurlRequestInfoDto(CurlRequestInfoDto $curlRequestInfoDto) {
-        $this->url = $curlRequestInfoDto->url;
-        $this->content_type = $curlRequestInfoDto->content_type;
-        $this->http_code = $curlRequestInfoDto->http_code;
-        $this->redirect_count = $curlRequestInfoDto->redirect_count;
-        $this->redirect_url = $curlRequestInfoDto->redirect_url;
-        $this->primary_ip = $curlRequestInfoDto->primary_ip;
-        $this->primary_port = $curlRequestInfoDto->primary_port;
     }
 
     public function SetDataFromArray(array $data_array) {
@@ -58,6 +52,16 @@ class UrlModel extends BaseModel {
                 $this->{$key} = $value;
             }
         }
+    }
+
+    public function SetDataFromCurlRequestInfoDto(CurlRequestInfoDto $curlRequestInfoDto) {
+        $this->curl_url = $curlRequestInfoDto->url;
+        $this->curl_content_type = $curlRequestInfoDto->content_type;
+        $this->curl_http_code = $curlRequestInfoDto->http_code;
+        $this->curl_redirect_count = $curlRequestInfoDto->redirect_count;
+        $this->curl_redirect_url = $curlRequestInfoDto->redirect_url;
+        $this->curl_primary_ip = $curlRequestInfoDto->primary_ip;
+        $this->curl_primary_port = $curlRequestInfoDto->primary_port;
     }
 
     public function __destruct() {
