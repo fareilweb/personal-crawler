@@ -76,7 +76,7 @@ class PersonalCrawler {
         if ($params_ok == false)
             return;
 
-        $this->crawlingManager->StartCrawling($this->parametersManager->ToArray());
+        $this->crawlingManager->Start($this->parametersManager->ToArray());
     }
 
 #endregion - END OF: Public methods      

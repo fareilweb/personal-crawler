@@ -44,8 +44,8 @@ class WebPageModel extends BaseModel {
     /** @var int */
     public $UrlList_url_id;
 
-    public function __construct(string $table_name, UrlModel $url = NULL) {
-        $this->url = $url;
+    public function __construct(string $table_name, int $UrlList_url_id = NULL) {
+        $this->$UrlList_url_id = $UrlList_url_id;
         parent::__construct($table_name);
     }
 
@@ -58,19 +58,19 @@ class WebPageModel extends BaseModel {
     }
 
     /**
-     * Get the UrlModel instance stored into WebPageModel::$url property
-     * @return \UrlModel
+     * Get the stored url ID
+     * @return int
      */
-    public function GetUrl() : UrlModel {
-        return $this->url;
+    public function GetUrlId() : int {
+        return $this->UrlList_url_id;
     }
 
     /**
-     * Set an instance of UrlModel as a "navigation property" of the current WebPageModel
-     * @param UrlModel $url
+     * Set an stored url ID
+     * @param int
      */
-    public function SetUrl(UrlModel $url) {
-        $this->url = $url;
+    public function SetUrlId(int $UrlList_url_id) {
+        $this->UrlList_url_id = $UrlList_url_id;
     }
 
     public function __destruct() {

@@ -32,18 +32,18 @@ class DomManager extends BaseManager
     /**
      * Collect data from dom document
      *
+     * @param int
      * @param string
-     * @return WebPageDto
+     * @return WebPageDto|bool
      */
-    public function ExtractDataFromSchemeHandlerResultDto(SchemeHandlerResultDto $sourceDto, UrlModel $url) : WebPageModel {
-
-        $webPageModel = new WebPageModel($table_name, $url);
-
-        if(!isset($sourceDto->content) || empty($sourceDto->content)) {
-            return $webPageModel;
+    public function ExtractDataToWebPageModel(string $content = NULL) : WebPageModel {
+        if(!isset($content) || empty($content)) {
+            return FALSE;
         }
 
-        $domDocument = $this->ConvertStringToDOMDocument($sourceDto->content);
+        $webPageModel = new WebPageModel(DBTablesEnum::WebPageListTableName);
+
+        $domDocument = $this->ConvertStringToDOMDocument($content);
         if (!isset($domDocument) || empty($domDocument)) {
             return $webPageModel;
         }
@@ -62,7 +62,6 @@ class DomManager extends BaseManager
 
         // Most Repeated Word
         $webPageModel->top_words = $this->GetMostRepeatedWords($domDocument);
-
 
         return $webPageModel;
     }

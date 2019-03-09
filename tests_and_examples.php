@@ -10,13 +10,15 @@ function GetUrlAndStoreToFolder( $document_url, $file_name )
 	file_put_contents($file_path, $request_result->content);
 }
 
-$date = new DateTime();
-$ts = $date->getTimestamp();
+$date_old = new DateTime('2019-03-07');
+$date_now = new DateTime();
 
-$newdate = new DateTime();
-$newdate->setTimestamp($ts);
-echo $ts;
-//print_r($newdate);
+$interval = $date_now->diff($date_old);
+//echo $interval->format('%R%a days');
+echo $interval->days;
+
+//print_r($interval);
+
 exit;
 
 

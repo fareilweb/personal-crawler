@@ -20,6 +20,8 @@ class CrawlingManager extends BaseManager {
     /** @var string[] */
     private $urlset;
 
+
+
     /**
      * Constructor of the class
      *
@@ -47,7 +49,7 @@ class CrawlingManager extends BaseManager {
      *
      * @return void
      */
-    public function StartCrawling(array $params) {
+    public function Start(array $params) {
         // Merge urlset param into local urlset member
         if (isset($params['urlset']) && count($params['urlset']) > 0) {
             $this->urlset = $params['urlset'];
@@ -57,6 +59,7 @@ class CrawlingManager extends BaseManager {
         $this->params = $params;
 
         while (count($this->urlset) > 0) {
+
             $url = array_splice($this->urlset, 0, 1, NULL)[0];
 
             // Validate and fix url.
@@ -66,78 +69,114 @@ class CrawlingManager extends BaseManager {
             //}
             // TODO END --------------------------
 
-            // Play with stored data to decide if update or not the content or skip
-            //$urlModel = $this->storageManager->GetUrlModelByUrl($url);
-
-            $tableName = $this->storageManager->GetContentTableNameByUrl($url);
-
-
-
-            // Get data from the url
-
-            // Elaborate retrieved data
-
-            // Storage elaborate data
-
-
-
-            //$storedWebPageModel = $this->storageManager->GetWebPageByUrl($url);
-            //if($storedWebPageModel->update_date) {
-            //}
-            //$schemeHandlerResultDto = $this->ChooseAndRunSchemeHandler($url);
-            //$this->ChooseAndRunContentTypeHandler($schemeHandlerResultDto);
+            $this->CrawlUrl($url);
         }
     }
 
-    private function Test(string $t) {
-        return "OK! - " . $t;
+    /**
+     * Take care of crawling for the gived url
+     *
+     * @param string $url
+     */
+    public function CrawlUrl(string $url) {
+
+        $urlModel = $this->storageManager->GetUrlModelByUrl($url);
+        if($this->DoUrlNeedToBeCrawled($urlModel) === FALSE) {
+            return; // Skip
+        }
+
+        // Create instance of UrlModel if previus result was empty
+        if(empty($urlModel)) {
+            $urlModel = new UrlModel(DBTablesEnum::UrlListTableName);
+        }
+
+        // Get data from scheme handler and populate/Update data of UrlModel
+        $schemeHandlerResultDto = $this->ChooseAndRunSchemeHandler($url);
+        $urlModel->SetDataFromCurlRequestInfoDto($schemeHandlerResultDto->curl_info);
+
+        // Manage request based on content type
+        $runResult = $this->ChooseAndRunContentTypeHandler($urlModel, $schemeHandlerResultDto->content);
+
+        return $runResult;
+    }
+
+
+    /**
+     * Try to retrieve url from database, and check if need to be crawled
+     * @param type UrlModel|bool
+     * @return bool - TRUE if crawling is needed FALSE otherwise
+     */
+    public function DoUrlNeedToBeCrawled(UrlModel $urlModel) : bool {
+        // Just update contents every time
+        if (IGNORE_REFRESH_RATE === TRUE) {
+            return TRUE;
+        }
+
+        // Empty or inexistant url. Crawl!
+        if ($urlModel === FALSE || $urlModel === NULL) {
+            return TRUE;
+        }
+
+        // Empty update timestamp. Crawl!
+        if (empty($urlModel->update_timestamp)) {
+            return TRUE;
+        }
+
+        // Get data abount the last update of the record
+        $last_update_datetime = (new DateTime())->setTimestamp($urlModel->update_timestamp);
+        $now_datetime = new DateTime();
+        $difference = $last_update_datetime->diff($now_datetime);
+
+        // Old record. Crawl!
+        if((int)$difference->format('days') >= CONTENT_REFRESH_RATE) {
+            return TRUE;
+        }
+
+        return FALSE;
     }
 
 #region - Content Types Handlers
 
     /**
      * This method try to get the content type of the request results and choose the method that can handle it
-     *
-     * @param SchemeHandlerResultDto $schemeHandlerResultDto
-     * @return BaseDto
-     */
-    private function ChooseAndRunContentTypeHandler(SchemeHandlerResultDto $schemeHandlerResultDto) {
-        // Get contenty_type only by removing every other information is in the same string
-        $info_content_type = $schemeHandlerResultDto->info->content_type;
-
+     * @return WebPageModel|bool
+     **/
+    private function ChooseAndRunContentTypeHandler(UrlModel $urlModel, $content) {
         // Choose the best handler
-        if (strpos($info_content_type, 'text/html') !== FALSE) {
-            $this->HandleHtmlContent($schemeHandlerResultDto);
+        if (strpos($urlModel->content_type, 'text/html') !== FALSE) {
+            return $this->HandleHtmlContent($urlModel, $content);
         } else {
-            // Can't inference content type. Do default action
-            $this->HandleHtmlContent($schemeHandlerResultDto);
+            // Can't inference content type. Do default action.
+            return $this->HandleHtmlContent($urlModel, $content);
         }
     }
 
-    private function HandleHtmlContent(SchemeHandlerResultDto $schemeHandlerResultDto) : bool {
+    private function HandleHtmlContent(UrlModel $urlModel, $content = NULL): WebPageModel {
+        // Extract data form all we have now
+        $webPageModel = $this->domManager->ExtractDataToWebPageModel($content);
 
-        $urlModel = (new UrlModel(DBTablesEnum::UrlListTableName))->SetInfoFromCurlRequestInfoDto($curlRequestInfoDto);
+        // Finalize to set last data on UrlModel
+        if( !empty($webPageModel)) {
+            $urlModel->has_content = TRUE;
+            $urlModel->content_table_name = DBTablesEnum::WebPageListTableName;
+        }
 
-        $webPageModel = $this->domManager->ExtractDataFromSchemeHandlerResultDto($schemeHandlerResultDto);
-        //$webPageConverter = new WebPageConverter();
-        //$webPageModel = $webPageConverter->ToModel($webPageDto);
+        // Insert/Update URL
+        $url_id = $this->storageManager->InsertOrUpdateUrl($urlModel);
+        if ($url_id === FALSE) {
+            return FALSE;
+        }
 
-        // Insert Url
-        $url_id = $this->storageManager->InsertUrl($webPageModel);
-        if($url_id === FALSE) { return FALSE; }
+        // Insert/Update WebPage
+        $web_page_id = $this->storageManager->InsertOrUpdateWebPage($webPageModel, $url_id);
+        if ($web_page_id === FALSE) {
+            return FALSE;
+        }
 
-        // Insert WebPage
-        $web_page_id  = $this->storageManager->InsertWebPage($webPageModel, $url_id);
-        if($web_page_id === FALSE) { return FALSE; }
-
-        return TRUE;
+        return FALSE;
     }
 
 #endregion - Content Types Handlers
-
-
-
-
 #region - Scheme Handlers
 
     /**
@@ -146,7 +185,7 @@ class CrawlingManager extends BaseManager {
      * @param string $url
      * @return SchemeHandlerResultDto
      */
-    private function ChooseAndRunSchemeHandler(string $url) : SchemeHandlerResultDto {
+    private function ChooseAndRunSchemeHandler(string $url): SchemeHandlerResultDto {
         $url_scheme = UrlHelper::GetUrlScheme($url);
         switch ($url_scheme) {
             case UrlHelper::$UrlSchemes['http']: return $this->HandleHttpSchemeUrl($url);
@@ -210,6 +249,4 @@ class CrawlingManager extends BaseManager {
     }
 
 #endregion - Scheme Handlers
-
-
 }

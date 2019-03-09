@@ -7,21 +7,21 @@ interface IStorageManager
      * @param string $url
      * @return string - the table name if success, an empty string if url was not found, FALSE if fail
      */
-    public function GetContentTableNameByUrl(string $url): string;
+    function GetContentTableNameByUrl(string $url): string;
 
     /**
      * Search for an url record by ID
      * @param int $id
-     * @return array
+     * @return UrlModel|bool
      */
-    public function GetUrlModelById(int $id) : UrlModel;
+    function GetUrlModelById(int $id);
 
     /**
      * Search for an url record by URL
-     * @param string $url
-     * @return array
+     * @param string
+     * @return UrlModel|bool
      */
-    public function GetUrlModelByUrl(string $url) : UrlModel;
+    function GetUrlModelByUrl(string $url);
 
     /**
      * Insert Url into database
@@ -29,7 +29,7 @@ interface IStorageManager
      * @param WebPageModel
      * @return int - return: UrlList "lastInsertRowID" if success FALSE otherwise
      */
-    public function InsertUrl(UrlModel $model) : int;
+    function InsertUrl(UrlModel $model) : int;
 
     /**
      * Update Url into database
@@ -37,21 +37,28 @@ interface IStorageManager
      * @param WebPageModel
      * @return int - return: UrlList updated ID if success FALSE otherwise
      */
-    public function UpdateUrl(UrlModel $model) : int;
+    function UpdateUrl(UrlModel $model) : int;
+
+    /**
+     * Choose if call Insert or Update Method for the gived UrlModel
+     * @param UrlModel $urlModel
+     * @return int|bool return id of the last operation row or FALSE if fail
+     */
+    function InsertOrUpdateUrl(UrlModel $urlModel) : int;
 
     /**
      * Get a WebPageModel from database
      * @param int $id
      * @return WebPageModel
      */
-    public function GetWebPageModelById(int $id) : WebPageModel;
+    function GetWebPageModelById(int $id) : WebPageModel;
 
     /**
      * Get a WebPageModel from database by URL
      * @param int $id
      * @return WebPageModel
      */
-    public function GetWebPageModelByUrl(string $url) : WebPageModel;
+    function GetWebPageModelByUrl(string $url) : WebPageModel;
 
     /**
      * Insert WebPage into database
@@ -60,9 +67,9 @@ interface IStorageManager
      * @param int - the id of the url in UrlList table (it's a foreign key)
      * @return integer - return: WebPage "lastInsertRowID" if success FALSE otherwise
      */
-    public function InsertWebPage(WebPageModel $model, int $UrlList_url_id) : int;
+    function InsertWebPage(WebPageModel $model, int $UrlList_url_id) : int;
 
-     /**
+    /**
      * Update WebPage into database
      *
      * @param WebPageModel
@@ -71,4 +78,10 @@ interface IStorageManager
      */
     function UpdateWebPage(WebPageModel $model, int $UrlList_url_id) : int;
 
+    /**
+     * Choose if call Insert or Update Method for the gived WebPageModel
+     * @param WebPageModel
+     * @return int|bool return id of the last operation row or FALSE if fail
+     */
+    function InsertOrUpdateWebPage(WebPageModel $webPageModel, int $UrlList_url_id): int;
 }

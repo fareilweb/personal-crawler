@@ -42,7 +42,7 @@ class UrlModel extends BaseModel {
         parent::__construct($table_name);
     }
 
-    public function SetInfoFromCurlRequestInfoDto(CurlRequestInfoDto $curlRequestInfoDto) {
+    public function SetDataFromCurlRequestInfoDto(CurlRequestInfoDto $curlRequestInfoDto) {
         $this->url = $curlRequestInfoDto->url;
         $this->content_type = $curlRequestInfoDto->content_type;
         $this->http_code = $curlRequestInfoDto->http_code;
