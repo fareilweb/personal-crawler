@@ -72,7 +72,7 @@ class StorageManagerSQLite extends BaseManager implements IStorageManager
                 update_timestamp
             ) VALUES (
                 ':url',
-                ':curl_url'
+                ':curl_url',
                 ':curl_content_type',
                  :curl_http_code,
                  :curl_redirect_count,

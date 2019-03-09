@@ -90,9 +90,10 @@ class CrawlingManager extends BaseManager {
             $urlModel = new UrlModel(DBTablesEnum::UrlListTableName, $url);
         }
 
-        // Get data from scheme handler and populate/Update data of UrlModel
+        // Get data from scheme handler (Request) and populate/Update data of UrlModel
         $schemeHandlerResultDto = $this->ChooseAndRunSchemeHandler($url);
 
+        // Populate UrlModel with curl request info
         $urlModel->SetDataFromCurlRequestInfoDto($schemeHandlerResultDto->curl_info);
 
         // Manage request based on content type
@@ -178,7 +179,7 @@ class CrawlingManager extends BaseManager {
             }
         }
 
-        return FALSE;
+        return $webPageModel;
     }
 
 #endregion - Content Types Handlers

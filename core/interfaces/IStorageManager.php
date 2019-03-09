@@ -54,11 +54,11 @@ interface IStorageManager
     function GetWebPageModelById(int $id) : WebPageModel;
 
     /**
-     * Get a WebPageModel from database by URL
-     * @param int $id
+     * Get a WebPageModel from database by URL Id
+     * @param int
      * @return WebPageModel
      */
-    function GetWebPageModelByUrl(string $url) : WebPageModel;
+    function GetWebPageModelByUrlId(int $UrlList_url_id): WebPageModel;
 
     /**
      * Insert WebPage into database

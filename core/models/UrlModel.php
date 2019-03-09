@@ -55,13 +55,21 @@ class UrlModel extends BaseModel {
     }
 
     public function SetDataFromCurlRequestInfoDto(CurlRequestInfoDto $curlRequestInfoDto) {
-        $this->curl_url = $curlRequestInfoDto->url;
-        $this->curl_content_type = $curlRequestInfoDto->content_type;
-        $this->curl_http_code = $curlRequestInfoDto->http_code;
-        $this->curl_redirect_count = $curlRequestInfoDto->redirect_count;
-        $this->curl_redirect_url = $curlRequestInfoDto->redirect_url;
-        $this->curl_primary_ip = $curlRequestInfoDto->primary_ip;
-        $this->curl_primary_port = $curlRequestInfoDto->primary_port;
+        $curl_prefix = "curl_";
+        foreach ($curlRequestInfoDto as $key => $value) {
+            $property_name = $curl_prefix . $key;
+            if(property_exists($this, $property_name)) {
+                $this->{$property_name} = $value;
+            }
+        }
+
+//        $this->curl_url = $curlRequestInfoDto->url;
+//        $this->curl_content_type = $curlRequestInfoDto->content_type;
+//        $this->curl_http_code = $curlRequestInfoDto->http_code;
+//        $this->curl_redirect_count = $curlRequestInfoDto->redirect_count;
+//        $this->curl_redirect_url = $curlRequestInfoDto->redirect_url;
+//        $this->curl_primary_ip = $curlRequestInfoDto->primary_ip;
+//        $this->curl_primary_port = $curlRequestInfoDto->primary_port;
     }
 
     public function __destruct() {
