@@ -66,16 +66,16 @@ class StorageManagerSQLite extends BaseManager implements IStorageManager
                 update_timestamp
             ) VALUES (
                 '$model->url',
-                $model->content_type,
-                $model->http_code,
-                $model->redirect_count,
+                '$model->content_type',
+                '$model->http_code',
+                '$model->redirect_count',
                 '$model->redirect_url',
                 '$model->primary_ip',
-                $model->primary_port,
-                $model->has_content,
+                '$model->primary_port',
+                '$model->has_content',
                 '$model->content_table_name',
-                $insert_timestamp,
-                $update_timestamp
+                '$insert_timestamp',
+                '$update_timestamp'
             );
 EOT;
 

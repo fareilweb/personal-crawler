@@ -92,6 +92,7 @@ class CrawlingManager extends BaseManager {
 
         // Get data from scheme handler and populate/Update data of UrlModel
         $schemeHandlerResultDto = $this->ChooseAndRunSchemeHandler($url);
+        
         $urlModel->SetDataFromCurlRequestInfoDto($schemeHandlerResultDto->curl_info);
 
         // Manage request based on content type
@@ -106,14 +107,14 @@ class CrawlingManager extends BaseManager {
      * @param type UrlModel|bool
      * @return bool - TRUE if crawling is needed FALSE otherwise
      */
-    public function DoUrlNeedToBeCrawled(UrlModel $urlModel) : bool {
+    public function DoUrlNeedToBeCrawled($urlModel) : bool {
         // Just update contents every time
         if (IGNORE_REFRESH_RATE === TRUE) {
             return TRUE;
         }
 
         // Empty or inexistant url. Crawl!
-        if ($urlModel === FALSE || $urlModel === NULL) {
+        if (empty($urlModel)) {
             return TRUE;
         }
 

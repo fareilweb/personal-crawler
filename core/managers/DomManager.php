@@ -36,7 +36,7 @@ class DomManager extends BaseManager
      * @param string
      * @return WebPageDto|bool
      */
-    public function ExtractDataToWebPageModel(string $content = NULL) : WebPageModel {
+    public function ExtractDataToWebPageModel(string $content = NULL) {
         if(!isset($content) || empty($content)) {
             return FALSE;
         }
