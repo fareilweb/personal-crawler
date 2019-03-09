@@ -22,13 +22,13 @@ class WebPageConverter
      * @return WebPageModel
      */
     public function ToModel(WebPageDto $dto) : WebPageModel {
-        $model = new WebPageModel(DBTablesEnum::WebPageList);
+        $model = new WebPageModel(DBTablesEnum::WebPageListTableName);
 
         if(!isset($dto->info)) { return $model; } // No Info, return empty model
 
         $model->id = $dto->id;
-        $model->insert_date = isset($dto->insert_date) ? $dto->insert_date : new DateTime();
-        $model->update_date = isset($dto->update_date) ? $dto->update_date : new DateTime();
+        $model->insert_timestamp = isset($dto->insert_datetime) ? $dto->insert_datetime : new DateTime();
+        $model->update_timestamp = isset($dto->update_datetime) ? $dto->update_datetime : new DateTime();
 
         // Set Info and Check for HTTP errors
         $model->SetInfoFromCurlRequestInfoDto($dto->info);

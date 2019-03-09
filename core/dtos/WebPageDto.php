@@ -24,16 +24,13 @@ class WebPageDto extends BaseDto {
     public $top_words;
 
     /** @var DateTime */
-    public $insert_date;
+    public $insert_datetime;
 
     /** @var DateTime */
-    public $update_date;
+    public $update_datetime;
 
     /** @var DateTime */
     public $url_insert_date;
-
-    /** @var DateTime */
-    public $url_update_date;
 
     /** @var CurlRequestInfoDto */
     public $info;

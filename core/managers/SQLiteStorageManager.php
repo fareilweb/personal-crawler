@@ -3,13 +3,17 @@
 class SQLiteStorageManager extends BaseManager implements IStorageManager
 {
     private $db;
-    private $UrlList_table_name = DBTablesEnum::UrlList;
-    private $WebPages_table_name = DBTablesEnum::WebPageList;
+    private $UrlListTableName;
+    private $WebPagesTableName;
 
     function __construct()
     {
         $db_file = PATH_SQLITE . DIRECTORY_SEPARATOR . SQLITE_DB_NAME;
         $this->db = new SQLite3( $db_file );
+
+        // Set Tables Names
+        $this->UrlListTableName = DBTablesEnum::UrlListTableName;
+        $this->WebPagesTableName = DBTablesEnum::WebPageListTableName;
     }
 
     /**
@@ -19,11 +23,8 @@ class SQLiteStorageManager extends BaseManager implements IStorageManager
      * @return string - the table name if success, an empty string if url was not found, FALSE if fail
      */
     public function GetTableByUrl(string $url): string {
-        $searched_table_name = "";
-
-        $query = "SELECT * FROM {$this->UrlList_table_name} WHERE info_url = '{$url}'";
+        $query = "SELECT content_table_name FROM {$this->UrlListTableName} WHERE url = '{$url}'";
         $result = $this->db->querySingle($query);
-
         if($result === FALSE) { return FALSE; } // Query Failed
         return $result['content_table_name'];
     }
@@ -31,18 +32,31 @@ class SQLiteStorageManager extends BaseManager implements IStorageManager
 
 #region - UrlList
 
-    public function GetUrlById(int $id) : array {
-        $query = "SELECT * FROM {$this->UrlList_table_name} WHERE id = {$id}";
+    /**
+     * Search for an url record by ID
+     * @param int $id
+     * @return array
+     */
+    public function GetUrlById(int $id) : UrlModel {
+        $query = "SELECT * FROM {$this->UrlListTableName} WHERE id = {$id}";
         $result = $this->db->querySingle($query);
+        if($result === FALSE) { return FALSE; } // Query fail
+
+        $model = new UrlModel($this->UrlListTableName);
+
         return $result;
     }
 
-    public function GetUrlByUrl(string $url) : array {
-        $query = "SELECT * FROM {$this->UrlList_table_name} WHERE info_url = '{$url}'";
+    /**
+     * Search for an url record by URL
+     * @param string $url
+     * @return array
+     */
+    public function GetUrlByUrl(string $url) : UrlModel {
+        $query = "SELECT * FROM {$this->UrlListTableName} WHERE url = '{$url}'";
         $result = $this->db->querySingle($query);
         return $result;
     }
-
 
     /**
      * Insert Url into database
@@ -50,27 +64,33 @@ class SQLiteStorageManager extends BaseManager implements IStorageManager
      * @param WebPageModel
      * @return int - return: UrlList "lastInsertRowID" if success FALSE otherwise
      */
-    public function InsertUrl(WebPageModel $model) : int {
+    public function InsertUrl(UrlModel $model) : int {
         // Insert to UrlList
         $query = <<<EOT
-            INSERT INTO {$this->UrlList_table_name} (
-                info_url,
-                info_content_type,
-                info_http_code,
-                info_redirect_count,
-                info_redirect_url,
-                info_primary_ip,
-                info_primary_port,
-                content_table_name
+            INSERT INTO {$this->UrlListTableName} (
+                url,
+                content_type,
+                http_code,
+                redirect_count,
+                redirect_url,
+                primary_ip,
+                primary_port,
+                has_content,
+                content_table_name,
+                insert_timestamp,
+                update_timestamp
             ) VALUES (
-                '{$model->info_url}',
-                '{$model->info_content_type}',
-                '{$model->info_http_code}',
-                '{$model->info_redirect_count}',
-                '{$model->info_redirect_url}',
-                '{$model->info_primary_ip}',
-                '{$model->info_primary_port}',
-                '{$model->table_name}'
+                '{$model->url}',
+                {$model->content_type},
+                {$model->http_code},
+                {$model->redirect_count},
+                '{$model->redirect_url}',
+                '{$model->primary_ip}',
+                {$model->primary_port},
+                {$model->has_content},
+                '{$model->content_table_name}',
+                '{$model->insert_timestamp->getTimestamp()}',
+                '{$model->update_timestamp->getTimestamp()}'
             );
 EOT;
 
@@ -88,19 +108,21 @@ EOT;
      * @param WebPageModel
      * @return int - return: UrlList updated ID if success FALSE otherwise
      */
-    public function UpdateUrl(WebPageModel $model) : int {
+    public function UpdateUrl(UrlModel $model) : int {
         // Insert to UrlList
         $query = <<<EOT
-           UPDATE {$this->UrlList_table_name}
+           UPDATE {$this->UrlListTableName}
            SET
-                info_url='{$model->info_url}',
-                info_content_type='{$model->info_content_type}',
-                info_http_code='{$model->info_http_code}',
-                info_redirect_count='{$model->info_redirect_count}',
-                info_redirect_url='{$model->info_redirect_url}',
-                info_primary_ip='{$model->info_primary_ip}',
-                info_primary_port='{$model->info_primary_port}',
-                content_table_name='{$model->table_name}'
+                url='{$model->url}',
+                content_type='{$model->content_type}',
+                http_code={$model->http_code},
+                redirect_count={$model->redirect_count},
+                redirect_url='{$model->redirect_url}',
+                primary_ip='{$model->primary_ip}',
+                primary_port={$model->primary_port},
+                has_content={$model->has_content},
+                content_table_name='{$model->table_name}',
+                update_timestamp='{$model->update_timestamp->getTimestamp()}'
             WHERE id = $model->id;
 EOT;
 
@@ -119,14 +141,19 @@ EOT;
 #region - WebPageList
 
     public function GetWebPageById(int $id) : array {
-        $query = "SELECT * FROM {$this->WebPages_table_name} WHERE id = {$id}";
+        $query = "SELECT * FROM {$this->WebPagesTableName} WHERE id = {$id}";
         $result = $this->db->querySingle($query);
         return $result;
     }
 
-    public function GetWebPageByUrlId(int $id) : array {
-        $query = "SELECT * FROM {$this->WebPages_table_name} WHERE UrlList_info_url = '{$id}'";
-        $result = $this->db->querySingle($query);
+    public function GetWebPageByUrl(string $url) : array {
+
+
+
+        $query_webpage = "SELECT * FROM {$this->WebPagesTableName} WHERE UrlList_url = '{$id}'";
+
+
+        $result = $this->db->querySingle($query_webpage);
         return $result;
     }
 
@@ -137,10 +164,10 @@ EOT;
      * @param int - the id of the url in UrlList table (it's a foreign key)
      * @return integer - return: WebPage "lastInsertRowID" if success FALSE otherwise
      */
-    public function InsertWebPage(WebPageModel $model, int $UrlList_info_url_id) : int {
+    public function InsertWebPage(WebPageModel $model, int $UrlList_url_id) : int {
         // Insert To WebPageList
         $query = <<<EOT
-        INSERT INTO {$this->WebPages_table_name} (
+        INSERT INTO {$this->WebPagesTableName} (
             language,
             title,
             h1,
@@ -154,7 +181,7 @@ EOT;
             top_words,
             insert_date,
             update_date,
-            UrlList_info_url
+            UrlList_url
         ) VALUES (
             '{$model->language}',
             '{$model->title}',
@@ -167,9 +194,9 @@ EOT;
             '{$model->meta_keywords}',
             '{$model->meta_description}',
             '{$model->top_words}',
-            '{$model->insert_date->date}',
-            '{$model->update_date->date}',
-            '{$UrlList_info_url_id}'
+            '{$model->insert_timestamp->date}',
+            '{$model->update_timestamp->date}',
+            '{$UrlList_url_id}'
         );
 EOT;
 
@@ -188,10 +215,10 @@ EOT;
      * @param int - the id of the url in UrlList table (it's a foreign key)
      * @return integer - return: WebPage ID if success FALSE otherwise
      */
-    function UpdateWebPage(WebPageModel $model, int $UrlList_info_url_id) : int {
+    function UpdateWebPage(WebPageModel $model, int $UrlList_url_id) : int {
         // Insert To WebPageList
         $query = <<<EOT
-            UPDATE {$this->WebPages_table_name}
+            UPDATE {$this->WebPagesTableName}
             SET
                 language='{$model->language}',
                 title='{$model->title}',
@@ -204,8 +231,8 @@ EOT;
                 meta_keywords='{$model->meta_keywords}',
                 meta_description='{$model->meta_description}',
                 top_words='{$model->top_words}',
-                update_date='{$model->update_date->date}',
-                UrlList_info_url='{$UrlList_info_url_id}'
+                update_date='{$model->update_timestamp->date}',
+                UrlList_url='{$UrlList_url_id}'
             WHERE id = {$model->id}
 EOT;
 

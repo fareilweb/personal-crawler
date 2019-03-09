@@ -1,5 +1,5 @@
 <?php
 abstract class DBTablesEnum implements IEnumeration {
-    const WebPageList = "WebPageList";
-    const UrlList = "UrlList";
+    const WebPageListTableName = "WebPageList";
+    const UrlListTableName = "UrlList";
 }

@@ -10,12 +10,13 @@ function GetUrlAndStoreToFolder( $document_url, $file_name )
 	file_put_contents($file_path, $request_result->content);
 }
 
-$array = array(0 => ['name'=>'color', 'value' => 'blue'], 1 => ['name' => 'color', 'value' => 'green'], 3 => ['name' => 'color', 'value' => 'pink']);
+$date = new DateTime();
+$ts = $date->getTimestamp();
 
-$key = array_search('pink', array_column($array, 'value'));
-
-print_r($key);
-
+$newdate = new DateTime();
+$newdate->setTimestamp($ts);
+echo $ts;
+//print_r($newdate);
 exit;
 
 
