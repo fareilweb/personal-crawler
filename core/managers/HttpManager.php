@@ -51,7 +51,7 @@ class HttpManager extends BaseManager {
      * @param boolean $ignore_redirect
      * @return array
      */
-    public function MakeCurlRequest(string $url, bool $ignore_redirect = FALSE): array {
+    public function MakeCurlHttpRequest(string $url, bool $ignore_redirect = FALSE): array {
         $curl = curl_init(); // Initialize curl
 
         // Set hardcoded options
@@ -82,7 +82,7 @@ class HttpManager extends BaseManager {
         $curl_getinfo_result = curl_getinfo($curl); // NOTE: must be called after curl_exec()!
 
         $result = [
-            'curl_getinfo_result' => new CurlRequestInfoDto($curl_getinfo_result),
+            'curl_getinfo_result' => $curl_getinfo_result,
             'curl_exec_result' => $curl_exec_result
         ];
 

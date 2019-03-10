@@ -91,13 +91,13 @@ class CrawlingManager extends BaseManager {
         }
 
         // Get data from scheme handler (Request) and populate/Update data of UrlModel
-        $schemeHandlerResultDto = $this->ChooseAndRunSchemeHandler($url);
+        $schemeHandlerResult = $this->ChooseAndRunSchemeHandler($url);
 
         // Populate UrlModel with curl request info
-        $urlModel->SetDataFromCurlRequestInfoDto($schemeHandlerResultDto->curl_info);
+        $urlModel->SetDataFromArray($schemeHandlerResult['curl_getinfo_result']);
 
         // Manage request based on content type
-        $runResult = $this->ChooseAndRunContentTypeHandler($urlModel, $schemeHandlerResultDto->content);
+        $runResult = $this->ChooseAndRunContentTypeHandler($urlModel, $schemeHandlerResult['curl_exec_result']);
 
         return $runResult;
     }
@@ -153,6 +153,12 @@ class CrawlingManager extends BaseManager {
         }
     }
 
+    /**
+     * Handle Result from a request to a text/html content
+     * @param UrlModel
+     * @param string $content
+     * @return WebPageModel
+     */
     private function HandleHtmlContent(UrlModel $urlModel, $content = NULL): WebPageModel {
         // Extract data form all we have now
         $webPageModel = $this->domManager->ExtractDataToWebPageModel($content, $urlModel->id);
@@ -187,11 +193,10 @@ class CrawlingManager extends BaseManager {
 
     /**
      * This method try to get scheme of the url and choose the method that can handle
-     *
      * @param string $url
-     * @return SchemeHandlerResultDto
+     * @return array
      */
-    private function ChooseAndRunSchemeHandler(string $url): SchemeHandlerResultDto {
+    private function ChooseAndRunSchemeHandler(string $url): array {
         $url_scheme = UrlHelper::GetUrlScheme($url);
         switch ($url_scheme) {
             case UrlSchemes::Http:      return $this->HandleHttpSchemeUrl($url);
@@ -207,58 +212,129 @@ class CrawlingManager extends BaseManager {
                 return $this->HandleHttpSchemeUrl($url);
         }
     }
-
-    private function HandleHttpSchemeUrl(string $url): SchemeHandlerResultDto {
-        $requestResult = $this->httpManager->MakeCurlRequest($url, $this->params['ignore_redirect']);
-        $info = $requestResult['curl_getinfo_result'];
-        $content = $requestResult['curl_exec_result'];
-        return new SchemeHandlerResultDto($info, $content);
+    /**
+     * Handle Http Scheme URL
+     * @param string
+     * @return array
+     */
+    private function HandleHttpSchemeUrl(string $url): array {
+        $curlRequestResults = $this->httpManager->MakeCurlHttpRequest($url, $this->params['ignore_redirect']);
+        return [
+            'scheme' => UrlSchemes::Http,
+            'info' => $curlRequestResults['curl_getinfo_result'],
+            'content' => $curlRequestResults['curl_exec_result']
+        ];
     }
-
-    private function HandleHttpsSchemeUrl(string $url): SchemeHandlerResultDto {
-        return $this->HandleHttpSchemeUrl($url);
+     /**
+     * Handle Https Scheme URL
+     * @param string
+     * @return array
+     */
+    private function HandleHttpsSchemeUrl(string $url): array {
+        $curlRequestResults = $this->httpManager->MakeCurlHttpRequest($url, $this->params['ignore_redirect']);
+        return [
+            'scheme' => UrlSchemes::Https,
+            'info' => $curlRequestResults['curl_getinfo_result'],
+            'content' => $curlRequestResults['curl_exec_result']
+        ];
     }
-
-    private function HandleFtpSchemeUrl(string $url): SchemeHandlerResultDto {
+     /**
+     * Handle Ftp Scheme URL
+     * @param string
+     * @return array
+     */
+    private function HandleFtpSchemeUrl(string $url): array {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
-        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["ftp"]);
-        return new SchemeHandlerResultDto();
+        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", [UrlSchemes::Ftp]);
+        return [
+            'scheme' => UrlSchemes::Ftp,
+            'info' => NULL,
+            'content' => NULL
+        ];
     }
-
-    private function HandleFtpsSchemeUrl(string $url): SchemeHandlerResultDto {
+     /**
+     * Handle Ftps Scheme URL
+     * @param string
+     * @return array
+     */
+    private function HandleFtpsSchemeUrl(string $url): array {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
-        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["ftps"]);
-        return new SchemeHandlerResultDto();
+        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", [UrlSchemes::Ftps]);
+         return [
+            'scheme' => UrlSchemes::Ftps,
+            'info' => NULL,
+            'content' => NULL
+        ];
     }
-
-    private function HandleSftpSchemeUrl(string $url): SchemeHandlerResultDto {
+     /**
+     * Handle Sftp Scheme URL
+     * @param string
+     * @return array
+     */
+    private function HandleSftpSchemeUrl(string $url): array {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
-        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["sftp"]);
-        return new SchemeHandlerResultDto();
+        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", [UrlSchemes::Sftp]);
+         return [
+            'scheme' => UrlSchemes::Sftp,
+            'info' => NULL,
+            'content' => NULL
+        ];
     }
-
-    private function HandleMailtoSchemeUrl(string $url): SchemeHandlerResultDto {
+     /**
+     * Handle Mailto Scheme URL
+     * @param string
+     * @return array
+     */
+    private function HandleMailtoSchemeUrl(string $url): array {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
-        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["mailto"]);
-        return new SchemeHandlerResultDto();
+        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", [UrlSchemes::Mailto]);
+         return [
+            'scheme' => UrlSchemes::Mailto,
+            'info' => NULL,
+            'content' => NULL
+        ];
     }
-
-    private function HandleTelSchemeUrl(string $url): SchemeHandlerResultDto {
+     /**
+     * Handle Tel Scheme URL
+     * @param string
+     * @return array
+     */
+    private function HandleTelSchemeUrl(string $url): array {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
-        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["tel"]);
-        return new SchemeHandlerResultDto();
+        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", [UrlSchemes::Tel]);
+         return [
+            'scheme' => UrlSchemes::Tel,
+            'info' => NULL,
+            'content' => NULL
+        ];
     }
-
-    private function HandleSkypeSchemeUrl(string $url): SchemeHandlerResultDto {
+     /**
+     * Handle Skype Scheme URL
+     * @param string
+     * @return array
+     */
+    private function HandleSkypeSchemeUrl(string $url): array {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
-        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["skype"]);
-        return new SchemeHandlerResultDto();
+        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", [UrlSchemes::Skype]);
+         return [
+            'scheme' => UrlSchemes::Skype,
+            'info' => NULL,
+            'content' => NULL
+        ];
     }
-
-    private function HandleWhatsAppSchemeUrl(string $url): SchemeHandlerResultDto {
+     /**
+     * Handle WhatsApp Scheme URL
+     * @param string
+     * @return array
+     */
+    private function HandleWhatsAppSchemeUrl(string $url): array {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
-        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["whatsapp"]);
-        return new SchemeHandlerResultDto();
+        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", [UrlSchemes::WhatsApp]);
+         return [
+            'scheme' => UrlSchemes::WhatsApp,
+            'info' => NULL,
+            'content' => NULL
+        ];
     }
 
 #endregion - Scheme Handlers

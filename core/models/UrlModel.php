@@ -49,27 +49,25 @@ class UrlModel extends BaseModel {
     public function SetDataFromArray(array $data_array) {
         foreach ($data_array as $key => $value) {
             if(property_exists($this, $key)) {
-                $this->{$key} = $value;
+                $this->{$key} = $value; // General Data
+            } else {
+                // cURL data is stored with a specia prefix
+                $property_name = "curl_" . $key;
+                if (property_exists($this, $property_name)) {
+                    $this->{$property_name} = $value;
+                }
             }
         }
     }
 
-    public function SetDataFromCurlRequestInfoDto(CurlRequestInfoDto $curlRequestInfoDto) {
-        $curl_prefix = "curl_";
-        foreach ($curlRequestInfoDto as $key => $value) {
+    public function SetDataFromCurlGetInfoResult(array $curlGettInfoResult) {
+
+        foreach ($curlGettInfoResult as $key => $value) {
             $property_name = $curl_prefix . $key;
             if(property_exists($this, $property_name)) {
                 $this->{$property_name} = $value;
             }
         }
-
-//        $this->curl_url = $curlRequestInfoDto->url;
-//        $this->curl_content_type = $curlRequestInfoDto->content_type;
-//        $this->curl_http_code = $curlRequestInfoDto->http_code;
-//        $this->curl_redirect_count = $curlRequestInfoDto->redirect_count;
-//        $this->curl_redirect_url = $curlRequestInfoDto->redirect_url;
-//        $this->curl_primary_ip = $curlRequestInfoDto->primary_ip;
-//        $this->curl_primary_port = $curlRequestInfoDto->primary_port;
     }
 
     public function __destruct() {
