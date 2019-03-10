@@ -194,14 +194,14 @@ class CrawlingManager extends BaseManager {
     private function ChooseAndRunSchemeHandler(string $url): SchemeHandlerResultDto {
         $url_scheme = UrlHelper::GetUrlScheme($url);
         switch ($url_scheme) {
-            case UrlHelper::$UrlSchemes['http']: return $this->HandleHttpSchemeUrl($url);
-            case UrlHelper::$UrlSchemes['https']: return $this->HandleHttpsSchemeUrl($url);
-            case UrlHelper::$UrlSchemes['ftp']: return $this->HandleFtpSchemeUrl($url);
-            case UrlHelper::$UrlSchemes['ftps']: return $this->HandleFtpsSchemeUrl($url);
-            case UrlHelper::$UrlSchemes['sftp']: return $this->HandleSftpSchemeUrl($url);
-            case UrlHelper::$UrlSchemes['mailto']: return $this->HandleMailtoSchemeUrl($url);
-            case UrlHelper::$UrlSchemes['tel']: return $this->HandleTelSchemeUrl($url);
-            case UrlHelper::$UrlSchemes['skype']: return $this->HandleSkypeSchemeUrl($url);
+            case UrlHelper::$UrlSchemes['http']:    return $this->HandleHttpSchemeUrl($url);
+            case UrlHelper::$UrlSchemes['https']:   return $this->HandleHttpsSchemeUrl($url);
+            case UrlHelper::$UrlSchemes['ftp']:     return $this->HandleFtpSchemeUrl($url);
+            case UrlHelper::$UrlSchemes['ftps']:    return $this->HandleFtpsSchemeUrl($url);
+            case UrlHelper::$UrlSchemes['sftp']:    return $this->HandleSftpSchemeUrl($url);
+            case UrlHelper::$UrlSchemes['mailto']:  return $this->HandleMailtoSchemeUrl($url);
+            case UrlHelper::$UrlSchemes['tel']:     return $this->HandleTelSchemeUrl($url);
+            case UrlHelper::$UrlSchemes['skype']:   return $this->HandleSkypeSchemeUrl($url);
             default:
                 return $this->HandleHttpSchemeUrl($url);
         }
