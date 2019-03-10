@@ -32,21 +32,21 @@ class DomManager extends BaseManager
     /**
      * Collect data from dom document
      *
-     * @param int
      * @param string
-     * @return WebPageDto|bool
+     * @return WebPageModel|bool
      */
-    public function ExtractDataToWebPageModel(string $content = NULL) {
+    public function ExtractDataToWebPageModel(string $content = NULL, string $url = NULL) {
         if(!isset($content) || empty($content)) {
             return FALSE;
         }
 
-        $webPageModel = new WebPageModel(DBTablesEnum::WebPageListTableName);
-
         $domDocument = $this->ConvertStringToDOMDocument($content);
-        if (!isset($domDocument) || empty($domDocument)) {
-            return $webPageModel;
+        if (empty($domDocument)) {
+            return FALSE;
         }
+
+        // Get WebPageModel
+        $webPageModel = new WebPageModel(TablesEnum::WebPageListTableName, $url);
 
         // Language
         $webPageModel->language = $this->GetWebPageLanguage($domDocument);

@@ -2,20 +2,8 @@
 
 class UrlHelper {
 
-    public static $UrlSchemes = [
-        'http' => 'http',
-        'https' => 'https',
-        'ftp' => 'ftp',
-        'ftps' => 'ftps',
-        'sftp' => 'sftp',
-        'mailto' => 'mailto',
-        'tel' => 'tel',
-        'skype' => 'skype',
-        'whatsapp' => 'whatsapp'
-    ];
-
     /** @var string */
-    public static $DefaultScheme = 'http';
+    public static $DefaultScheme = UrlSchemes::Http;
 
     /**
      * Try to get the scheme of gived url

@@ -3,26 +3,8 @@ class WebPageConverter
 {
     const ImplodeExplodeSeparator = "|";
 
-    /**
-     * Take a WebPageModel and convert to a WebPageDto
-     *
-     * @param WebPageModel
-     * @return WebPageDto
-     */
-    public function ToDto(WebPageModel $model) : WebPageDto {
-        $dto = new WebPageDto();
-
-        return $dto;
-    }
-
-    /**
-     * Take a WebPageDto and convert to a WebPageModel
-     *
-     * @param WebPageDto
-     * @return WebPageModel
-     */
     public function ToModel(WebPageDto $dto) : WebPageModel {
-        $model = new WebPageModel(DBTablesEnum::WebPageListTableName);
+        $model = new WebPageModel(TablesEnum::WebPageListTableName);
 
         if(!isset($dto->info)) { return $model; } // No Info, return empty model
 

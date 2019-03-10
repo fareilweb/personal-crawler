@@ -18,8 +18,8 @@ class StorageManagerSQLite extends BaseManager implements IStorageManager
         $this->db = new SQLite3( $db_file );
 
         // Set Tables Names
-        $this->UrlListTableName = DBTablesEnum::UrlListTableName;
-        $this->WebPagesTableName = DBTablesEnum::WebPageListTableName;
+        $this->UrlListTableName = TablesEnum::UrlListTableName;
+        $this->WebPagesTableName = TablesEnum::WebPageListTableName;
 
         parent::__construct();
     }

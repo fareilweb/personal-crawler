@@ -44,11 +44,22 @@ class WebPageModel extends BaseModel {
     /** @var int */
     public $UrlList_url_id;
 
+    
+    /**
+     * Constructor of WebPageModel
+     * @param string
+     * @param int
+     */
     public function __construct(string $table_name, int $UrlList_url_id = NULL) {
         $this->$UrlList_url_id = $UrlList_url_id;
         parent::__construct($table_name);
     }
 
+
+    /**
+     * Set properties by iterate array of data
+     * @param array
+     */
     public function SetDataFromArray(array $data_array) {
         foreach ($data_array as $key => $value) {
             if(property_exists($this, $key)) {
@@ -56,6 +67,7 @@ class WebPageModel extends BaseModel {
             }
         }
     }
+
 
     /**
      * Get the stored url ID
@@ -65,6 +77,7 @@ class WebPageModel extends BaseModel {
         return $this->UrlList_url_id;
     }
 
+
     /**
      * Set an stored url ID
      * @param int
@@ -72,6 +85,7 @@ class WebPageModel extends BaseModel {
     public function SetUrlId(int $UrlList_url_id) {
         $this->UrlList_url_id = $UrlList_url_id;
     }
+
 
     public function __destruct() {
         parent::__destruct();

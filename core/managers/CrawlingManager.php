@@ -87,7 +87,7 @@ class CrawlingManager extends BaseManager {
 
         // Create instance of UrlModel if previus result was empty
         if(empty($urlModel)) {
-            $urlModel = new UrlModel(DBTablesEnum::UrlListTableName, $url);
+            $urlModel = new UrlModel(TablesEnum::UrlListTableName, $url);
         }
 
         // Get data from scheme handler (Request) and populate/Update data of UrlModel
@@ -155,7 +155,7 @@ class CrawlingManager extends BaseManager {
 
     private function HandleHtmlContent(UrlModel $urlModel, $content = NULL): WebPageModel {
         // Extract data form all we have now
-        $webPageModel = $this->domManager->ExtractDataToWebPageModel($content);
+        $webPageModel = $this->domManager->ExtractDataToWebPageModel($content, $urlModel->url);
 
         // Finalize to set last data on UrlModel
         if( !empty($webPageModel)) {
@@ -165,7 +165,7 @@ class CrawlingManager extends BaseManager {
         }
 
         // Insert/Update URL
-        $urlModel->content_table_name = DBTablesEnum::WebPageListTableName;
+        $urlModel->content_table_name = TablesEnum::WebPageListTableName;
         $url_id = $this->storageManager->InsertOrUpdateUrl($urlModel);
         if ($url_id === FALSE) {
             return FALSE;
@@ -194,14 +194,15 @@ class CrawlingManager extends BaseManager {
     private function ChooseAndRunSchemeHandler(string $url): SchemeHandlerResultDto {
         $url_scheme = UrlHelper::GetUrlScheme($url);
         switch ($url_scheme) {
-            case UrlHelper::$UrlSchemes['http']:    return $this->HandleHttpSchemeUrl($url);
-            case UrlHelper::$UrlSchemes['https']:   return $this->HandleHttpsSchemeUrl($url);
-            case UrlHelper::$UrlSchemes['ftp']:     return $this->HandleFtpSchemeUrl($url);
-            case UrlHelper::$UrlSchemes['ftps']:    return $this->HandleFtpsSchemeUrl($url);
-            case UrlHelper::$UrlSchemes['sftp']:    return $this->HandleSftpSchemeUrl($url);
-            case UrlHelper::$UrlSchemes['mailto']:  return $this->HandleMailtoSchemeUrl($url);
-            case UrlHelper::$UrlSchemes['tel']:     return $this->HandleTelSchemeUrl($url);
-            case UrlHelper::$UrlSchemes['skype']:   return $this->HandleSkypeSchemeUrl($url);
+            case UrlSchemes::Http:      return $this->HandleHttpSchemeUrl($url);
+            case UrlSchemes::Https:     return $this->HandleHttpsSchemeUrl($url);
+            case UrlSchemes::Ftp:       return $this->HandleFtpSchemeUrl($url);
+            case UrlSchemes::Ftps:      return $this->HandleFtpsSchemeUrl($url);
+            case UrlSchemes::Sftp:      return $this->HandleSftpSchemeUrl($url);
+            case UrlSchemes::Mailto:    return $this->HandleMailtoSchemeUrl($url);
+            case UrlSchemes::Tel:       return $this->HandleTelSchemeUrl($url);
+            case UrlSchemes::Skype:     return $this->HandleSkypeSchemeUrl($url);
+            case UrlSchemes::WhatsApp:  return $this->HandleWhatsAppSchemeUrl($url);
             default:
                 return $this->HandleHttpSchemeUrl($url);
         }
@@ -251,6 +252,12 @@ class CrawlingManager extends BaseManager {
     private function HandleSkypeSchemeUrl(string $url): SchemeHandlerResultDto {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
         echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["skype"]);
+        return new SchemeHandlerResultDto();
+    }
+
+    private function HandleWhatsAppSchemeUrl(string $url): SchemeHandlerResultDto {
+        echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
+        echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", ["whatsapp"]);
         return new SchemeHandlerResultDto();
     }
 
