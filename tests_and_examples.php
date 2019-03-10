@@ -10,12 +10,11 @@ function GetUrlAndStoreToFolder( $document_url, $file_name )
 	file_put_contents($file_path, $request_result->content);
 }
 
-$date_old = new DateTime('2019-03-07');
-$date_now = new DateTime();
+$h1 = ['wordd 1', 'words 2', "word 3"];
 
-$interval = $date_now->diff($date_old);
-//echo $interval->format('%R%a days');
-echo $interval->days;
+$json = json_encode($h1);
+
+echo $json;
 
 //print_r($interval);
 

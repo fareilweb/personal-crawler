@@ -155,7 +155,7 @@ class CrawlingManager extends BaseManager {
 
     private function HandleHtmlContent(UrlModel $urlModel, $content = NULL): WebPageModel {
         // Extract data form all we have now
-        $webPageModel = $this->domManager->ExtractDataToWebPageModel($content, $urlModel->url);
+        $webPageModel = $this->domManager->ExtractDataToWebPageModel($content, $urlModel->id);
 
         // Finalize to set last data on UrlModel
         if( !empty($webPageModel)) {

@@ -44,14 +44,14 @@ class WebPageModel extends BaseModel {
     /** @var int */
     public $UrlList_url_id;
 
-    
+
     /**
      * Constructor of WebPageModel
      * @param string
      * @param int
      */
-    public function __construct(string $table_name, int $UrlList_url_id = NULL) {
-        $this->$UrlList_url_id = $UrlList_url_id;
+    public function __construct(string $table_name, int $url_id = NULL) {
+        $this->$UrlList_url_id = $url_id;
         parent::__construct($table_name);
     }
 

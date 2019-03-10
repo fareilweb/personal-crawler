@@ -35,7 +35,7 @@ class DomManager extends BaseManager
      * @param string
      * @return WebPageModel|bool
      */
-    public function ExtractDataToWebPageModel(string $content = NULL, string $url = NULL) {
+    public function ExtractDataToWebPageModel(string $content = NULL, string $url_id = NULL) {
         if(!isset($content) || empty($content)) {
             return FALSE;
         }
@@ -45,8 +45,8 @@ class DomManager extends BaseManager
             return FALSE;
         }
 
-        // Get WebPageModel
-        $webPageModel = new WebPageModel(TablesEnum::WebPageListTableName, $url);
+        // @var WebPageModel
+        $webPageModel = new WebPageModel(TablesEnum::WebPageListTableName, $url_id);
 
         // Language
         $webPageModel->language = $this->GetWebPageLanguage($domDocument);
@@ -54,14 +54,40 @@ class DomManager extends BaseManager
         // Title
         $webPageModel->title = $this->GetWebPageTitle($domDocument);
 
-        // Headers
-        $webPageModel->headers = $this->GetHeadersContent($domDocument);
-
-        // Meta Data
-        $webPageModel->meta_data = $this->GetMetaData($domDocument);
-
         // Most Repeated Word
         $webPageModel->top_words = $this->GetMostRepeatedWords($domDocument);
+
+        // TODO - Headers
+        $allHeaders = $this->GetHeaders($domDocument);
+        $webPageModel->h1 = json_encode($allHeaders['h1']);
+        $webPageModel->h2 = json_encode($allHeaders['h2']);
+        $webPageModel->h3 = json_encode($allHeaders['h3']);
+        $webPageModel->h4 = json_encode($allHeaders['h4']);
+        $webPageModel->h5 = json_encode($allHeaders['h5']);
+        $webPageModel->h6 = json_encode($allHeaders['h6']);
+
+        // Meta Data - now is possible extract needed meta data
+        $metaData = $this->GetMetaData($domDocument);
+
+        // Extract Meta Keywords
+        $webPageModel->meta_keywords = (function($meta_data) {
+            $key = array_search('keywords', array_column($meta_data, 'name'));
+            $content = "";
+            if ($key !== FALSE) {
+                $content = $meta_data[$key]['content'];
+            }
+            return $content;
+        })($metaData);
+
+        // Extract Meta Description
+        $webPageModel->meta_description = (function($meta_data) {
+            $key = array_search('description', array_column($meta_data, 'name'));
+            $content = "";
+            if ($key !== FALSE) {
+                $content = $meta_data[$key]['content'];
+            }
+            return $content;
+        })($metaData);
 
         return $webPageModel;
     }
@@ -86,11 +112,11 @@ class DomManager extends BaseManager
     /**
      * Get Most Repeated Word From a DOMDocument object
      *
-     * @param DOMDocument $domDocument
+     * @param DOMDocument
      * @param int
-     * @return string[]
+     * @return string
      */
-    public function GetMostRepeatedWords(DOMDocument $domDocument, int $howManyWords = NULL) : array {
+    public function GetMostRepeatedWords(DOMDocument $domDocument, int $howManyWords = NULL) : string {
         $topWords = [];
 
         // Get Body Content
@@ -118,11 +144,29 @@ class DomManager extends BaseManager
 
         $topWords = array_slice($wordsCount, 0, $howManyWords, true);
 
-        return $topWords;
+        // Get all word into a string
+        $topWordsString = (function($top_words_array) {
+            $top_words_string = "";
+            $index = 0;
+            $index_stop_add_char = count($top_words_array) - 2;
+            foreach ($top_words_array as $word => $count) {
+                $top_words_string .= $word;
+                if ($index < $index_stop_add_char) {
+                    $top_words_string .= "|";
+                }
+                $index++;
+            }
+            return $top_words_string;
+        })($topWords);
+
+        return $topWordsString;
     }
 
-
-
+    /**
+     * Get All meta data of the document
+     * @param DOMDocument
+     * @return array
+     */
     public function GetMetaData(DOMDocument $domDocument) : array {
         $metaData = [];
         $metaTags = $domDocument->getElementsByTagName('meta');
@@ -136,7 +180,12 @@ class DomManager extends BaseManager
         return $metaData;
     }
 
-    public function GetHeadersContent(DOMDocument $domDocument) : array {
+    /**
+     * Get All Meta Data of the document
+     * @param DOMDocument
+     * @return array
+     */
+    public function GetHeaders(DOMDocument $domDocument) : array {
         $hxs = [ 'h1' => [], 'h2' => [], 'h3' => [], 'h4' => [], 'h5' => [], 'h6' => [] ];
         foreach ($hxs as $key => $value) {
             $hx = $domDocument->getElementsByTagName($key);
@@ -149,6 +198,11 @@ class DomManager extends BaseManager
         return $hxs;
     }
 
+    /**
+     * Get title tag content of the document
+     * @param DOMDocument
+     * @return type
+     */
     public function GetWebPageTitle(DOMDocument $domDocument) {
         $title = "";
         $titleTags = $domDocument->getElementsByTagName('title');
@@ -158,6 +212,11 @@ class DomManager extends BaseManager
         return $title;
     }
 
+    /**
+     * Get document language
+     * @param DOMDocument $domDocument
+     * @return type
+     */
     public function GetWebPageLanguage(DOMDocument $domDocument) {
         $lang = "";
 
