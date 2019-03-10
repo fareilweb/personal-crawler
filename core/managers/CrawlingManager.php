@@ -20,7 +20,8 @@ class CrawlingManager extends BaseManager {
     /** @var string[] */
     private $urlset;
 
-
+    /** @var string[] */
+    private $jail_urlset;
 
     /**
      * Constructor of the class
@@ -50,12 +51,17 @@ class CrawlingManager extends BaseManager {
      * @return void
      */
     public function Start(array $params) {
-        // Merge urlset param into local urlset member
-        if (isset($params['urlset']) && count($params['urlset']) > 0) {
+        // Store urlset from parameters
+        if (!empty($params['urlset'])) {
             $this->urlset = $params['urlset'];
         }
 
-        // Store params
+        // Store gived url jail_urlset urls if jail mode is requested
+        if($params['jail_mode'] === TRUE) {
+            $this->jail_urlset = $params['urlset'];
+        }
+
+        // Store all parameters internally for future references
         $this->params = $params;
 
         while (count($this->urlset) > 0) {
@@ -79,38 +85,33 @@ class CrawlingManager extends BaseManager {
      * @param string $url
      */
     public function CrawlUrl(string $url) {
-
         $urlModel = $this->storageManager->GetUrlModelByUrl($url);
-        if($this->DoUrlNeedToBeCrawled($urlModel) === FALSE) {
-            return; // Skip
-        }
-
-        // Create instance of UrlModel if previus result was empty
         if(empty($urlModel)) {
             $urlModel = new UrlModel(TablesEnum::UrlListTableName, $url);
         }
 
-        // Get data from scheme handler (Request) and populate/Update data of UrlModel
-        $schemeHandlerResult = $this->ChooseAndRunSchemeHandler($url);
+        if ($this->DoUrlNeedToBeCrawled($urlModel, $url) === FALSE) {
+            return; // Skip
+        }
 
-        // Populate UrlModel with curl request info
-        $urlModel->SetDataFromArray($schemeHandlerResult['curl_getinfo_result']);
-
-        // Manage request based on content type
-        $runResult = $this->ChooseAndRunContentTypeHandler($urlModel, $schemeHandlerResult['curl_exec_result']);
-
-        return $runResult;
+        $schemeHandlerResult        = $this->ChooseAndRunSchemeHandler($url);
+        $contentTypeHandlerResult   = $this->ChooseAndRunContentTypeHandler($urlModel, $schemeHandlerResult);
+        return $contentTypeHandlerResult;
     }
-
 
     /**
      * Try to retrieve url from database, and check if need to be crawled
      * @param type UrlModel|bool
      * @return bool - TRUE if crawling is needed FALSE otherwise
      */
-    public function DoUrlNeedToBeCrawled($urlModel) : bool {
-        // Just update contents every time
-        if (IGNORE_REFRESH_RATE === TRUE) {
+    public function DoUrlNeedToBeCrawled(UrlModel $urlModel, string $url) : bool {
+
+        // Check if the url is in current url "jail_urlset"
+        if($this->params['jail_mode'] === TRUE && !empty($this->jail_urlset)) {
+            $result = UrlHelper::IsUrlDomainInUrlUrlsetDomains($url, $this->jail_urlset);
+            if(empty($result)) {
+                return FALSE;
+            }
             return TRUE;
         }
 
@@ -124,18 +125,35 @@ class CrawlingManager extends BaseManager {
             return TRUE;
         }
 
-        // Get data abount the last update of the record
-        $last_update_datetime = (new DateTime())->setTimestamp($urlModel->update_timestamp);
-        $now_datetime = new DateTime();
-        $difference = $last_update_datetime->diff($now_datetime);
-
-        // Old record. Crawl!
-        if((int)$difference->format('days') >= CONTENT_REFRESH_RATE) {
-            return TRUE;
+        // Get data about the last update of the record. If it's an old record. Crawl!
+        if (IGNORE_REFRESH_RATE === TRUE) {
+            return TRUE; // Configuration say to ignore. Skip any datetime controls and Crawl!
+        } else {
+            $last_update_datetime = (new DateTime())->setTimestamp($urlModel->update_timestamp);
+            $now_datetime = new DateTime();
+            $difference = $last_update_datetime->diff($now_datetime);
+            if((int)$difference->format('days') >= CONTENT_REFRESH_RATE) {
+                return TRUE;
+            }
         }
 
         return FALSE;
     }
+
+
+
+    public function TryToGetContentType($schemeHandlerResult) : string {
+        /*
+        $schemeHandlerResult = [
+            'scheme' => UrlSchemes::Http,
+            'info' => $curlRequestResults['curl_getinfo_result'],
+            'content' => $curlRequestResults['curl_exec_result']
+        ];
+        */
+        return "";
+    }
+
+
 
 #region - Content Types Handlers
 
@@ -143,14 +161,29 @@ class CrawlingManager extends BaseManager {
      * This method try to get the content type of the request results and choose the method that can handle it
      * @return WebPageModel|bool
      **/
-    private function ChooseAndRunContentTypeHandler(UrlModel $urlModel, $content) {
-        // Choose the best handler
-        if (strpos($urlModel->curl_content_type, 'text/html') !== FALSE) {
-            return $this->HandleHtmlContent($urlModel, $content);
-        } else {
-            // Can't inference content type. Do default action.
-            return $this->HandleHtmlContent($urlModel, $content);
+     private function ChooseAndRunContentTypeHandler(UrlModel $urlModel, array $schemeHandlerResult) {
+
+        // Populate with incoming info
+        $urlModel->SetDataFromArray($schemeHandlerResult['info']);
+
+        $content_type = NULL;
+        if (!empty($urlModel->curl_content_type)) {
+            $content_type = $urlModel->curl_content_type;
+            $urlModel->inferred_content_type = $urlModel->curl_content_type;
+        } else if (!empty($urlModel->inferred_content_type)) {
+            $content_type = $urlModel->inferred_content_type;
+        } else if(empty($content_type)) {
+            $content_type = $this->TryToGetContentType($schemeHandlerResult);
         }
+
+        switch ($content_type)
+        {
+            case ContentTypes::Html: return $this->HandleHtmlContent($urlModel, $schemeHandlerResult['content']);
+            default:
+                return $this->HandleHtmlContent($urlModel, $schemeHandlerResult['content']);
+        }
+
+
     }
 
     /**
@@ -189,6 +222,13 @@ class CrawlingManager extends BaseManager {
     }
 
 #endregion - Content Types Handlers
+
+
+
+
+
+
+
 #region - Scheme Handlers
 
     /**
@@ -260,7 +300,7 @@ class CrawlingManager extends BaseManager {
     private function HandleFtpsSchemeUrl(string $url): array {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
         echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", [UrlSchemes::Ftps]);
-         return [
+        return [
             'scheme' => UrlSchemes::Ftps,
             'info' => NULL,
             'content' => NULL
@@ -274,7 +314,7 @@ class CrawlingManager extends BaseManager {
     private function HandleSftpSchemeUrl(string $url): array {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
         echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", [UrlSchemes::Sftp]);
-         return [
+        return [
             'scheme' => UrlSchemes::Sftp,
             'info' => NULL,
             'content' => NULL
@@ -288,7 +328,7 @@ class CrawlingManager extends BaseManager {
     private function HandleMailtoSchemeUrl(string $url): array {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
         echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", [UrlSchemes::Mailto]);
-         return [
+        return [
             'scheme' => UrlSchemes::Mailto,
             'info' => NULL,
             'content' => NULL
@@ -302,7 +342,7 @@ class CrawlingManager extends BaseManager {
     private function HandleTelSchemeUrl(string $url): array {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
         echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", [UrlSchemes::Tel]);
-         return [
+        return [
             'scheme' => UrlSchemes::Tel,
             'info' => NULL,
             'content' => NULL
@@ -316,7 +356,7 @@ class CrawlingManager extends BaseManager {
     private function HandleSkypeSchemeUrl(string $url): array {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
         echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", [UrlSchemes::Skype]);
-         return [
+        return [
             'scheme' => UrlSchemes::Skype,
             'info' => NULL,
             'content' => NULL
@@ -330,7 +370,7 @@ class CrawlingManager extends BaseManager {
     private function HandleWhatsAppSchemeUrl(string $url): array {
         echo $this->localizationManager->GetString("current_url") . ": {$url}" . PHP_EOL;
         echo $this->localizationManager->GetStringWith("protocol_not_handled_yet_warning", [UrlSchemes::WhatsApp]);
-         return [
+        return [
             'scheme' => UrlSchemes::WhatsApp,
             'info' => NULL,
             'content' => NULL

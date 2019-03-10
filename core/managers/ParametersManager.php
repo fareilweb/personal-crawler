@@ -23,8 +23,8 @@ class ParametersManager extends BaseManager {
     /** @var string[] */
     public $urlset;
 
-    /** @var string[] */
-    public $jailset;
+    /** @var string */
+    public $jail_mode;
 
     /** @var boolean - default value is "FALSE" */
     public $ignore_redirect;
@@ -64,8 +64,8 @@ class ParametersManager extends BaseManager {
         // Get "urlset" parameter
         $this->urlset = $this->GetParamValueSet("--urlset", "-us", $real_params);
 
-        // Get "urljaiset" parameter (force crawling to stay inside gived domains)
-        $this->jailset = $this->GetParamValueSet("--jailset", "-js", $real_params);
+        // Get "jail mode" parameter (force crawling to stay inside gived domains)
+        $this->jail_mode = $this->HasParam("--jail-mode", "-jm", $real_params) ? TRUE : FALSE;
 
         // Get "follow redirect" parameter
         $this->ignore_redirect = $this->HasParam("--ignore-redirect", "-ir", $real_params) ? TRUE : FALSE;
@@ -206,7 +206,7 @@ class ParametersManager extends BaseManager {
             'help' => $this->help,
             'action' => $this->action,
             'urlset' => $this->urlset,
-            'jailset' => $this->jailset,
+            'jail_mode' => $this->jail_mode,
             'ignore_redirect' => $this->ignore_redirect
         ];
     }

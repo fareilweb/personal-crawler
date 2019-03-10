@@ -59,4 +59,29 @@ class UrlHelper {
         return $valid_url;
     }
 
+
+    /**
+     * Test gived url to see if it has the same domain of one of the url in the gived urlset
+     * @param string
+     * @param string[]
+     * @return boolean
+     */
+    public static function IsUrlDomainInUrlUrlsetDomains(string $url, array $url_set) : ?bool {
+        $parsed_url = parse_url($url);
+        if(empty($parsed_url['host']) && empty($parsed_url['path'])) {
+            return NULL;
+        }
+
+        foreach ($url_set as $jail_url) {
+            $parsed_from_urlset = parse_url($jail_url);
+            if ($parsed_url['host'] === $parsed_from_urlset['host'] || $parsed_url['host'] === $parsed_from_urlset['path']) {
+                return TRUE;
+            }
+            if ($parsed_url['path'] === $parsed_from_urlset['host'] || $parsed_url['path'] === $parsed_from_urlset['path']) {
+                return TRUE;
+            }
+        }
+        return FALSE;
+    }
+
 }

@@ -59,30 +59,32 @@ class StorageManagerSQLite extends BaseManager implements IStorageManager
         $query = <<<EOT
             INSERT INTO {$this->UrlListTableName} (
                 url,
+                has_content,
+                content_table_name,
+                inferred_content_type,
+                insert_timestamp,
+                update_timestamp,
                 curl_url,
                 curl_content_type,
                 curl_http_code,
                 curl_redirect_count,
                 curl_redirect_url,
                 curl_primary_ip,
-                curl_primary_port,
-                has_content,
-                content_table_name,
-                insert_timestamp,
-                update_timestamp
+                curl_primary_port
             ) VALUES (
                 ':url',
+                 :has_content,
+                ':content_table_name',
+                ':inferred_content_type',
+                 :insert_timestamp,
+                 :update_timestamp,
                 ':curl_url',
                 ':curl_content_type',
                  :curl_http_code,
                  :curl_redirect_count,
                 ':curl_redirect_url',
                 ':curl_primary_ip',
-                 :curl_primary_port,
-                 :has_content,
-                ':content_table_name',
-                 :insert_timestamp,
-                 :update_timestamp
+                 :curl_primary_port
             );
 EOT;
         $stmt = $this->db->prepare($query);
@@ -91,17 +93,18 @@ EOT;
         $update_timestamp = $insert_timestamp;
 
         $stmt->bindParam(':url', $model->url, SQLITE3_TEXT);
-        $stmt->bindParam(':curl_url', $model->curl_url, SQLITE3_TEXT);
-        $stmt->bindParam(':content_type', $model->curl_content_type, SQLITE3_TEXT);
-        $stmt->bindParam(':http_code', $model->curl_http_code, SQLITE3_INTEGER);
-        $stmt->bindParam(':redirect_count', $model->curl_redirect_count, SQLITE3_INTEGER);
-        $stmt->bindParam(':redirect_url', $model->curl_redirect_url, SQLITE3_TEXT);
-        $stmt->bindParam(':primary_ip', $model->curl_primary_ip, SQLITE3_TEXT);
-        $stmt->bindParam(':primary_port', $model->curl_primary_port, SQLITE3_INTEGER);
         $stmt->bindParam(':has_content', $model->has_content, SQLITE3_INTEGER);
         $stmt->bindParam(':content_table_name', $model->content_table_name, SQLITE3_TEXT);
+        $stmt->bindParam(':inferred_content_type', $model->inferred_content_type, SQLITE3_TEXT);
         $stmt->bindParam(':insert_timestamp', $insert_timestamp, SQLITE3_INTEGER);
         $stmt->bindParam(':update_timestamp', $update_timestamp, SQLITE3_INTEGER);
+        $stmt->bindParam(':curl_url', $model->curl_url, SQLITE3_TEXT);
+        $stmt->bindParam(':curl_content_type', $model->curl_content_type, SQLITE3_TEXT);
+        $stmt->bindParam(':curl_http_code', $model->curl_http_code, SQLITE3_INTEGER);
+        $stmt->bindParam(':curl_redirect_count', $model->curl_redirect_count, SQLITE3_INTEGER);
+        $stmt->bindParam(':curl_redirect_url', $model->curl_redirect_url, SQLITE3_TEXT);
+        $stmt->bindParam(':curl_primary_ip', $model->curl_primary_ip, SQLITE3_TEXT);
+        $stmt->bindParam(':curl_primary_port', $model->curl_primary_port, SQLITE3_INTEGER);
 
         $result = $stmt->execute();
 
@@ -118,34 +121,36 @@ EOT;
            UPDATE {$this->UrlListTableName}
            SET
                 url=':url',
-                curl_url=':curl_url'
+                has_content=:has_content,
+                content_table_name=':table_name',
+                inferred_content_type=':inferred_content_type',
+                update_timestamp=:update_timestamp,
+                curl_url=':curl_url',
                 curl_content_type=':curl_content_type',
                 curl_http_code=:curl_http_code,
                 curl_redirect_count=:curl_redirect_count,
                 curl_redirect_url=':curl_redirect_url',
                 curl_primary_ip=':curl_primary_ip',
-                curl_primary_port=:curl_primary_port,
-                has_content=:has_content,
-                content_table_name=':table_name',
-                update_timestamp=:update_timestamp
+                curl_primary_port=:curl_primary_port
             WHERE id = :id;
 EOT;
         $stmt = $this->db->prepare($query);
 
         $update_timestamp = (new DateTime())->getTimestamp();
 
+        $stmt->bindParam(':id', $model->id, SQLITE3_INTEGER);
         $stmt->bindParam(':url', $model->url, SQLITE3_TEXT);
-        $stmt->bindParam(':curl_url', $model->curl_url, SQLITE3_TEXT);
-        $stmt->bindParam(':content_type', $model->curl_content_type, SQLITE3_TEXT);
-        $stmt->bindParam(':http_code', $model->curl_http_code, SQLITE3_INTEGER);
-        $stmt->bindParam(':redirect_count', $model->curl_redirect_count, SQLITE3_INTEGER);
-        $stmt->bindParam(':redirect_url', $model->curl_redirect_url, SQLITE3_TEXT);
-        $stmt->bindParam(':primary_ip', $model->curl_primary_ip, SQLITE3_TEXT);
-        $stmt->bindParam(':primary_port', $model->curl_primary_port, SQLITE3_INTEGER);
         $stmt->bindParam(':has_content', $model->has_content, SQLITE3_INTEGER);
         $stmt->bindParam(':content_table_name', $model->content_table_name, SQLITE3_TEXT);
+        $stmt->bindParam(':inferred_content_type', $model->inferred_content_type, SQLITE3_TEXT);
         $stmt->bindParam(':update_timestamp', $update_timestamp, SQLITE3_INTEGER);
-        $stmt->bindParam(':id', $model->id, SQLITE3_INTEGER);
+        $stmt->bindParam(':curl_url', $model->curl_url, SQLITE3_TEXT);
+        $stmt->bindParam(':curl_content_type', $model->curl_content_type, SQLITE3_TEXT);
+        $stmt->bindParam(':curl_http_code', $model->curl_http_code, SQLITE3_INTEGER);
+        $stmt->bindParam(':curl_redirect_count', $model->curl_redirect_count, SQLITE3_INTEGER);
+        $stmt->bindParam(':curl_redirect_url', $model->curl_redirect_url, SQLITE3_TEXT);
+        $stmt->bindParam(':curl_primary_ip', $model->curl_primary_ip, SQLITE3_TEXT);
+        $stmt->bindParam(':curl_primary_port', $model->curl_primary_port, SQLITE3_INTEGER);
 
         $result = $stmt->execute();
 
