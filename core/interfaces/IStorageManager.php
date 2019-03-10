@@ -58,7 +58,7 @@ interface IStorageManager
      * @param int
      * @return WebPageModel
      */
-    function GetWebPageModelByUrlId(int $UrlList_url_id): WebPageModel;
+    function GetWebPageModelByUrlId(int $UrlList_id): WebPageModel;
 
     /**
      * Insert WebPage into database
@@ -67,7 +67,7 @@ interface IStorageManager
      * @param int - the id of the url in UrlList table (it's a foreign key)
      * @return integer - return: WebPage "lastInsertRowID" if success FALSE otherwise
      */
-    function InsertWebPage(WebPageModel $model, int $UrlList_url_id) : int;
+    function InsertWebPage(WebPageModel $model, int $UrlList_id) : int;
 
     /**
      * Update WebPage into database
@@ -76,12 +76,12 @@ interface IStorageManager
      * @param int - the id of the url in UrlList table (it's a foreign key)
      * @return integer - return: WebPage ID if success FALSE otherwise
      */
-    function UpdateWebPage(WebPageModel $model, int $UrlList_url_id) : int;
+    function UpdateWebPage(WebPageModel $model, int $UrlList_id) : int;
 
     /**
      * Choose if call Insert or Update Method for the gived WebPageModel
      * @param WebPageModel
      * @return int|bool return id of the last operation row or FALSE if fail
      */
-    function InsertOrUpdateWebPage(WebPageModel $webPageModel, int $UrlList_url_id): int;
+    function InsertOrUpdateWebPage(WebPageModel $webPageModel, int $UrlList_id): int;
 }

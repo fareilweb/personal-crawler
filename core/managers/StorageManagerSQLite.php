@@ -39,7 +39,7 @@ class StorageManagerSQLite extends BaseManager implements IStorageManager
         $query = "SELECT * FROM {$this->UrlListTableName} WHERE id = {$id}";
         $result = $this->db->querySingle($query, true);
         if(empty($result)) { return FALSE; } // NULL or FALSE or [] - return FALSE
-        $urlModel = new UrlModel($this->UrlListTableName);
+        $urlModel = new UrlModel($this->UrlListTableName, $result['url']);
         $urlModel->SetDataFromArray($result);
         return $urlModel;
     }
@@ -49,7 +49,7 @@ class StorageManagerSQLite extends BaseManager implements IStorageManager
         $query = "SELECT * FROM {$this->UrlListTableName} WHERE url = '{$url}'";
         $result = $this->db->querySingle($query, true);
         if(empty($result)) { return FALSE; } // NULL or FALSE or [] - return FALSE
-        $urlModel = new UrlModel($this->UrlListTableName);
+        $urlModel = new UrlModel($this->UrlListTableName, $result['url']);
         $urlModel->SetDataFromArray($result);
         return $urlModel;
     }
@@ -72,19 +72,19 @@ class StorageManagerSQLite extends BaseManager implements IStorageManager
                 curl_primary_ip,
                 curl_primary_port
             ) VALUES (
-                ':url',
-                 :has_content,
-                ':content_table_name',
-                ':inferred_content_type',
-                 :insert_timestamp,
-                 :update_timestamp,
-                ':curl_url',
-                ':curl_content_type',
-                 :curl_http_code,
-                 :curl_redirect_count,
-                ':curl_redirect_url',
-                ':curl_primary_ip',
-                 :curl_primary_port
+                :url,
+                :has_content,
+                :content_table_name,
+                :inferred_content_type,
+                :insert_timestamp,
+                :update_timestamp,
+                :curl_url,
+                :curl_content_type,
+                :curl_http_code,
+                :curl_redirect_count,
+                :curl_redirect_url,
+                :curl_primary_ip,
+                :curl_primary_port
             );
 EOT;
         $stmt = $this->db->prepare($query);
@@ -107,31 +107,32 @@ EOT;
         $stmt->bindParam(':curl_primary_port', $model->curl_primary_port, SQLITE3_INTEGER);
 
         $result = $stmt->execute();
+        $stmt->reset();
 
         if($result === FALSE) {
             return FALSE;
         }
-
-        return $this->db->lastInsertRowID();
+        $last_insert_row_id = $this->db->lastInsertRowID();
+        return $last_insert_row_id;
     }
 
 
     public function UpdateUrl(UrlModel $model) : int {
         $query = <<<EOT
-           UPDATE {$this->UrlListTableName}
-           SET
-                url=':url',
-                has_content=:has_content,
-                content_table_name=':table_name',
-                inferred_content_type=':inferred_content_type',
-                update_timestamp=:update_timestamp,
-                curl_url=':curl_url',
-                curl_content_type=':curl_content_type',
-                curl_http_code=:curl_http_code,
-                curl_redirect_count=:curl_redirect_count,
-                curl_redirect_url=':curl_redirect_url',
-                curl_primary_ip=':curl_primary_ip',
-                curl_primary_port=:curl_primary_port
+            UPDATE {$this->UrlListTableName}
+            SET
+                url                     = :url,
+                has_content             = :has_content,
+                content_table_name      = :table_name,
+                inferred_content_type   = :inferred_content_type,
+                update_timestamp        = :update_timestamp,
+                curl_url                = :curl_url,
+                curl_content_type       = :curl_content_type,
+                curl_http_code          = :curl_http_code,
+                curl_redirect_count     = :curl_redirect_count,
+                curl_redirect_url       = :curl_redirect_url,
+                curl_primary_ip         = :curl_primary_ip,
+                curl_primary_port       = :curl_primary_port
             WHERE id = :id;
 EOT;
         $stmt = $this->db->prepare($query);
@@ -153,6 +154,7 @@ EOT;
         $stmt->bindParam(':curl_primary_port', $model->curl_primary_port, SQLITE3_INTEGER);
 
         $result = $stmt->execute();
+        $stmt->reset();
 
         if($result === FALSE) {
             return FALSE;
@@ -185,8 +187,8 @@ EOT;
     }
 
 
-    public function GetWebPageModelByUrlId(int $UrlList_url_id) : WebPageModel {
-        $query = "SELECT * FROM {$this->WebPagesTableName} WHERE UrlList_url_id = '{$UrlList_url_id}';";
+    public function GetWebPageModelByUrlId(int $UrlList_id) : WebPageModel {
+        $query = "SELECT * FROM {$this->WebPagesTableName} WHERE UrlList_id = '{$UrlList_id}';";
         $result = $this->db->querySingle($query, true);
         if (empty($result)) { return FALSE; } // NULL or FALSE or [] - return FALSE
         $model = new WebPageModel($this->WebPagesTableName);
@@ -195,7 +197,7 @@ EOT;
     }
 
 
-    public function InsertWebPage(WebPageModel $model, int $UrlList_url_id) : int {
+    public function InsertWebPage(WebPageModel $model, int $UrlList_id) : int {
         $query = <<<EOT
             INSERT INTO {$this->WebPagesTableName} (
                 language,
@@ -211,22 +213,22 @@ EOT;
                 top_words,
                 insert_date,
                 update_date,
-                UrlList_url
+                UrlList_id
             ) VALUES (
-                ':language',
-                ':title',
-                ':h1',
-                ':h2',
-                ':h3',
-                ':h4',
-                ':h5',
-                ':h6',
-                ':meta_keywords',
-                ':meta_description',
-                ':top_words',
-                 :insert_timestamp,
-                 :update_timestamp,
-                 :UrlList_url_id
+                :language,
+                :title,
+                :h1,
+                :h2,
+                :h3,
+                :h4,
+                :h5,
+                :h6,
+                :meta_keywords',
+                :meta_description',
+                :top_words',
+                :insert_timestamp,
+                :update_timestamp,
+                :UrlList_id
             );
 EOT;
 
@@ -248,35 +250,37 @@ EOT;
         $stmt->bindParam(':top_words', $model->top_words, SQLITE3_TEXT);
         $stmt->bindParam(':insert_timestamp', $insert_timestamp, SQLITE3_INTEGER);
         $stmt->bindParam(':update_timestamp', $update_timestamp, SQLITE3_INTEGER);
-        $stmt->bindParam(':UrlList_url_id', $UrlList_url_id, SQLITE3_INTEGER);
+        $stmt->bindParam(':UrlList_id', $UrlList_id, SQLITE3_INTEGER);
 
         $result = $stmt->execute();
+        $stmt->reset();
 
         if($result === FALSE) {
             return FALSE;
         }
-        return $this->db->lastInsertRowID();
+        $last_insert_row_id = $this->db->lastInsertRowID();
+        return $last_insert_row_id;
     }
 
 
-    function UpdateWebPage(WebPageModel $model, int $UrlList_url_id) : int {
+    function UpdateWebPage(WebPageModel $model, int $UrlList_id) : int {
         $query = <<<EOT
             UPDATE {$this->WebPagesTableName}
             SET
-                language=':language',
-                title=':title',
-                h1=':h1',
-                h2=':h2',
-                h3=':h3',
-                h4=':h4',
-                h5=':h5',
-                h6=':h6',
-                meta_keywords=':meta_keywords',
-                meta_description=':meta_description',
-                top_words=':top_words',
-                update_date=:update_timestamp,
-                UrlList_url=:UrlList_url_id
-            WHERE :id = {:id}
+                language            = :language,
+                title               = :title,
+                h1                  = :h1,
+                h2                  = :h2,
+                h3                  = :h3,
+                h4                  = :h4,
+                h5                  = :h5,
+                h6                  = :h6,
+                meta_keywords       = :meta_keywords,
+                meta_description    = :meta_description,
+                top_words           = :top_words,
+                update_date         = :update_timestamp,
+                UrlList_url         = :UrlList_id
+            WHERE id = :id
 EOT;
         $stmt = $this->db->prepare($query);
 
@@ -295,9 +299,10 @@ EOT;
         $stmt->bindParam(':meta_description', $model->meta_description, SQLITE3_TEXT);
         $stmt->bindParam(':top_words', $model->top_words, SQLITE3_TEXT);
         $stmt->bindParam(':update_timestamp', $update_timestamp, SQLITE3_INTEGER);
-        $stmt->bindParam(':UrlList_url_id', $UrlList_url_id, SQLITE3_INTEGER);
+        $stmt->bindParam(':UrlList_id', $UrlList_id, SQLITE3_INTEGER);
 
         $result = $stmt->execute();
+        $stmt->reset();
 
         if($result === FALSE) {
             return FALSE;
@@ -306,11 +311,11 @@ EOT;
     }
 
 
-    function InsertOrUpdateWebPage(WebPageModel $webPageModel, int $UrlList_url_id): int {
+    function InsertOrUpdateWebPage(WebPageModel $webPageModel, int $UrlList_id): int {
         if(empty($webPageModel)) {
-            return $this->InsertWebPage($webPageModel, $UrlList_url_id);
+            return $this->InsertWebPage($webPageModel, $UrlList_id);
         } else {
-            return $this->UpdateWebPage($webPageModel, $UrlList_url_id);
+            return $this->UpdateWebPage($webPageModel, $UrlList_id);
         }
     }
 

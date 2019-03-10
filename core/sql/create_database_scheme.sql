@@ -38,6 +38,6 @@ CREATE TABLE WebPageList (
     top_words        VARCHAR (300),
     insert_date      DATETIME,
     update_date      DATETIME,
-    UrlList_url_id   INT           REFERENCES UrlList (id) ON DELETE CASCADE
+    UrlList_id   INT           REFERENCES UrlList (id) ON DELETE CASCADE
                                                            ON UPDATE CASCADE
 );

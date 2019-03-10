@@ -1,6 +1,9 @@
 <?php
 class UrlModel extends BaseModel {
 
+    /** @var string */
+    public $url;
+
     /** @var boolean */
     public $has_content;
 
@@ -17,9 +20,6 @@ class UrlModel extends BaseModel {
     public $update_timestamp;
 
 #region cURL Data
-
-    /** @var string */
-    public $url;
 
     /** @var string */
     public $curl_url;
@@ -44,7 +44,7 @@ class UrlModel extends BaseModel {
 
 #endregion cURL Data
 
-    
+
     public function __construct(string $table_name, $url = NULL) {
         $this->url = $url;
         parent::__construct($table_name);
@@ -56,14 +56,12 @@ class UrlModel extends BaseModel {
 
     public function SetDataFromArray(array $data_array) {
         foreach ($data_array as $key => $value) {
-            if(property_exists($this, $key)) {
+            // The control for exclude "url" is for avoid conflict
+            // with curl "url" VS the one set by constructor
+            if($key !== "url" && property_exists($this, $key)) {
                 $this->{$key} = $value; // General Data
-            } else {
-                // cURL data is stored with a specia prefix
-                $property_name = "curl_" . $key;
-                if (property_exists($this, $property_name)) {
-                    $this->{$property_name} = $value;
-                }
+            } else if(property_exists($this, "curl_".$key)) {
+                $this->{"curl_".$key} = $value; // cURL data is stored with a special prefix
             }
         }
     }

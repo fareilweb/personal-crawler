@@ -23,9 +23,10 @@ class CrawlingManager extends BaseManager {
     /** @var string[] */
     private $jail_urlset;
 
+
+
     /**
      * Constructor of the class
-     *
      * @param IStorageManager
      * @param HttpManager
      * @param LocalizationManager
@@ -45,9 +46,10 @@ class CrawlingManager extends BaseManager {
         parent::__construct();
     }
 
+
+
     /**
      * Start crawling the web
-     *
      * @return void
      */
     public function Start(array $params) {
@@ -79,9 +81,10 @@ class CrawlingManager extends BaseManager {
         }
     }
 
+
+
     /**
      * Take care of crawling for the gived url
-     *
      * @param string $url
      */
     public function CrawlUrl(string $url) {
@@ -91,13 +94,15 @@ class CrawlingManager extends BaseManager {
         }
 
         if ($this->DoUrlNeedToBeCrawled($urlModel, $url) === FALSE) {
-            return; // Skip
+            return NULL; // Skip
         }
 
-        $schemeHandlerResult        = $this->ChooseAndRunSchemeHandler($url);
-        $contentTypeHandlerResult   = $this->ChooseAndRunContentTypeHandler($urlModel, $schemeHandlerResult);
+        $schemeHandlerResult = $this->ChooseAndRunSchemeHandler($url);
+        $contentTypeHandlerResult = $this->ChooseAndRunContentTypeHandler($urlModel, $schemeHandlerResult);
         return $contentTypeHandlerResult;
     }
+
+
 
     /**
      * Try to retrieve url from database, and check if need to be crawled
@@ -141,15 +146,17 @@ class CrawlingManager extends BaseManager {
     }
 
 
+    /**
+     * Try to get content type
+     * @param array
+     * @return string
+     */
+    public function TryToGetContentType(array $schemeHandlerResult) : string {
 
-    public function TryToGetContentType($schemeHandlerResult) : string {
-        /*
-        $schemeHandlerResult = [
-            'scheme' => UrlSchemes::Http,
-            'info' => $curlRequestResults['curl_getinfo_result'],
-            'content' => $curlRequestResults['curl_exec_result']
-        ];
-        */
+        $schemeHandlerResult['scheme'];
+        $schemeHandlerResult['info'];
+        $schemeHandlerResult['content'];
+
         return "";
     }
 
@@ -176,23 +183,20 @@ class CrawlingManager extends BaseManager {
             $content_type = $this->TryToGetContentType($schemeHandlerResult);
         }
 
-        switch ($content_type)
-        {
-            case ContentTypes::Html: return $this->HandleHtmlContent($urlModel, $schemeHandlerResult['content']);
-            default:
-                return $this->HandleHtmlContent($urlModel, $schemeHandlerResult['content']);
+        if(stripos($content_type, ContentTypes::Html) !== FALSE) {
+            return $this->HandleHtmlContent($urlModel, $schemeHandlerResult['content']);
+        } else {
+            return $this->HandleHtmlContent($urlModel, $schemeHandlerResult['content']);
         }
-
-
     }
 
     /**
      * Handle Result from a request to a text/html content
      * @param UrlModel
      * @param string $content
-     * @return WebPageModel
+     * @return bool
      */
-    private function HandleHtmlContent(UrlModel $urlModel, $content = NULL): WebPageModel {
+    private function HandleHtmlContent(UrlModel $urlModel, $content = NULL): bool {
         // Extract data form all we have now
         $webPageModel = $this->domManager->ExtractDataToWebPageModel($content, $urlModel->id);
 
@@ -218,7 +222,7 @@ class CrawlingManager extends BaseManager {
             }
         }
 
-        return $webPageModel;
+        return TRUE;
     }
 
 #endregion - Content Types Handlers

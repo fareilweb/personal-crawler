@@ -42,7 +42,7 @@ class WebPageModel extends BaseModel {
     public $update_timestamp;
 
     /** @var int */
-    public $UrlList_url_id;
+    public $UrlList_id;
 
 
     /**
@@ -51,7 +51,7 @@ class WebPageModel extends BaseModel {
      * @param int
      */
     public function __construct(string $table_name, int $url_id = NULL) {
-        $this->$UrlList_url_id = $url_id;
+        $this->UrlList_id = $url_id;
         parent::__construct($table_name);
     }
 
@@ -74,7 +74,7 @@ class WebPageModel extends BaseModel {
      * @return int
      */
     public function GetUrlId() : int {
-        return $this->UrlList_url_id;
+        return $this->UrlList_id;
     }
 
 
@@ -82,8 +82,8 @@ class WebPageModel extends BaseModel {
      * Set an stored url ID
      * @param int
      */
-    public function SetUrlId(int $UrlList_url_id) {
-        $this->UrlList_url_id = $UrlList_url_id;
+    public function SetUrlId(int $UrlList_id) {
+        $this->UrlList_id = $UrlList_id;
     }
 
 
