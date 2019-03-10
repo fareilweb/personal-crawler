@@ -197,25 +197,27 @@ class CrawlingManager extends BaseManager {
      * @return bool
      */
     private function HandleHtmlContent(UrlModel $urlModel, $content = NULL): bool {
-        // Extract data form all we have now
-        $webPageModel = $this->domManager->ExtractDataToWebPageModel($content, $urlModel->id);
+        $webPageModel = NULL;
 
         // Finalize to set last data on UrlModel
-        if( !empty($webPageModel)) {
+        if(!empty($content)) {
             $urlModel->has_content = TRUE;
+            $urlModel->SetContentTableName(TablesEnum::WebPageListTableName);
+
+            // Extract data from all we have now
+            $webPageModel = $this->domManager->ExtractDataToWebPageModel($content, $urlModel->id);
         } else {
             $urlModel->has_content = FALSE;
         }
 
         // Insert/Update URL
-        $urlModel->content_table_name = TablesEnum::WebPageListTableName;
         $url_id = $this->storageManager->InsertOrUpdateUrl($urlModel);
         if ($url_id === FALSE) {
             return FALSE;
         }
 
         // Insert/Update WebPage
-        if($urlModel->has_content === TRUE) {
+        if((bool)$urlModel->has_content === TRUE && !empty($webPageModel)) {
             $web_page_id = $this->storageManager->InsertOrUpdateWebPage($webPageModel, $url_id);
             if ($web_page_id === FALSE) {
                 return FALSE;

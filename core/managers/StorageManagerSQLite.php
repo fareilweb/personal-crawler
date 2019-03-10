@@ -211,8 +211,8 @@ EOT;
                 meta_keywords,
                 meta_description,
                 top_words,
-                insert_date,
-                update_date,
+                insert_timestamp,
+                update_timestamp,
                 UrlList_id
             ) VALUES (
                 :language,
@@ -223,9 +223,9 @@ EOT;
                 :h4,
                 :h5,
                 :h6,
-                :meta_keywords',
-                :meta_description',
-                :top_words',
+                :meta_keywords,
+                :meta_description,
+                :top_words,
                 :insert_timestamp,
                 :update_timestamp,
                 :UrlList_id
@@ -278,8 +278,8 @@ EOT;
                 meta_keywords       = :meta_keywords,
                 meta_description    = :meta_description,
                 top_words           = :top_words,
-                update_date         = :update_timestamp,
-                UrlList_url         = :UrlList_id
+                update_timestamp    = :update_timestamp,
+                UrlList_id          = :UrlList_id
             WHERE id = :id
 EOT;
         $stmt = $this->db->prepare($query);
@@ -312,7 +312,7 @@ EOT;
 
 
     function InsertOrUpdateWebPage(WebPageModel $webPageModel, int $UrlList_id): int {
-        if(empty($webPageModel)) {
+        if(empty($webPageModel->id)) {
             return $this->InsertWebPage($webPageModel, $UrlList_id);
         } else {
             return $this->UpdateWebPage($webPageModel, $UrlList_id);

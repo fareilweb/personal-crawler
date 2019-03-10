@@ -50,6 +50,10 @@ class UrlModel extends BaseModel {
         parent::__construct($table_name);
     }
 
+    public function SetContentTableName(string $content_table_name) {
+        $this->content_table_name = $content_table_name;
+    }
+
     public function SetInferredContentType(string $content_type){
         $this->inferred_content_type = $content_type;
     }
