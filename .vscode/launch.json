@@ -11,14 +11,40 @@
             "port": 9000
         },
         {
-            "name": "Launch Crawler",
+            "name": "Debug Crawl",
             "type": "php",
             "request": "launch",
-            "program": "${workspaceFolder}/crawl",
+            "program": "${workspaceFolder}/crawler.php",
             "cwd": "${fileDirname}",
             "args": [
-                "https://www.fareilweb.com/"
+                "--action",
+                "crawl",
+                "--urlset",
+                "https://crawlme.local/"
             ],
+            "port": 9000,
+            "xdebugSettings": {
+                "max_children": 999
+            }
+        },
+        {
+            "name": "Debug Help",
+            "type": "php",
+            "request": "launch",
+            "program": "${workspaceFolder}/crawler.php",
+            "cwd": "${fileDirname}",
+            "args": [
+                "--help"
+            ],
+            "port": 9000
+        },
+        {
+            "name": "Launch Test",
+            "type": "php",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests_and_examples.php",
+            "cwd": "${fileDirname}",
+            "args": [],
             "port": 9000
         }
     ]

@@ -1,0 +1,12 @@
+{
+    "app_name": "Personal Crawler",
+    "item_plural_zero" : "No Items",
+    "item_plural_one" : "Item",
+    "item_plural_many" : "Items",
+    "missing_params_plural_one" : "This action require more parameters. One is missing.",
+    "missing_params_plural_many" : "This action require more parameters. More that one is missing.",
+    "no_url_provided_error": "ERROR: Please provide a URL to start crawling from",
+    "protocol_not_handled_yet_warning" : "The {0} protocol is not implemented yet.",
+    "no_params_passed_error": "You need to say what you want to do by parameters. No one was passed.",
+    "current_url": "Current url"
+}
